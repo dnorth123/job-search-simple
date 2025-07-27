@@ -121,6 +121,7 @@ export default {
         '18': '4.5rem',
         '88': '22rem',
         '128': '32rem',
+        '12': '3rem', // 48px touch targets
       },
       borderRadius: {
         'xl': '0.75rem',
@@ -161,5 +162,31 @@ export default {
   plugins: [
     require('@tailwindcss/forms'),
     require('@tailwindcss/typography'),
+    function({ addUtilities }) {
+      const newUtilities = {
+        '.touch-target': {
+          'min-height': '48px',
+          'min-width': '48px',
+        },
+        '.form-mobile': {
+          'font-size': '16px', // Prevents iOS zoom
+          'line-height': '1.5',
+        },
+        '.form-field': {
+          'margin-bottom': '1rem',
+        },
+        '.loading-spinner': {
+          'border': '2px solid transparent',
+          'border-top-color': 'currentColor',
+          'border-radius': '50%',
+          'animation': 'spin 1s linear infinite',
+        },
+        '@keyframes spin': {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
+      };
+      addUtilities(newUtilities);
+    },
   ],
 } 
