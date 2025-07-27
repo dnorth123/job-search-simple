@@ -21,7 +21,6 @@ import { CompanySelector } from './components/CompanySelector';
 import { DatabaseErrorBoundary } from './components/DatabaseErrorBoundary';
 import { DatabaseStatus } from './components/DatabaseStatus';
 import { validateJobApplicationForm } from './utils/validation';
-import { supabase } from './utils/supabase';
 
 const STATUS_OPTIONS: JobStatus[] = ['Applied', 'Interview', 'Offer', 'Rejected', 'Withdrawn'];
 const REMOTE_POLICY_OPTIONS: RemotePolicy[] = ['Remote', 'Hybrid', 'On-site'];
@@ -811,6 +810,13 @@ function App() {
   }, []);
 
   // Optimized loading state - show loading only for initial auth check
+  useEffect(() => {
+    console.log('Profile setup effect:', { user, profile, profileLoading });
+    if (user && !profile && !profileLoading) {
+      console.log('Setting up profile setup form');
+      // This will be handled by the AuthContext
+    }
+  }, [user, profile, profileLoading]);
   if (loading) {
     console.log('Showing loading state');
     return (
