@@ -8,12 +8,12 @@ import type {
   UserProfileFormData
 } from '../jobTypes';
 
-// Enhanced error handling with retry logic
+// Enhanced error handling with retry logic optimized for production
 async function handleDatabaseOperation<T>(
   operation: () => Promise<T>,
   operationName: string,
-  maxRetries: number = 2, // Reduced from 3 to 2
-  retryDelay: number = 500  // Reduced from 1000 to 500ms
+  maxRetries: number = 3, // Increased back to 3 for production
+  retryDelay: number = 1000  // Increased back to 1000ms for production
 ): Promise<T> {
   let lastError: Error | null = null;
   
@@ -21,9 +21,9 @@ async function handleDatabaseOperation<T>(
     try {
       console.log(`${operationName} - Attempt ${attempt}/${maxRetries}`);
       
-      // Add timeout to prevent infinite hanging
+      // Add timeout to prevent infinite hanging - increased for production
       const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Operation timed out')), 5000); // Reduced from 10 to 5 seconds
+        setTimeout(() => reject(new Error('Operation timed out')), 15000); // Increased to 15 seconds for production
       });
       
       const result = await Promise.race([
@@ -40,7 +40,7 @@ async function handleDatabaseOperation<T>(
       if (attempt < maxRetries) {
         console.log(`${operationName} - Retrying in ${retryDelay}ms...`);
         await new Promise(resolve => setTimeout(resolve, retryDelay));
-        retryDelay *= 1.5; // Reduced exponential backoff
+        retryDelay *= 1.5; // Exponential backoff
       }
     }
   }
@@ -56,14 +56,14 @@ function handleError(error: unknown, operation: string): never {
   throw new Error(`${operation} failed: ${errorMessage}`);
 }
 
-// Test database connection with faster timeout
+// Test database connection with production-optimized timeout
 export async function testDatabaseConnection(): Promise<boolean> {
   try {
     console.log('Testing database connection...');
     
-    // Use a faster timeout for connection test
+    // Use a longer timeout for production connection test
     const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error('Connection test timed out')), 3000); // 3 second timeout
+      setTimeout(() => reject(new Error('Connection test timed out')), 10000); // 10 second timeout for production
     });
     
     const connectionTest = supabase

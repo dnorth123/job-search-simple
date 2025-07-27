@@ -83,12 +83,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     );
 
-    // Reduced timeout to prevent long loading states
+    // Production-optimized timeout to prevent long loading states
     const timeout = setTimeout(() => {
       console.log('Loading timeout reached, forcing loading to false');
       setLoading(false);
       setProfileLoading(false);
-    }, 5000); // Reduced from 10 to 5 seconds
+    }, 15000); // Increased to 15 seconds for production
 
     return () => {
       subscription.unsubscribe();
@@ -111,13 +111,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
       
-      // Check database connection first
+      // Check database connection first - but don't fail completely if connection is slow
       if (databaseConnected === false) {
-        console.log('Database not connected, skipping profile load');
-        setProfile(null);
-        setProfileLoading(false);
-        setLoading(false);
-        return;
+        console.log('Database not connected, attempting profile load anyway');
+        // Don't return early - try to load profile even if connection test failed
       }
       
       const userProfile = await getUserProfile(userId);
