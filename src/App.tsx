@@ -989,12 +989,37 @@ function JobTracker() {
             <div className="card-header sticky top-0 bg-white z-10">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold text-secondary-900">Profile</h2>
-                <button
-                  onClick={() => setShowProfile(false)}
-                  className="btn btn-ghost"
-                >
-                  ✕
-                </button>
+                <div className="flex items-center space-x-3">
+                  <button
+                    onClick={() => {
+                      // TODO: Add edit profile functionality
+                      console.log('Edit profile clicked');
+                    }}
+                    className="btn btn-primary"
+                  >
+                    Edit Profile
+                  </button>
+                  <button
+                    onClick={() => setShowLogoutConfirm(true)}
+                    className="btn btn-ghost text-error-600 hover:text-error-700 hover:bg-error-50"
+                    disabled={logoutLoading}
+                  >
+                    {logoutLoading ? (
+                      <div className="loading-spinner w-4 h-4 mr-2"></div>
+                    ) : (
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      </svg>
+                    )}
+                    Logout
+                  </button>
+                  <button
+                    onClick={() => setShowProfile(false)}
+                    className="btn btn-ghost"
+                  >
+                    ✕
+                  </button>
+                </div>
               </div>
             </div>
             <div className="card-body">

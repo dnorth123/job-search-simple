@@ -4,7 +4,7 @@ import type { UserProfileFormData } from '../jobTypes';
 import { validateUserProfileForm } from '../utils/validation';
 
 export function UserProfile() {
-  const { profile, updateProfile, signOut } = useAuth();
+  const { profile, updateProfile } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<UserProfileFormData>({
     first_name: profile?.first_name || '',
@@ -23,8 +23,6 @@ export function UserProfile() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [logoutLoading, setLogoutLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,19 +82,7 @@ export function UserProfile() {
     }));
   };
 
-  const handleLogout = async () => {
-    setLogoutLoading(true);
-    setError(null);
-    
-    try {
-      await signOut();
-    } catch (err) {
-      console.error('Logout error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to logout');
-    } finally {
-      setLogoutLoading(false);
-    }
-  };
+
 
   if (!profile) {
     return (
@@ -379,30 +365,6 @@ export function UserProfile() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-end">
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={() => setIsEditing(true)}
-            className="btn btn-primary"
-          >
-            Edit Profile
-          </button>
-          <button
-            onClick={() => setShowLogoutConfirm(true)}
-            className="btn btn-ghost text-error-600 hover:text-error-700 hover:bg-error-50"
-            disabled={logoutLoading}
-          >
-            {logoutLoading ? (
-              <div className="loading-spinner w-4 h-4 mr-2"></div>
-            ) : (
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-            )}
-            Logout
-          </button>
-        </div>
-      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Basic Information */}
@@ -520,73 +482,7 @@ export function UserProfile() {
         )}
       </div>
 
-      {/* Logout Confirmation Modal */}
-      {showLogoutConfirm && (
-        <div 
-          className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 z-50"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              setShowLogoutConfirm(false);
-            }
-          }}
-        >
-          <div className="bg-white rounded-xl shadow-large max-w-md w-full">
-            <div className="card-header">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-secondary-900">Confirm Logout</h2>
-                <button
-                  onClick={() => setShowLogoutConfirm(false)}
-                  className="btn btn-ghost"
-                  disabled={logoutLoading}
-                >
-                  ✕
-                </button>
-              </div>
-            </div>
-            <div className="card-body">
-              <div className="text-center">
-                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-error-100 mb-4">
-                  <svg className="h-6 w-6 text-error-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-medium text-secondary-900 mb-2">Are you sure you want to logout?</h3>
-                <p className="text-secondary-600 mb-6">
-                  You will be signed out of your account and redirected to the login page.
-                </p>
-                {error && (
-                  <div className="bg-error-50 border border-error-200 rounded-lg p-3 mb-4">
-                    <div className="text-error-700 text-sm">{error}</div>
-                  </div>
-                )}
-                <div className="flex items-center justify-end space-x-3">
-                  <button
-                    onClick={() => setShowLogoutConfirm(false)}
-                    className="btn btn-secondary"
-                    disabled={logoutLoading}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleLogout}
-                    disabled={logoutLoading}
-                    className="btn btn-error"
-                  >
-                    {logoutLoading ? (
-                      <div className="loading-spinner w-4 h-4 mr-2"></div>
-                    ) : (
-                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                      </svg>
-                    )}
-                    Logout
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+
     </div>
   );
 } 
