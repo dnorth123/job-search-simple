@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import type { UserProfileFormData } from '../jobTypes';
 import { validateUserProfileForm } from '../utils/validation';
+import ProfileUpload from './ProfileUpload';
 
 export function UserProfile() {
   const { profile, updateProfile } = useAuth();
@@ -23,6 +24,26 @@ export function UserProfile() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+
+  // Update form data when profile changes
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        first_name: profile.first_name || '',
+        last_name: profile.last_name || '',
+        professional_title: profile.professional_title || '',
+        industry_category: profile.industry_category,
+        career_level: profile.career_level,
+        linkedin_url: profile.linkedin_url || '',
+        portfolio_url: profile.portfolio_url || '',
+        phone_number: profile.phone_number || '',
+        location: profile.location || '',
+        years_experience: profile.years_experience,
+        skills: profile.skills || [],
+      });
+      setSkillsText(profile.skills?.join(', ') || '');
+    }
+  }, [profile]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,6 +103,18 @@ export function UserProfile() {
     }));
   };
 
+  const handleDataPopulated = (uploadedData: Partial<UserProfileFormData>) => {
+    setFormData(prev => ({
+      ...prev,
+      ...uploadedData
+    }));
+    
+    // Update skills text if skills were uploaded
+    if (uploadedData.skills && Array.isArray(uploadedData.skills)) {
+      setSkillsText(uploadedData.skills.join(', '));
+    }
+  };
+
 
 
   if (!profile) {
@@ -110,6 +143,14 @@ export function UserProfile() {
         )}
         
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Profile Upload */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-secondary-900 border-b border-secondary-200 pb-2">
+              Import Profile Data
+            </h3>
+            <ProfileUpload onDataPopulated={handleDataPopulated} disabled={loading} />
+          </div>
+
           {/* Basic Information */}
           <div className="space-y-4">
             <h3 className="text-lg font-medium text-secondary-900 border-b border-secondary-200 pb-2">
@@ -482,7 +523,18 @@ export function UserProfile() {
         )}
       </div>
 
-
+      {/* Edit Profile Button */}
+      <div className="flex justify-end pt-6">
+        <button
+          onClick={() => setIsEditing(true)}
+          className="btn btn-primary"
+        >
+          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+          Edit Profile
+        </button>
+      </div>
     </div>
   );
 } 

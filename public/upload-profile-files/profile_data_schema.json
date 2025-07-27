@@ -1,0 +1,121 @@
+{
+  "profile_data_schema": {
+    "metadata": {
+      "schema_version": "1.0",
+      "created_date": null,
+      "last_updated": null,
+      "parsing_confidence": null,
+      "source_document": null
+    },
+    "personal_information": {
+      "first_name": null,
+      "last_name": null,
+      "email": null,
+      "phone": null,
+      "location": {
+        "city": null,
+        "state": null,
+        "country": null,
+        "remote_preference": null
+      },
+      "linkedin_url": null,
+      "portfolio_url": null,
+      "github_url": null
+    },
+    "professional_profile": {
+      "current_title": null,
+      "target_title": null,
+      "professional_summary": null,
+      "years_experience": null,
+      "career_level": null,
+      "industry_category": null,
+      "functional_area": null,
+      "employment_status": null
+    },
+    "compensation_expectations": {
+      "current_salary": null,
+      "target_salary_min": null,
+      "target_salary_max": null,
+      "compensation_type": null,
+      "equity_interest": null,
+      "benefits_priorities": []
+    },
+    "job_search_preferences": {
+      "remote_policy_preference": null,
+      "location_preferences": [],
+      "company_size_preference": null,
+      "industry_preferences": [],
+      "role_type_preferences": [],
+      "timeline": null,
+      "urgency_level": null
+    },
+    "experience": [
+      {
+        "company_name": null,
+        "job_title": null,
+        "start_date": null,
+        "end_date": null,
+        "is_current": null,
+        "location": null,
+        "description": null,
+        "key_achievements": [],
+        "technologies_used": [],
+        "team_size_managed": null,
+        "budget_managed": null
+      }
+    ],
+    "education": [
+      {
+        "institution": null,
+        "degree": null,
+        "field_of_study": null,
+        "graduation_year": null,
+        "gpa": null,
+        "honors": null,
+        "relevant_coursework": []
+      }
+    ],
+    "skills": {
+      "technical_skills": [],
+      "soft_skills": [],
+      "leadership_skills": [],
+      "domain_expertise": [],
+      "certifications": [],
+      "languages": []
+    },
+    "competency_framework": {
+      "strategic_leadership_score": null,
+      "domain_expertise_score": null,
+      "execution_impact_score": null,
+      "market_positioning": null,
+      "competitive_advantages": []
+    },
+    "network_intelligence": {
+      "industry_connections": null,
+      "referral_potential": null,
+      "thought_leadership": null,
+      "professional_visibility": null
+    },
+    "application_tracking_preferences": {
+      "default_priority_level": null,
+      "follow_up_cadence": null,
+      "preferred_application_sources": [],
+      "tracking_detail_level": null
+    },
+    "platform_settings": {
+      "onboarding_completion_score": 0,
+      "platform_familiarity_level": "novice",
+      "notification_preferences": {
+        "email_reminders": true,
+        "deadline_alerts": true,
+        "weekly_summaries": true,
+        "success_celebrations": true
+      },
+      "privacy_settings": {
+        "profile_visibility": "private",
+        "data_sharing_consent": false,
+        "analytics_tracking": true
+      }
+    }
+  }
+}

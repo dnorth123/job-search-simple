@@ -991,15 +991,6 @@ function JobTracker() {
                 <h2 className="text-xl font-semibold text-secondary-900">Profile</h2>
                 <div className="flex items-center space-x-3">
                   <button
-                    onClick={() => {
-                      // TODO: Add edit profile functionality
-                      console.log('Edit profile clicked');
-                    }}
-                    className="btn btn-primary"
-                  >
-                    Edit Profile
-                  </button>
-                  <button
                     onClick={() => setShowLogoutConfirm(true)}
                     className="btn btn-ghost text-error-600 hover:text-error-700 hover:bg-error-50"
                     disabled={logoutLoading}

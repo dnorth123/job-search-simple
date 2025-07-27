@@ -1,0 +1,36 @@
+{
+  "profile_data_schema": {
+    "metadata": {
+      "schema_version": "1.0.0",
+      "source": "resume_parser",
+      "parsed_at": "2024-01-15T10:30:00Z"
+    },
+    "personal_information": {
+      "first_name": "John",
+      "last_name": "Doe",
+      "email": "john.doe@example.com",
+      "phone": "+1 (555) 123-4567",
+      "linkedin_url": "https://linkedin.com/in/johndoe"
+    },
+    "professional_profile": {
+      "current_title": "Senior Product Manager",
+      "target_title": "Product Director",
+      "years_experience": 8,
+      "career_level": "Senior",
+      "industry_category": "Technology",
+      "functional_area": "Product Management"
+    },
+    "skills": [
+      "Product Strategy",
+      "User Research",
+      "Data Analysis",
+      "Agile Development",
+      "A/B Testing",
+      "Stakeholder Management",
+      "Market Analysis",
+      "User Experience Design"
+    ],
+    "location": "San Francisco, CA",
+    "portfolio_url": "https://johndoe-portfolio.com"
+  }
+} 
