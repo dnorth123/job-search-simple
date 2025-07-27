@@ -34,7 +34,7 @@ export const ATLANTA_DEFAULTS = {
 };
 
 // Enhanced error messaging with recovery suggestions
-export const getEnhancedErrorMessage = (field: string, value: string | number | undefined, error: string) => {
+export const getEnhancedErrorMessage = (field: string, error: string) => {
   const suggestions: Record<string, string> = {
     'email': 'Please include @ symbol and domain (e.g., you@company.com)',
     'phone_number': 'Use format: +1 (555) 123-4567 or similar',

@@ -113,19 +113,36 @@ const AUTOCOMPLETE_MAP = {
 
 #### Enhanced Error Recovery
 ```tsx
-// Contextual error messages with recovery suggestions
-const getEnhancedErrorMessage = (field, value, error) => {
+// Enhanced error messaging with recovery suggestions
+const getEnhancedErrorMessage = (field, error) => {
   const suggestions = {
     'email': 'Please include @ symbol and domain (e.g., you@company.com)',
     'phone_number': 'Use format: +1 (555) 123-4567 or similar',
     'linkedin_url': 'LinkedIn URLs start with https://www.linkedin.com/in/',
-    // ... more suggestions
+    'years_experience': 'Enter a number between 0 and 50',
+    'founded_year': 'Enter a year between 1800 and current year',
+    'website_url': 'URLs should start with https:// or http://',
+    'portfolio_url': 'URLs should start with https:// or http://',
+    'location': 'Include city and state (e.g., Atlanta, GA)',
+    'headquarters_location': 'Include city and state (e.g., Atlanta, GA)',
+    'password': 'Password must be at least 6 characters long',
+    'confirm_password': 'Passwords must match exactly'
+  };
+  
+  const examples = {
+    'email': 'john.doe@company.com',
+    'phone_number': '+1 (555) 123-4567',
+    'linkedin_url': 'https://www.linkedin.com/in/johndoe',
+    'website_url': 'https://www.company.com',
+    'portfolio_url': 'https://www.yourportfolio.com',
+    'location': 'Atlanta, GA',
+    'headquarters_location': 'Atlanta, GA'
   };
   
   return {
     message: error,
-    suggestion: suggestions[field],
-    example: getFieldExample(field)
+    suggestion: suggestions[field] || 'Please check your input and try again',
+    example: examples[field] || undefined
   };
 };
 ```
