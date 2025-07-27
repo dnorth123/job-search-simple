@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '../utils/supabase';
-import { getUserProfile, updateUserProfile, createUser, testDatabaseConnection, checkDatabaseSchema } from '../utils/supabaseOperations';
+import { getUserProfile, updateUserProfile, createUser } from '../utils/supabaseOperations';
 import { AuthContext, type UserProfile, type AuthContextType } from './AuthContextTypes';
 import type { IndustryCategory, CareerLevel } from '../jobTypes';
 
@@ -17,46 +17,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [schemaChecked, setSchemaChecked] = useState(false);
 
   useEffect(() => {
-    // Test database connection and schema on mount with periodic health checks
-    const testConnection = async () => {
-      try {
-        console.log('Testing database connection and schema...');
-        const isConnected = await testDatabaseConnection();
-        setDatabaseConnected(isConnected);
-        
-        if (isConnected) {
-          const schemaCheck = await checkDatabaseSchema();
-          console.log('Schema check result:', schemaCheck);
-          setSchemaChecked(true);
-          
-          if (!schemaCheck.usersTableExists) {
-            console.error('Users table does not exist or is not accessible');
-            setDatabaseConnected(false);
-          }
-        }
-      } catch (error) {
-        console.error('Database connection test failed:', error);
-        setDatabaseConnected(false);
-      }
-    };
-
-    // Run database test in parallel with auth initialization
-    testConnection();
-    
-    // Set up periodic health checks for production
-    if (import.meta.env.PROD) {
-      const healthCheckInterval = setInterval(async () => {
-        try {
-          const isConnected = await testDatabaseConnection();
-          setDatabaseConnected(isConnected);
-        } catch (error) {
-          console.error('Health check failed:', error);
-          setDatabaseConnected(false);
-        }
-      }, 60000); // Check every minute in production
-      
-      return () => clearInterval(healthCheckInterval);
-    }
+    // Skip connection testing - let operations fail gracefully instead
+    console.log('Skipping initial connection test - will test on first operation');
+    setDatabaseConnected(true); // Assume connected, let operations determine actual status
+    setSchemaChecked(true); // Assume schema is correct
   }, []);
 
   useEffect(() => {
@@ -126,11 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
       
-      // Check database connection first - but don't fail completely if connection is slow
-      if (databaseConnected === false) {
-        console.log('Database not connected, attempting profile load anyway');
-        // Don't return early - try to load profile even if connection test failed
-      }
+      // Simple direct call - no complex retry logic
       
       const userProfile = await getUserProfile(userId);
       console.log('User profile loaded:', userProfile);

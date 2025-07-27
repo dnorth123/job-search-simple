@@ -8,45 +8,30 @@ import type {
   UserProfileFormData
 } from '../jobTypes';
 
-// Enhanced error handling with retry logic optimized for production
+// Simplified error handling - no retries, just direct operations
 async function handleDatabaseOperation<T>(
   operation: () => Promise<T>,
-  operationName: string,
-  maxRetries: number = 3, // Increased back to 3 for production
-  retryDelay: number = 1000  // Increased back to 1000ms for production
+  operationName: string
 ): Promise<T> {
-  let lastError: Error | null = null;
-  
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      console.log(`${operationName} - Attempt ${attempt}/${maxRetries}`);
-      
-      // Add timeout to prevent infinite hanging - increased for production
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Operation timed out')), 15000); // Increased to 15 seconds for production
-      });
-      
-      const result = await Promise.race([
-        operation(),
-        timeoutPromise
-      ]);
-      
-      console.log(`${operationName} - Success on attempt ${attempt}`);
-      return result;
-    } catch (error) {
-      lastError = error instanceof Error ? error : new Error(String(error));
-      console.error(`${operationName} - Attempt ${attempt} failed:`, lastError.message);
-      
-      if (attempt < maxRetries) {
-        console.log(`${operationName} - Retrying in ${retryDelay}ms...`);
-        await new Promise(resolve => setTimeout(resolve, retryDelay));
-        retryDelay *= 1.5; // Exponential backoff
-      }
-    }
+  try {
+    console.log(`${operationName} - Starting operation`);
+    
+    // Simple timeout - no retries
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('Operation timed out')), 10000); // 10 second timeout
+    });
+    
+    const result = await Promise.race([
+      operation(),
+      timeoutPromise
+    ]);
+    
+    console.log(`${operationName} - Success`);
+    return result;
+  } catch (error) {
+    console.error(`${operationName} - Failed:`, error);
+    throw error;
   }
-  
-  console.error(`${operationName} - All attempts failed`);
-  throw new Error(`${operationName} failed after ${maxRetries} attempts: ${lastError?.message}`);
 }
 
 // Error handling helper
@@ -56,41 +41,27 @@ function handleError(error: unknown, operation: string): never {
   throw new Error(`${operation} failed: ${errorMessage}`);
 }
 
-// Test database connection with production-optimized timeout and retry
+// Simple connection test - no retries
 export async function testDatabaseConnection(): Promise<boolean> {
-  const maxRetries = 2;
-  const retryDelay = 2000;
-  
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      console.log(`Testing database connection... (attempt ${attempt}/${maxRetries})`);
-      
-      // Use a longer timeout for production connection test
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Connection test timed out')), 15000); // 15 second timeout for production
-      });
-      
-      const connectionTest = supabase
-        .from(TABLES.USERS)
-        .select('count')
-        .limit(1);
-      
-      await Promise.race([connectionTest, timeoutPromise]);
-      
-      console.log('Database connection test successful');
-      return true;
-    } catch (error) {
-      console.error(`Database connection test failed (attempt ${attempt}):`, error);
-      
-      if (attempt < maxRetries) {
-        console.log(`Retrying connection test in ${retryDelay}ms...`);
-        await new Promise(resolve => setTimeout(resolve, retryDelay));
-      }
+  try {
+    console.log('Testing database connection...');
+    
+    const { error } = await supabase
+      .from(TABLES.USERS)
+      .select('count')
+      .limit(1);
+    
+    if (error) {
+      console.error('Database connection test failed:', error);
+      return false;
     }
+    
+    console.log('Database connection test successful');
+    return true;
+  } catch (error) {
+    console.error('Database connection test failed:', error);
+    return false;
   }
-  
-  console.error('Database connection test failed after all attempts');
-  return false;
 }
 
 // Check database schema and table structure
