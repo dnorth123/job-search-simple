@@ -264,7 +264,8 @@ export async function getJobApplications(userId: string): Promise<JobApplication
   console.log('getJobApplications called for userId:', userId);
   
   try {
-    const { data, error } = await supabase
+    // First, get all applications with company data
+    const { data: applications, error: appError } = await supabase
       .from(TABLES.APPLICATIONS)
       .select(`
         *,
@@ -273,15 +274,61 @@ export async function getJobApplications(userId: string): Promise<JobApplication
       .eq('user_id', userId)
       .order('date_applied', { ascending: false });
     
-    console.log('getJobApplications result:', { data, error });
+    console.log('getJobApplications - applications result:', { applications, appError });
     
-    if (error) {
-      console.error('getJobApplications error:', error);
-      handleError(error, 'getJobApplications');
+    if (appError) {
+      console.error('getJobApplications error:', appError);
+      handleError(appError, 'getJobApplications');
     }
     
-    console.log('getJobApplications returning:', data);
-    return data || [];
+    if (!applications || applications.length === 0) {
+      console.log('getJobApplications - no applications found');
+      return [];
+    }
+    
+    // Get the latest status for each application
+    const applicationIds = applications.map(app => app.id);
+    const { data: timelineData, error: timelineError } = await supabase
+      .from(TABLES.APPLICATION_TIMELINE)
+      .select('application_id, status, created_at')
+      .in('application_id', applicationIds)
+      .order('created_at', { ascending: false });
+    
+    console.log('getJobApplications - timeline result:', { timelineData, timelineError });
+    
+    if (timelineError) {
+      console.error('getJobApplications timeline error:', timelineError);
+      // Continue without timeline data, default to 'Applied'
+    }
+    
+    // Create a map of the latest status for each application
+    const statusMap = new Map<string, string>();
+    if (timelineData) {
+      const latestStatuses = new Map<string, { status: string; created_at: string }>();
+      
+      timelineData.forEach(entry => {
+        const existing = latestStatuses.get(entry.application_id);
+        if (!existing || new Date(entry.created_at) > new Date(existing.created_at)) {
+          latestStatuses.set(entry.application_id, {
+            status: entry.status,
+            created_at: entry.created_at
+          });
+        }
+      });
+      
+      latestStatuses.forEach((value, key) => {
+        statusMap.set(key, value.status);
+      });
+    }
+    
+    // Add current_status to each application
+    const applicationsWithStatus = applications.map(app => ({
+      ...app,
+      current_status: statusMap.get(app.id) || 'Applied'
+    }));
+    
+    console.log('getJobApplications returning:', applicationsWithStatus);
+    return applicationsWithStatus;
   } catch (err) {
     console.error('getJobApplications exception:', err);
     throw err;

@@ -59,12 +59,27 @@ function JobTracker() {
   const [statusFilter, setStatusFilter] = useState<JobStatus | 'All'>('All');
   const [priorityFilter, setPriorityFilter] = useState<PriorityLevel | 'All'>('All');
   const [dataLoaded, setDataLoaded] = useState(false);
+  const [openStatusDropdown, setOpenStatusDropdown] = useState<string | null>(null);
 
   useEffect(() => {
     if (user && !dataLoaded) {
       loadData();
     }
   }, [user, dataLoaded]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (openStatusDropdown && !(event.target as Element).closest('.status-dropdown-container')) {
+        setOpenStatusDropdown(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [openStatusDropdown]);
 
   const loadData = async () => {
     if (!user) return;
@@ -134,13 +149,13 @@ function JobTracker() {
       
       if (editingId) {
         await updateJobApplication(editingId, jobData);
-        setJobs(prev => prev.map(job => 
-          job.id === editingId ? { ...job, ...jobData } : job
-        ));
       } else {
-        const newJob = await addJobApplication(jobData);
-        setJobs(prev => [...prev, newJob]);
+        await addJobApplication(jobData);
       }
+      
+      // Reload data to ensure we get the latest status from the database
+      const updatedJobs = await getJobApplications(user.id);
+      setJobs(updatedJobs);
       
       setForm(emptyJob());
       setEditingId(null);
@@ -183,7 +198,12 @@ function JobTracker() {
     
     try {
       await deleteJobApplication(id);
-      setJobs(prev => prev.filter(job => job.id !== id));
+      
+      // Reload data to ensure we get the latest data from the database
+      if (user) {
+        const updatedJobs = await getJobApplications(user.id);
+        setJobs(updatedJobs);
+      }
     } catch (err) {
       console.error('Delete error:', err);
       setError(err instanceof Error ? err.message : 'Failed to delete application');
@@ -198,15 +218,27 @@ function JobTracker() {
     
     try {
       await updateApplicationStatus(job.id, status);
-      setJobs(prev => prev.map(j => 
-        j.id === job.id ? { ...j, status } : j
-      ));
+      
+      // Reload data to ensure we get the latest status from the database
+      if (user) {
+        const updatedJobs = await getJobApplications(user.id);
+        setJobs(updatedJobs);
+      }
     } catch (err) {
       console.error('Status change error:', err);
       setError(err instanceof Error ? err.message : 'Failed to update status');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleStatusClick = (job: JobApplication) => {
+    setOpenStatusDropdown(openStatusDropdown === job.id ? null : job.id);
+  };
+
+  const handleStatusSelect = async (job: JobApplication, newStatus: JobStatus) => {
+    setOpenStatusDropdown(null);
+    await handleStatusChange(job, newStatus);
   };
 
   function formatDate(dateStr: string) {
@@ -228,14 +260,7 @@ function JobTracker() {
     }
   }
 
-  function getPriorityColor(priority: PriorityLevel) {
-    switch (priority) {
-      case 1: return 'text-error-600';
-      case 2: return 'text-warning-600';
-      case 3: return 'text-secondary-600';
-      default: return 'text-secondary-600';
-    }
-  }
+
 
   const filteredJobs = jobs.filter(job => {
     const matchesSearch = job.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -486,13 +511,38 @@ function JobTracker() {
                       <h3 className="font-semibold text-secondary-900 mb-1">{job.position}</h3>
                       <p className="text-sm text-secondary-600">{job.company?.name || 'Unknown Company'}</p>
                     </div>
-                                         <div className="flex items-center space-x-2">
-                       <span className={`badge ${getStatusColor(job.current_status || 'Applied')}`}>
+                                         <div className="flex items-center space-x-2 relative status-dropdown-container">
+                       <button
+                         onClick={() => handleStatusClick(job)}
+                         className={`badge ${getStatusColor(job.current_status || 'Applied')} cursor-pointer hover:opacity-80 transition-opacity flex items-center gap-1`}
+                         title="Click to change status"
+                       >
                          {job.current_status || 'Applied'}
-                       </span>
-                      <span className={`text-xs font-medium ${getPriorityColor(job.priority_level)}`}>
-                        {PRIORITY_OPTIONS.find(p => p.value === job.priority_level)?.label}
-                      </span>
+                         <svg className="w-3 h-3 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                         </svg>
+                       </button>
+                       
+                       {/* Status Dropdown */}
+                       {openStatusDropdown === job.id && (
+                         <div className="absolute top-full right-0 mt-1 z-10 bg-white border border-gray-200 rounded-lg shadow-lg min-w-[120px]">
+                           {STATUS_OPTIONS.map(status => (
+                             <button
+                               key={status}
+                               onClick={() => handleStatusSelect(job, status)}
+                               className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 transition-colors ${
+                                 job.current_status === status
+                                   ? 'bg-primary-50 text-primary-700 font-medium'
+                                   : 'text-gray-700'
+                               } ${status === STATUS_OPTIONS[0] ? 'rounded-t-lg' : ''} ${
+                                 status === STATUS_OPTIONS[STATUS_OPTIONS.length - 1] ? 'rounded-b-lg' : ''
+                               }`}
+                             >
+                               {status}
+                             </button>
+                           ))}
+                         </div>
+                       )}
                     </div>
                   </div>
                   
@@ -515,35 +565,28 @@ function JobTracker() {
                     )}
                   </div>
                   
-                  <div className="flex items-center justify-between pt-3 border-t border-secondary-200">
-                    <div className="flex space-x-2">
+                  <div className="flex items-center justify-end pt-3 border-t border-secondary-200">
+                    <div className="flex space-x-1">
                       <button
                         onClick={() => handleEdit(job)}
-                        className="btn btn-ghost text-xs"
+                        className="action-button action-button-edit"
+                        title="Edit application"
                       >
-                        Edit
+                        <svg className="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        <span className="hidden sm:inline">Edit</span>
                       </button>
                       <button
                         onClick={() => handleDelete(job.id)}
-                        className="btn btn-ghost text-xs text-error-600 hover:text-error-700"
+                        className="action-button action-button-delete"
+                        title="Delete application"
                       >
-                        Delete
+                        <svg className="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        <span className="hidden sm:inline">Delete</span>
                       </button>
-                    </div>
-                    <div className="flex space-x-1">
-                      {STATUS_OPTIONS.map(status => (
-                        <button
-                          key={status}
-                          onClick={() => handleStatusChange(job, status)}
-                          className={`px-2 py-1 text-xs rounded-md transition-colors ${
-                            job.current_status === status
-                              ? 'bg-primary-100 text-primary-800'
-                              : 'text-gray-600 hover:bg-gray-100'
-                          }`}
-                        >
-                          {status}
-                        </button>
-                      ))}
                     </div>
                   </div>
                 </div>

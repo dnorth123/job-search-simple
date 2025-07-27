@@ -98,6 +98,19 @@
     @apply bg-gray-100 text-gray-800;
   }
   
+  /* Action buttons */
+  .action-button {
+    @apply inline-flex items-center px-3 py-2 text-xs font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1;
+  }
+  
+  .action-button-edit {
+    @apply text-gray-600 bg-gray-50 hover:bg-gray-100 focus:ring-gray-300;
+  }
+  
+  .action-button-delete {
+    @apply text-red-600 bg-red-50 hover:bg-red-100 focus:ring-red-300;
+  }
+  
   /* Loading states */
   .loading-spinner {
     @apply animate-spin rounded-full border-2 border-gray-300 border-t-primary-600;
