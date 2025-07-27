@@ -1,8 +1,35 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
+
+// Configuration - set to false to completely disable the indicator
+const SHOW_DATABASE_STATUS = false; // Set to false to completely remove the indicator
 
 export const DatabaseStatus: React.FC = () => {
   const { databaseConnected } = useAuth();
+  const [showConnected, setShowConnected] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+
+  // If disabled, don't show anything
+  if (!SHOW_DATABASE_STATUS) {
+    return null;
+  }
+
+  // Show connected indicator briefly then hide it
+  useEffect(() => {
+    if (databaseConnected === true) {
+      setShowConnected(true);
+      // Hide after 3 seconds
+      const timer = setTimeout(() => {
+        setIsVisible(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [databaseConnected]);
+
+  // Don't show anything if not visible
+  if (!isVisible) {
+    return null;
+  }
 
   // Only show status when there are actual issues
   if (databaseConnected === null) {
@@ -33,7 +60,22 @@ export const DatabaseStatus: React.FC = () => {
     );
   }
 
-  // Don't show "Database connected" indicator when everything is working
-  // This reduces visual clutter and improves UX
+  // Show brief connected indicator then hide
+  if (showConnected && databaseConnected === true) {
+    return (
+      <div className="fixed top-4 right-4 z-50 transition-opacity duration-1000">
+        <div className="bg-green-100 border border-green-400 text-green-700 px-3 py-2 rounded text-sm">
+          <div className="flex items-center">
+            <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+            </svg>
+            Database connected
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't show anything when connected and not in brief show mode
   return null;
 }; 
