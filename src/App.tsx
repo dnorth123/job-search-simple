@@ -792,8 +792,17 @@ function App() {
 
   // Check if we're in demo mode (no Supabase connection)
   useEffect(() => {
+    console.log('App environment check:', {
+      VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL ? 'SET' : 'NOT SET',
+      VITE_SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY ? 'SET' : 'NOT SET',
+    });
+    
     if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+      console.log('Setting demo mode to true');
       setIsDemoMode(true);
+    } else {
+      console.log('Environment variables found, demo mode false');
+      setIsDemoMode(false);
     }
   }, []);
 
