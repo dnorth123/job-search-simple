@@ -293,32 +293,77 @@ function JobTracker() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
           <div className="card">
             <div className="card-body text-center">
-              <div className="text-2xl font-bold text-secondary-900">{stats.total}</div>
-              <div className="text-sm text-secondary-600">Total Applications</div>
+              {isLoading ? (
+                <>
+                  <div className="h-8 w-12 bg-gray-200 rounded mx-auto mb-2 animate-pulse"></div>
+                  <div className="h-4 w-20 bg-gray-200 rounded mx-auto animate-pulse"></div>
+                </>
+              ) : (
+                <>
+                  <div className="text-2xl font-bold text-secondary-900">{stats.total}</div>
+                  <div className="text-sm text-secondary-600">Total Applications</div>
+                </>
+              )}
             </div>
           </div>
           <div className="card">
             <div className="card-body text-center">
-              <div className="text-2xl font-bold text-primary-600">{stats.applied}</div>
-              <div className="text-sm text-secondary-600">Applied</div>
+              {isLoading ? (
+                <>
+                  <div className="h-8 w-12 bg-gray-200 rounded mx-auto mb-2 animate-pulse"></div>
+                  <div className="h-4 w-20 bg-gray-200 rounded mx-auto animate-pulse"></div>
+                </>
+              ) : (
+                <>
+                  <div className="text-2xl font-bold text-primary-600">{stats.applied}</div>
+                  <div className="text-sm text-secondary-600">Applied</div>
+                </>
+              )}
             </div>
           </div>
           <div className="card">
             <div className="card-body text-center">
-              <div className="text-2xl font-bold text-accent-600">{stats.interview}</div>
-              <div className="text-sm text-secondary-600">Interviews</div>
+              {isLoading ? (
+                <>
+                  <div className="h-8 w-12 bg-gray-200 rounded mx-auto mb-2 animate-pulse"></div>
+                  <div className="h-4 w-20 bg-gray-200 rounded mx-auto animate-pulse"></div>
+                </>
+              ) : (
+                <>
+                  <div className="text-2xl font-bold text-accent-600">{stats.interview}</div>
+                  <div className="text-sm text-secondary-600">Interviews</div>
+                </>
+              )}
             </div>
           </div>
           <div className="card">
             <div className="card-body text-center">
-              <div className="text-2xl font-bold text-success-600">{stats.offer}</div>
-              <div className="text-sm text-secondary-600">Offers</div>
+              {isLoading ? (
+                <>
+                  <div className="h-8 w-12 bg-gray-200 rounded mx-auto mb-2 animate-pulse"></div>
+                  <div className="h-4 w-20 bg-gray-200 rounded mx-auto animate-pulse"></div>
+                </>
+              ) : (
+                <>
+                  <div className="text-2xl font-bold text-success-600">{stats.offer}</div>
+                  <div className="text-sm text-secondary-600">Offers</div>
+                </>
+              )}
             </div>
           </div>
           <div className="card">
             <div className="card-body text-center">
-              <div className="text-2xl font-bold text-error-600">{stats.rejected}</div>
-              <div className="text-sm text-secondary-600">Rejected</div>
+              {isLoading ? (
+                <>
+                  <div className="h-8 w-12 bg-gray-200 rounded mx-auto mb-2 animate-pulse"></div>
+                  <div className="h-4 w-20 bg-gray-200 rounded mx-auto animate-pulse"></div>
+                </>
+              ) : (
+                <>
+                  <div className="text-2xl font-bold text-error-600">{stats.rejected}</div>
+                  <div className="text-sm text-secondary-600">Rejected</div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -387,8 +432,27 @@ function JobTracker() {
 
         {/* Applications Grid */}
         {isLoading ? (
-          <div className="flex justify-center items-center py-12">
-            <div className="loading-spinner w-8 h-8"></div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="card">
+                <div className="card-body">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1">
+                      <div className="h-5 w-32 bg-gray-200 rounded mb-2 animate-pulse"></div>
+                      <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <div className="h-6 w-16 bg-gray-200 rounded animate-pulse"></div>
+                      <div className="h-6 w-12 bg-gray-200 rounded animate-pulse"></div>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : error ? (
           <div className="card">
@@ -817,14 +881,66 @@ function App() {
       // This will be handled by the AuthContext
     }
   }, [user, profile, profileLoading]);
+  // Progressive loading for better Lighthouse performance
   if (loading) {
-    console.log('Showing loading state');
+    console.log('Showing progressive loading state');
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="loading-spinner w-12 h-12 mx-auto mb-4"></div>
-          <p className="text-secondary-600">Loading...</p>
-        </div>
+      <div className="min-h-screen bg-gray-50">
+        {/* Show skeleton UI immediately for better perceived performance */}
+        <header className="bg-white shadow-soft border-b border-gray-200">
+          <div className="container-padding">
+            <div className="flex items-center justify-between h-16">
+              <div className="flex items-center space-x-4">
+                <h1 className="text-2xl font-bold text-secondary-900">Executive Job Tracker</h1>
+                <div className="hidden sm:block">
+                  <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="h-8 w-16 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-8 w-32 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+        </header>
+        
+        <main className="container-padding py-8">
+          {/* Skeleton stats cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="card">
+                <div className="card-body text-center">
+                  <div className="h-8 w-12 bg-gray-200 rounded mx-auto mb-2 animate-pulse"></div>
+                  <div className="h-4 w-20 bg-gray-200 rounded mx-auto animate-pulse"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {/* Skeleton job cards */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="card">
+                <div className="card-body">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1">
+                      <div className="h-5 w-32 bg-gray-200 rounded mb-2 animate-pulse"></div>
+                      <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <div className="h-6 w-16 bg-gray-200 rounded animate-pulse"></div>
+                      <div className="h-6 w-12 bg-gray-200 rounded animate-pulse"></div>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </main>
       </div>
     );
   }
