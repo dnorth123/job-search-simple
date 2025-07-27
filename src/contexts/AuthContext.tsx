@@ -5,6 +5,9 @@ import { getUserProfile, updateUserProfile, createUser, testDatabaseConnection, 
 import { AuthContext, type UserProfile, type AuthContextType } from './AuthContextTypes';
 import type { IndustryCategory, CareerLevel } from '../jobTypes';
 
+// Cache for user profiles to avoid repeated database calls
+const profileCache = new Map<string, UserProfile>();
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -14,7 +17,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [schemaChecked, setSchemaChecked] = useState(false);
 
   useEffect(() => {
-    // Test database connection and schema on mount
+    // Test database connection and schema on mount (with reduced timeout)
     const testConnection = async () => {
       try {
         console.log('Testing database connection and schema...');
@@ -37,11 +40,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
+    // Run database test in parallel with auth initialization
     testConnection();
   }, []);
 
   useEffect(() => {
-    // Get initial session
+    // Get initial session with optimized loading
     const getInitialSession = async () => {
       try {
         console.log('Getting initial session...');
@@ -79,12 +83,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     );
 
-    // Add timeout to prevent infinite loading
+    // Reduced timeout to prevent long loading states
     const timeout = setTimeout(() => {
       console.log('Loading timeout reached, forcing loading to false');
       setLoading(false);
       setProfileLoading(false);
-    }, 10000); // 10 second timeout
+    }, 5000); // Reduced from 10 to 5 seconds
 
     return () => {
       subscription.unsubscribe();
@@ -96,6 +100,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       console.log('Loading user profile for:', userId);
       setProfileLoading(true);
+      
+      // Check cache first for faster loading
+      const cachedProfile = profileCache.get(userId);
+      if (cachedProfile) {
+        console.log('Using cached profile for:', userId);
+        setProfile(cachedProfile);
+        setProfileLoading(false);
+        setLoading(false);
+        return;
+      }
       
       // Check database connection first
       if (databaseConnected === false) {
@@ -110,6 +124,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('User profile loaded:', userProfile);
       
       if (userProfile) {
+        // Cache the profile for future use
+        profileCache.set(userId, userProfile);
         setProfile(userProfile);
       } else {
         console.log('No user profile found - user may not exist in users table yet');

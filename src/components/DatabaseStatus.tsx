@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 export const DatabaseStatus: React.FC = () => {
   const { databaseConnected } = useAuth();
 
+  // Only show status when there are actual issues
   if (databaseConnected === null) {
     return (
       <div className="fixed top-4 right-4 z-50">
@@ -32,16 +33,7 @@ export const DatabaseStatus: React.FC = () => {
     );
   }
 
-  return (
-    <div className="fixed top-4 right-4 z-50">
-      <div className="bg-green-100 border border-green-400 text-green-700 px-3 py-2 rounded text-sm">
-        <div className="flex items-center">
-          <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-          </svg>
-          Database connected
-        </div>
-      </div>
-    </div>
-  );
+  // Don't show "Database connected" indicator when everything is working
+  // This reduces visual clutter and improves UX
+  return null;
 }; 

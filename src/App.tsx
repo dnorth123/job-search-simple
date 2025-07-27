@@ -59,12 +59,13 @@ function JobTracker() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<JobStatus | 'All'>('All');
   const [priorityFilter, setPriorityFilter] = useState<PriorityLevel | 'All'>('All');
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
-    if (user) {
+    if (user && !dataLoaded) {
       loadData();
     }
-  }, [user]);
+  }, [user, dataLoaded]);
 
   const loadData = async () => {
     if (!user) return;
@@ -73,18 +74,19 @@ function JobTracker() {
     setIsLoading(true);
     setError(null);
     
-            try {
-          console.log('Calling getJobApplications...');
-          const jobsData = await getJobApplications(user.id);
-          console.log('getJobApplications returned:', jobsData);
-          setJobs(jobsData);
-        } catch (err) {
-          console.error('loadData error:', err);
-          setError(err instanceof Error ? err.message : 'Failed to load data');
-        } finally {
-          console.log('Setting isLoading to false');
-          setIsLoading(false);
-        }
+    try {
+      console.log('Calling getJobApplications...');
+      const jobsData = await getJobApplications(user.id);
+      console.log('getJobApplications returned:', jobsData);
+      setJobs(jobsData);
+      setDataLoaded(true);
+    } catch (err) {
+      console.error('loadData error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load data');
+    } finally {
+      console.log('Setting isLoading to false');
+      setIsLoading(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -808,35 +810,11 @@ function App() {
     }
   }, []);
 
-  useEffect(() => {
-    const testConnection = async () => {
-      console.log('Testing Supabase connection...');
-      try {
-        const { error } = await supabase.from('applications').select('count').limit(1);
-        if (error) {
-          console.error('Supabase connection error:', error);
-        } else {
-          console.log('Supabase connection successful');
-        }
-      } catch (err) {
-        console.error('Supabase connection test failed:', err);
-      }
-    };
-    testConnection();
-  }, []);
-
-  useEffect(() => {
-    console.log('Profile setup effect:', { user, profile, profileLoading });
-    if (user && !profile && !profileLoading) {
-      console.log('Setting up profile setup form');
-      // This will be handled by the AuthContext
-    }
-  }, [user, profile, profileLoading]);
-
+  // Optimized loading state - show loading only for initial auth check
   if (loading) {
     console.log('Showing loading state');
     return (
-              <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="loading-spinner w-12 h-12 mx-auto mb-4"></div>
           <p className="text-secondary-600">Loading...</p>
@@ -845,6 +823,7 @@ function App() {
     );
   }
 
+  // Show login screen for unauthenticated users
   if (!user) {
     return (
       <div className="min-h-screen bg-secondary-50 flex items-center justify-center p-4">
@@ -861,7 +840,8 @@ function App() {
     );
   }
 
-  if (!profile) {
+  // Show profile setup only if user exists but no profile (and not still loading profile)
+  if (!profile && !profileLoading) {
     return (
       <div className="min-h-screen bg-secondary-50 flex items-center justify-center p-4">
         <div className="card max-w-2xl w-full">
@@ -877,6 +857,7 @@ function App() {
     );
   }
 
+  // Show main app for authenticated users with profiles
   return (
     <ProtectedRoute>
       {isDemoMode && (

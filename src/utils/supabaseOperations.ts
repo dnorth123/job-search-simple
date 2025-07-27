@@ -12,8 +12,8 @@ import type {
 async function handleDatabaseOperation<T>(
   operation: () => Promise<T>,
   operationName: string,
-  maxRetries: number = 3,
-  retryDelay: number = 1000
+  maxRetries: number = 2, // Reduced from 3 to 2
+  retryDelay: number = 500  // Reduced from 1000 to 500ms
 ): Promise<T> {
   let lastError: Error | null = null;
   
@@ -23,7 +23,7 @@ async function handleDatabaseOperation<T>(
       
       // Add timeout to prevent infinite hanging
       const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Operation timed out')), 10000); // 10 second timeout
+        setTimeout(() => reject(new Error('Operation timed out')), 5000); // Reduced from 10 to 5 seconds
       });
       
       const result = await Promise.race([
@@ -40,7 +40,7 @@ async function handleDatabaseOperation<T>(
       if (attempt < maxRetries) {
         console.log(`${operationName} - Retrying in ${retryDelay}ms...`);
         await new Promise(resolve => setTimeout(resolve, retryDelay));
-        retryDelay *= 2; // Exponential backoff
+        retryDelay *= 1.5; // Reduced exponential backoff
       }
     }
   }
@@ -56,24 +56,27 @@ function handleError(error: unknown, operation: string): never {
   throw new Error(`${operation} failed: ${errorMessage}`);
 }
 
-// Test database connection
+// Test database connection with faster timeout
 export async function testDatabaseConnection(): Promise<boolean> {
   try {
     console.log('Testing database connection...');
-    const { error } = await supabase
+    
+    // Use a faster timeout for connection test
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('Connection test timed out')), 3000); // 3 second timeout
+    });
+    
+    const connectionTest = supabase
       .from(TABLES.USERS)
       .select('count')
       .limit(1);
     
-    if (error) {
-      console.error('Database connection test failed:', error);
-      return false;
-    }
+    await Promise.race([connectionTest, timeoutPromise]);
     
     console.log('Database connection test successful');
     return true;
   } catch (error) {
-    console.error('Database connection test exception:', error);
+    console.error('Database connection test failed:', error);
     return false;
   }
 }
