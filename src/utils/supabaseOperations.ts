@@ -8,6 +8,37 @@ import type {
   UserProfileFormData
 } from '../jobTypes';
 
+// Enhanced error handling with retry logic
+async function handleDatabaseOperation<T>(
+  operation: () => Promise<T>,
+  operationName: string,
+  maxRetries: number = 3,
+  retryDelay: number = 1000
+): Promise<T> {
+  let lastError: Error | null = null;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`${operationName} - Attempt ${attempt}/${maxRetries}`);
+      const result = await operation();
+      console.log(`${operationName} - Success on attempt ${attempt}`);
+      return result;
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      console.error(`${operationName} - Attempt ${attempt} failed:`, lastError.message);
+      
+      if (attempt < maxRetries) {
+        console.log(`${operationName} - Retrying in ${retryDelay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, retryDelay));
+        retryDelay *= 2; // Exponential backoff
+      }
+    }
+  }
+  
+  console.error(`${operationName} - All attempts failed`);
+  throw new Error(`${operationName} failed after ${maxRetries} attempts: ${lastError?.message}`);
+}
+
 // Error handling helper
 function handleError(error: unknown, operation: string): never {
   console.error(`Error in ${operation}:`, error);
@@ -15,11 +46,35 @@ function handleError(error: unknown, operation: string): never {
   throw new Error(`${operation} failed: ${errorMessage}`);
 }
 
+// Test database connection
+export async function testDatabaseConnection(): Promise<boolean> {
+  try {
+    console.log('Testing database connection...');
+    const { error } = await supabase
+      .from(TABLES.USERS)
+      .select('count')
+      .limit(1);
+    
+    if (error) {
+      console.error('Database connection test failed:', error);
+      return false;
+    }
+    
+    console.log('Database connection test successful');
+    return true;
+  } catch (error) {
+    console.error('Database connection test exception:', error);
+    return false;
+  }
+}
+
 // User operations
 export async function getCurrentUser() {
-  const { data: { user }, error } = await supabase.auth.getUser();
-  if (error) handleError(error, 'getCurrentUser');
-  return user;
+  return handleDatabaseOperation(async () => {
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error) handleError(error, 'getCurrentUser');
+    return user;
+  }, 'getCurrentUser');
 }
 
 export async function createUser(userData: {
@@ -39,7 +94,7 @@ export async function createUser(userData: {
 }) {
   console.log('createUser called with:', userData);
   
-  try {
+  return handleDatabaseOperation(async () => {
     // Use upsert instead of insert to handle existing users
     const { data, error } = await supabase
       .from(TABLES.USERS)
@@ -56,16 +111,13 @@ export async function createUser(userData: {
     
     console.log('createUser returning:', data);
     return data;
-  } catch (err) {
-    console.error('createUser exception:', err);
-    throw err;
-  }
+  }, 'createUser');
 }
 
 export async function getUserProfile(userId: string) {
   console.log('getUserProfile called for userId:', userId);
   
-  try {
+  return handleDatabaseOperation(async () => {
     const { data, error } = await supabase
       .from(TABLES.USERS)
       .select('*')
@@ -83,22 +135,21 @@ export async function getUserProfile(userId: string) {
     const userProfile = Array.isArray(data) ? data[0] || null : data;
     console.log('getUserProfile returning:', userProfile);
     return userProfile;
-  } catch (err) {
-    console.error('getUserProfile exception:', err);
-    return null;
-  }
+  }, 'getUserProfile');
 }
 
 export async function updateUserProfile(userId: string, updates: Partial<UserProfileFormData>) {
-  const { data, error } = await supabase
-    .from(TABLES.USERS)
-    .update(updates)
-    .eq('id', userId)
-    .select()
-    .single();
-  
-  if (error) handleError(error, 'updateUserProfile');
-  return data;
+  return handleDatabaseOperation(async () => {
+    const { data, error } = await supabase
+      .from(TABLES.USERS)
+      .update(updates)
+      .eq('id', userId)
+      .select()
+      .single();
+    
+    if (error) handleError(error, 'updateUserProfile');
+    return data;
+  }, 'updateUserProfile');
 }
 
 // Company operations

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '../utils/supabase';
-import { getUserProfile, updateUserProfile } from '../utils/supabaseOperations';
+import { getUserProfile, updateUserProfile, createUser, testDatabaseConnection } from '../utils/supabaseOperations';
 import { AuthContext, type UserProfile, type AuthContextType } from './AuthContextTypes';
 import type { IndustryCategory, CareerLevel } from '../jobTypes';
 
@@ -10,6 +10,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [profileLoading, setProfileLoading] = useState(false);
+  const [databaseConnected, setDatabaseConnected] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    // Test database connection on mount
+    const testConnection = async () => {
+      try {
+        const isConnected = await testDatabaseConnection();
+        setDatabaseConnected(isConnected);
+        console.log('Database connection status:', isConnected);
+      } catch (error) {
+        console.error('Database connection test failed:', error);
+        setDatabaseConnected(false);
+      }
+    };
+
+    testConnection();
+  }, []);
 
   useEffect(() => {
     // Get initial session
@@ -67,6 +84,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       console.log('Loading user profile for:', userId);
       setProfileLoading(true);
+      
+      // Check database connection first
+      if (databaseConnected === false) {
+        console.log('Database not connected, skipping profile load');
+        setProfile(null);
+        setProfileLoading(false);
+        setLoading(false);
+        return;
+      }
+      
       const userProfile = await getUserProfile(userId);
       console.log('User profile loaded:', userProfile);
       
@@ -129,21 +156,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!user) throw new Error('No authenticated user');
     
     try {
-      // Temporarily bypass database call to get app working
-      const mockProfile = {
-        id: user.id,
-        email: user.email!,
-        ...profileData,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
+      // Check database connection
+      if (databaseConnected === false) {
+        console.log('Database not connected, using fallback mode');
+        const fallbackProfile = {
+          id: user.id,
+          email: user.email!,
+          ...profileData,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        
+        console.log('Setting fallback profile:', fallbackProfile);
+        setProfile(fallbackProfile);
+        return fallbackProfile;
+      }
       
-      console.log('Setting mock profile:', mockProfile);
-      setProfile(mockProfile);
-      return mockProfile;
-      
-      // TODO: Re-enable database call once we fix the hanging issue
-      /*
       console.log('Calling createUser with:', { id: user.id, email: user.email, ...profileData });
       const newProfile = await createUser({
         id: user.id,
@@ -154,10 +182,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('createUser returned:', newProfile);
       setProfile(newProfile);
       return newProfile;
-      */
     } catch (error) {
       console.error('createUserProfile error:', error);
-      throw error;
+      
+      // Fallback to local profile if database fails
+      console.log('Database operation failed, using fallback profile');
+      const fallbackProfile = {
+        id: user.id,
+        email: user.email!,
+        ...profileData,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      
+      setProfile(fallbackProfile);
+      return fallbackProfile;
     }
   };
 
@@ -176,9 +215,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }>) => {
     if (!user) throw new Error('No authenticated user');
     
-    const updatedProfile = await updateUserProfile(user.id, updates);
-    setProfile(updatedProfile);
-    return updatedProfile;
+    try {
+      const updatedProfile = await updateUserProfile(user.id, updates);
+      setProfile(updatedProfile);
+      return updatedProfile;
+    } catch (error) {
+      console.error('updateProfile error:', error);
+      
+      // Fallback to local update if database fails
+      if (profile) {
+        const fallbackProfile = { ...profile, ...updates, updated_at: new Date().toISOString() };
+        setProfile(fallbackProfile);
+        return fallbackProfile;
+      }
+      
+      throw error;
+    }
   };
 
   const value: AuthContextType = {
@@ -186,6 +238,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     profile,
     loading,
     profileLoading,
+    databaseConnected,
     signIn,
     signUp,
     signOut,

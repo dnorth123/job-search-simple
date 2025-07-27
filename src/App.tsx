@@ -18,6 +18,8 @@ import { LoginForm, ProfileSetupForm } from './components/AuthForms';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { UserProfile } from './components/UserProfile';
 import { CompanySelector } from './components/CompanySelector';
+import { DatabaseErrorBoundary } from './components/DatabaseErrorBoundary';
+import { DatabaseStatus } from './components/DatabaseStatus';
 import { validateJobApplicationForm } from './utils/validation';
 import { supabase } from './utils/supabase';
 
@@ -893,7 +895,10 @@ function App() {
           </div>
         </div>
       )}
-      <JobTracker />
+      <DatabaseErrorBoundary>
+        <DatabaseStatus />
+        <JobTracker />
+      </DatabaseErrorBoundary>
     </ProtectedRoute>
   );
 }
