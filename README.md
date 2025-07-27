@@ -209,3 +209,4 @@ MIT License - see LICENSE file for details
 # Trigger Netlify deployment
 # Environment variables configured
 # Supabase configured
+# Environment variables added to Netlify
