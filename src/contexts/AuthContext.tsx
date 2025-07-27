@@ -17,7 +17,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [schemaChecked, setSchemaChecked] = useState(false);
 
   useEffect(() => {
-    // Test database connection and schema on mount (with reduced timeout)
+    // Test database connection and schema on mount with periodic health checks
     const testConnection = async () => {
       try {
         console.log('Testing database connection and schema...');
@@ -42,6 +42,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Run database test in parallel with auth initialization
     testConnection();
+    
+    // Set up periodic health checks for production
+    if (import.meta.env.PROD) {
+      const healthCheckInterval = setInterval(async () => {
+        try {
+          const isConnected = await testDatabaseConnection();
+          setDatabaseConnected(isConnected);
+        } catch (error) {
+          console.error('Health check failed:', error);
+          setDatabaseConnected(false);
+        }
+      }, 60000); // Check every minute in production
+      
+      return () => clearInterval(healthCheckInterval);
+    }
   }, []);
 
   useEffect(() => {

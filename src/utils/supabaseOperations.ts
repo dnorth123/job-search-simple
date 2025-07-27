@@ -56,29 +56,41 @@ function handleError(error: unknown, operation: string): never {
   throw new Error(`${operation} failed: ${errorMessage}`);
 }
 
-// Test database connection with production-optimized timeout
+// Test database connection with production-optimized timeout and retry
 export async function testDatabaseConnection(): Promise<boolean> {
-  try {
-    console.log('Testing database connection...');
-    
-    // Use a longer timeout for production connection test
-    const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error('Connection test timed out')), 10000); // 10 second timeout for production
-    });
-    
-    const connectionTest = supabase
-      .from(TABLES.USERS)
-      .select('count')
-      .limit(1);
-    
-    await Promise.race([connectionTest, timeoutPromise]);
-    
-    console.log('Database connection test successful');
-    return true;
-  } catch (error) {
-    console.error('Database connection test failed:', error);
-    return false;
+  const maxRetries = 2;
+  const retryDelay = 2000;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`Testing database connection... (attempt ${attempt}/${maxRetries})`);
+      
+      // Use a longer timeout for production connection test
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Connection test timed out')), 15000); // 15 second timeout for production
+      });
+      
+      const connectionTest = supabase
+        .from(TABLES.USERS)
+        .select('count')
+        .limit(1);
+      
+      await Promise.race([connectionTest, timeoutPromise]);
+      
+      console.log('Database connection test successful');
+      return true;
+    } catch (error) {
+      console.error(`Database connection test failed (attempt ${attempt}):`, error);
+      
+      if (attempt < maxRetries) {
+        console.log(`Retrying connection test in ${retryDelay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, retryDelay));
+      }
+    }
   }
+  
+  console.error('Database connection test failed after all attempts');
+  return false;
 }
 
 // Check database schema and table structure

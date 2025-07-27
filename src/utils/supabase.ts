@@ -22,7 +22,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
   }
 }
 
-// Optimized Supabase client configuration
+// Optimized Supabase client configuration for production
 export const supabase = createClient(supabaseUrl || 'https://demo.supabase.co', supabaseAnonKey || 'demo-key', {
   // Performance optimizations
   auth: {
@@ -39,10 +39,29 @@ export const supabase = createClient(supabaseUrl || 'https://demo.supabase.co', 
       eventsPerSecond: 10, // Reduce event frequency for better performance
     },
   },
-  // Global headers for better caching
+  // Production-optimized settings
+  db: {
+    schema: 'public',
+  },
+  // Better error handling and connection management
   global: {
     headers: {
       'Cache-Control': 'max-age=300', // 5 minute cache for API responses
+      'Connection': 'keep-alive', // Keep connections alive
+    },
+    fetch: (url, options = {}) => {
+      // Add timeout to fetch requests
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      
+      return fetch(url, {
+        ...options,
+        signal: controller.signal,
+        // Add keep-alive for better connection reuse
+        keepalive: true,
+      }).finally(() => {
+        clearTimeout(timeoutId);
+      });
     },
   },
 });
