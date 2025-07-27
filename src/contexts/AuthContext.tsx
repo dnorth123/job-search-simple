@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '../utils/supabase';
-import { getUserProfile, updateUserProfile, createUser, testDatabaseConnection } from '../utils/supabaseOperations';
+import { getUserProfile, updateUserProfile, createUser, testDatabaseConnection, checkDatabaseSchema } from '../utils/supabaseOperations';
 import { AuthContext, type UserProfile, type AuthContextType } from './AuthContextTypes';
 import type { IndustryCategory, CareerLevel } from '../jobTypes';
 
@@ -11,14 +11,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [profileLoading, setProfileLoading] = useState(false);
   const [databaseConnected, setDatabaseConnected] = useState<boolean | null>(null);
+  const [schemaChecked, setSchemaChecked] = useState(false);
 
   useEffect(() => {
-    // Test database connection on mount
+    // Test database connection and schema on mount
     const testConnection = async () => {
       try {
+        console.log('Testing database connection and schema...');
         const isConnected = await testDatabaseConnection();
         setDatabaseConnected(isConnected);
-        console.log('Database connection status:', isConnected);
+        
+        if (isConnected) {
+          const schemaCheck = await checkDatabaseSchema();
+          console.log('Schema check result:', schemaCheck);
+          setSchemaChecked(true);
+          
+          if (!schemaCheck.usersTableExists) {
+            console.error('Users table does not exist or is not accessible');
+            setDatabaseConnected(false);
+          }
+        }
       } catch (error) {
         console.error('Database connection test failed:', error);
         setDatabaseConnected(false);
@@ -156,9 +168,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!user) throw new Error('No authenticated user');
     
     try {
-      // Check database connection
-      if (databaseConnected === false) {
-        console.log('Database not connected, using fallback mode');
+      // Check database connection and schema
+      if (databaseConnected === false || !schemaChecked) {
+        console.log('Database not connected or schema not checked, using fallback mode');
         const fallbackProfile = {
           id: user.id,
           email: user.email!,

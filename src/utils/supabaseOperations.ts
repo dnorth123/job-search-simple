@@ -20,7 +20,17 @@ async function handleDatabaseOperation<T>(
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       console.log(`${operationName} - Attempt ${attempt}/${maxRetries}`);
-      const result = await operation();
+      
+      // Add timeout to prevent infinite hanging
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Operation timed out')), 10000); // 10 second timeout
+      });
+      
+      const result = await Promise.race([
+        operation(),
+        timeoutPromise
+      ]);
+      
       console.log(`${operationName} - Success on attempt ${attempt}`);
       return result;
     } catch (error) {
@@ -68,6 +78,46 @@ export async function testDatabaseConnection(): Promise<boolean> {
   }
 }
 
+// Check database schema and table structure
+export async function checkDatabaseSchema(): Promise<{
+  usersTableExists: boolean;
+  usersTableStructure: unknown;
+  error?: string;
+}> {
+  try {
+    console.log('Checking database schema...');
+    
+    // Test if users table exists and get its structure
+    const { data, error } = await supabase
+      .from(TABLES.USERS)
+      .select('*')
+      .limit(1);
+    
+    if (error) {
+      console.error('Schema check failed:', error);
+      return {
+        usersTableExists: false,
+        usersTableStructure: null,
+        error: error.message
+      };
+    }
+    
+    console.log('Schema check successful, users table exists');
+    return {
+      usersTableExists: true,
+      usersTableStructure: data,
+      error: undefined
+    };
+  } catch (error) {
+    console.error('Schema check exception:', error);
+    return {
+      usersTableExists: false,
+      usersTableStructure: null,
+      error: error instanceof Error ? error.message : String(error)
+    };
+  }
+}
+
 // User operations
 export async function getCurrentUser() {
   return handleDatabaseOperation(async () => {
@@ -95,22 +145,47 @@ export async function createUser(userData: {
   console.log('createUser called with:', userData);
   
   return handleDatabaseOperation(async () => {
-    // Use upsert instead of insert to handle existing users
-    const { data, error } = await supabase
-      .from(TABLES.USERS)
-      .upsert(userData, { onConflict: 'id' })
-      .select()
-      .single();
-    
-    console.log('createUser result:', { data, error });
-    
-    if (error) {
-      console.error('createUser error:', error);
-      handleError(error, 'createUser');
+    try {
+      console.log('createUser - Starting database operation...');
+      
+      // First, let's test if the table exists
+      const { data: tableTest, error: tableError } = await supabase
+        .from(TABLES.USERS)
+        .select('id')
+        .limit(1);
+      
+      console.log('createUser - Table test result:', { tableTest, tableError });
+      
+      if (tableError) {
+        console.error('createUser - Table access error:', tableError);
+        throw new Error(`Table access failed: ${tableError.message}`);
+      }
+      
+      // Use upsert instead of insert to handle existing users
+      const { data, error } = await supabase
+        .from(TABLES.USERS)
+        .upsert(userData, { onConflict: 'id' })
+        .select()
+        .single();
+      
+      console.log('createUser result:', { data, error });
+      
+      if (error) {
+        console.error('createUser error:', error);
+        throw new Error(`Database operation failed: ${error.message}`);
+      }
+      
+      if (!data) {
+        console.error('createUser - No data returned');
+        throw new Error('No data returned from database operation');
+      }
+      
+      console.log('createUser returning:', data);
+      return data;
+    } catch (error) {
+      console.error('createUser - Exception caught:', error);
+      throw error;
     }
-    
-    console.log('createUser returning:', data);
-    return data;
   }, 'createUser');
 }
 
