@@ -207,3 +207,4 @@ src/
 
 MIT License - see LICENSE file for details
 # Trigger Netlify deployment
+# Environment variables configured
