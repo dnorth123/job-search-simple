@@ -22,7 +22,30 @@ if (!supabaseUrl || !supabaseAnonKey) {
   }
 }
 
-export const supabase = createClient(supabaseUrl || 'https://demo.supabase.co', supabaseAnonKey || 'demo-key');
+// Optimized Supabase client configuration
+export const supabase = createClient(supabaseUrl || 'https://demo.supabase.co', supabaseAnonKey || 'demo-key', {
+  // Performance optimizations
+  auth: {
+    // Reduce auth state change delays
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+    // Faster token refresh
+    flowType: 'pkce',
+  },
+  // Optimize realtime connections
+  realtime: {
+    params: {
+      eventsPerSecond: 10, // Reduce event frequency for better performance
+    },
+  },
+  // Global headers for better caching
+  global: {
+    headers: {
+      'Cache-Control': 'max-age=300', // 5 minute cache for API responses
+    },
+  },
+});
 
 // Database table names
 export const TABLES = {
