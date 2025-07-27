@@ -8,7 +8,7 @@ interface FormFieldProps {
   required?: boolean;
   value: string | number | undefined;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
-  onBlur?: () => void;
+  onBlur?: (e?: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
   onFocus?: () => void;
   error?: string | null;
   helpText?: string;

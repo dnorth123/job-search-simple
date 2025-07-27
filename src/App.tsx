@@ -46,7 +46,7 @@ function emptyJob(): Omit<JobApplication, 'id' | 'created_at' | 'updated_at'> {
 }
 
 function JobTracker() {
-  const { user, profile } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const [jobs, setJobs] = useState<JobApplication[]>([]);
   const [form, setForm] = useState<Omit<JobApplication, 'id' | 'created_at' | 'updated_at'>>(emptyJob());
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -60,6 +60,8 @@ function JobTracker() {
   const [priorityFilter, setPriorityFilter] = useState<PriorityLevel | 'All'>('All');
   const [dataLoaded, setDataLoaded] = useState(false);
   const [openStatusDropdown, setOpenStatusDropdown] = useState<string | null>(null);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [logoutLoading, setLogoutLoading] = useState(false);
 
   useEffect(() => {
     if (user && !dataLoaded) {
@@ -80,6 +82,46 @@ function JobTracker() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [openStatusDropdown]);
+
+  // Handle Escape key and browser back button for modals
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        if (showProfile) {
+          setShowProfile(false);
+        }
+        if (showForm) {
+          setShowForm(false);
+          setForm(emptyJob());
+          setEditingId(null);
+          setValidationErrors([]);
+        }
+        if (showLogoutConfirm) {
+          setShowLogoutConfirm(false);
+        }
+      }
+    };
+
+    const handlePopState = () => {
+      // Close modals when browser back button is pressed
+      if (showProfile || showForm || showLogoutConfirm) {
+        setShowProfile(false);
+        setShowForm(false);
+        setShowLogoutConfirm(false);
+        setForm(emptyJob());
+        setEditingId(null);
+        setValidationErrors([]);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    window.addEventListener('popstate', handlePopState);
+    
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [showProfile, showForm, showLogoutConfirm]);
 
   const loadData = async () => {
     if (!user) return;
@@ -241,6 +283,39 @@ function JobTracker() {
     await handleStatusChange(job, newStatus);
   };
 
+  const handleLogout = async () => {
+    setLogoutLoading(true);
+    setError(null);
+    
+    try {
+      // Close any open modals first
+      setShowProfile(false);
+      setShowForm(false);
+      setShowLogoutConfirm(false);
+      
+      // Clear any open dropdowns
+      setOpenStatusDropdown(null);
+      
+      // Perform logout
+      await signOut();
+      
+      // Clear local state
+      setJobs([]);
+      setForm(emptyJob());
+      setEditingId(null);
+      setSearchTerm('');
+      setStatusFilter('All');
+      setPriorityFilter('All');
+      setDataLoaded(false);
+      
+    } catch (err) {
+      console.error('Logout error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to logout');
+    } finally {
+      setLogoutLoading(false);
+    }
+  };
+
   function formatDate(dateStr: string) {
     return new Date(dateStr).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -281,31 +356,62 @@ function JobTracker() {
 
   return (
             <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-              <header className="bg-white shadow-soft border-b border-gray-200">
+            {/* Header */}
+      <header className="bg-white shadow-soft border-b border-gray-200">
         <div className="container-padding">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-2xl font-bold text-secondary-900">Executive Job Tracker</h1>
-              <div className="hidden sm:block">
-                <span className="text-sm text-secondary-600">
-                  {profile?.first_name} {profile?.last_name}
-                </span>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:py-0 sm:h-16">
+            {/* Title and User Info */}
+            <div className="flex items-center justify-between sm:justify-start mb-3 sm:mb-0">
+              <h1 className="text-xl sm:text-2xl font-bold text-secondary-900 truncate">Executive Job Tracker</h1>
+              <div className="sm:hidden">
+                <button
+                  onClick={() => {
+                    if (!showForm && !showLogoutConfirm) {
+                      setShowProfile(true);
+                    }
+                  }}
+                  className="flex items-center space-x-1 text-sm text-secondary-600 hover:text-secondary-700 hover:bg-secondary-50 border border-secondary-200 px-2 py-1 rounded-lg transition-all duration-200"
+                  disabled={showForm || showLogoutConfirm}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  <span>{profile?.first_name} {profile?.last_name}</span>
+                </button>
               </div>
             </div>
             
-            <div className="flex items-center space-x-3">
+            {/* User Info for Desktop */}
+            <div className="hidden sm:block">
               <button
-                onClick={() => setShowProfile(true)}
-                className="btn btn-ghost"
+                onClick={() => {
+                  if (!showForm && !showLogoutConfirm) {
+                    setShowProfile(true);
+                  }
+                }}
+                className="flex items-center space-x-2 text-sm text-secondary-600 hover:text-secondary-700 hover:bg-secondary-50 border border-secondary-200 px-3 py-2 rounded-lg transition-all duration-200"
+                disabled={showForm || showLogoutConfirm}
               >
-                Profile
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span>{profile?.first_name} {profile?.last_name}</span>
               </button>
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex items-center justify-end space-x-2 sm:space-x-3">
               <button
-                onClick={() => setShowForm(true)}
-                className="btn btn-primary"
+                onClick={() => {
+                  if (!showProfile && !showLogoutConfirm) {
+                    setShowForm(true);
+                  }
+                }}
+                className="btn btn-primary text-sm px-3 py-2"
+                disabled={showProfile || showLogoutConfirm}
               >
-                + Add Application
+                <span className="hidden sm:inline">+ Add Application</span>
+                <span className="sm:hidden">+ Application</span>
               </button>
             </div>
           </div>
@@ -871,9 +977,16 @@ function JobTracker() {
 
       {/* Profile Modal */}
       {showProfile && (
-        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-large max-w-2xl w-full">
-            <div className="card-header">
+        <div 
+          className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 z-50"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowProfile(false);
+            }
+          }}
+        >
+          <div className="bg-white rounded-xl shadow-large max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="card-header sticky top-0 bg-white z-10">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold text-secondary-900">Profile</h2>
                 <button
@@ -886,6 +999,67 @@ function JobTracker() {
             </div>
             <div className="card-body">
               <UserProfile />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-large max-w-md w-full">
+            <div className="card-header">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-secondary-900">Confirm Logout</h2>
+                <button
+                  onClick={() => setShowLogoutConfirm(false)}
+                  className="btn btn-ghost"
+                  disabled={logoutLoading}
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+            <div className="card-body">
+              <div className="text-center">
+                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-error-100 mb-4">
+                  <svg className="h-6 w-6 text-error-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-medium text-secondary-900 mb-2">Are you sure you want to logout?</h3>
+                <p className="text-secondary-600 mb-6">
+                  You will be signed out of your account and redirected to the login page.
+                </p>
+                {error && (
+                  <div className="bg-error-50 border border-error-200 rounded-lg p-3 mb-4">
+                    <div className="text-error-700 text-sm">{error}</div>
+                  </div>
+                )}
+                <div className="flex items-center justify-end space-x-3">
+                  <button
+                    onClick={() => setShowLogoutConfirm(false)}
+                    className="btn btn-secondary"
+                    disabled={logoutLoading}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    disabled={logoutLoading}
+                    className="btn btn-error"
+                  >
+                    {logoutLoading ? (
+                      <div className="loading-spinner w-4 h-4 mr-2"></div>
+                    ) : (
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      </svg>
+                    )}
+                    Logout
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -310,6 +310,7 @@ export function ProfileSetupForm({ onComplete }: { onComplete: () => void }) {
     years_experience: undefined,
     skills: [],
   });
+  const [skillsText, setSkillsText] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
@@ -391,13 +392,25 @@ export function ProfileSetupForm({ onComplete }: { onComplete: () => void }) {
   };
 
   const handleSkillsChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const skillsText = e.target.value;
-    const skillsArray = skillsText.split(',').map(skill => skill.trim()).filter(skill => skill.length > 0);
+    const skillsTextValue = e.target.value;
+    // Store the raw text input for free typing
+    setSkillsText(skillsTextValue);
+    trackFormInteraction('profile_setup', 'skills', 'blur');
+  };
+
+  const handleSkillsBlur = (e?: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    if (!e) return;
+    const skillsTextValue = e.target.value;
+    // Process skills on blur - split by comma, trim, and filter empty
+    const skillsArray = skillsTextValue
+      .split(',')
+      .map(skill => skill.trim())
+      .filter(skill => skill.length > 0);
+    
     setFormData(prev => ({
       ...prev,
       skills: skillsArray
     }));
-    trackFormInteraction('profile_setup', 'skills', 'blur');
   };
 
   const industryOptions = [
@@ -597,16 +610,37 @@ export function ProfileSetupForm({ onComplete }: { onComplete: () => void }) {
           <h3 className="text-lg font-medium text-secondary-900 border-b border-secondary-200 pb-2">
             Skills
           </h3>
-          <FormField
-            id="skills"
-            name="skills"
-            label="Skills (comma-separated)"
-            type="textarea"
-            value={formData.skills?.join(', ') || ''}
-            onChange={handleSkillsChange}
-            placeholder="e.g., Product Management, User Research, Data Analysis, Agile"
-            rows={3}
-          />
+          <div className="space-y-3">
+            <FormField
+              id="skills"
+              name="skills"
+              label="Skills (comma-separated)"
+              type="textarea"
+              value={skillsText || formData.skills?.join(', ') || ''}
+              onChange={handleSkillsChange}
+              onBlur={handleSkillsBlur}
+              placeholder="e.g., Product Management, User Research, Data Analysis, Agile"
+              rows={3}
+            />
+            {/* Skills Preview */}
+            {formData.skills && formData.skills.length > 0 && (
+              <div className="mt-2">
+                <label className="block text-sm font-medium text-secondary-600 mb-2">
+                  Skills Preview
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {formData.skills.map((skill, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex items-center justify-end pt-6 border-t border-secondary-200">
