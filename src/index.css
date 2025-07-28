@@ -49,21 +49,117 @@
     --transition-executive: cubic-bezier(0.4, 0, 0.2, 1);
     --transition-executive-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
     --transition-executive-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    
+    /* Executive typography scale */
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 1.875rem;
+    --font-size-4xl: 2.25rem;
+    --font-size-5xl: 3rem;
+    
+    /* Executive letter spacing */
+    --tracking-tight: -0.025em;
+    --tracking-normal: 0em;
+    --tracking-wide: 0.025em;
+    --tracking-wider: 0.05em;
+    --tracking-widest: 0.1em;
+    
+    /* Executive line heights */
+    --leading-none: 1;
+    --leading-tight: 1.25;
+    --leading-snug: 1.375;
+    --leading-normal: 1.5;
+    --leading-relaxed: 1.625;
+    --leading-loose: 2;
   }
 
   html {
     font-family: 'Inter', system-ui, sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    font-variation-settings: 'opsz' 32;
   }
   
   body {
     @apply bg-neutral-50 text-neutral-900 antialiased;
     background-color: var(--neutral-50);
     color: var(--neutral-900);
+    line-height: var(--leading-relaxed);
+    letter-spacing: var(--tracking-normal);
   }
   
   * {
     @apply border-neutral-200;
     border-color: var(--neutral-200);
+  }
+  
+  /* Executive heading hierarchy */
+  h1, .h1 {
+    font-size: var(--font-size-5xl);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: var(--tracking-tight);
+    color: var(--neutral-900);
+  }
+  
+  h2, .h2 {
+    font-size: var(--font-size-4xl);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: var(--tracking-tight);
+    color: var(--neutral-900);
+  }
+  
+  h3, .h3 {
+    font-size: var(--font-size-3xl);
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: var(--tracking-normal);
+    color: var(--neutral-800);
+  }
+  
+  h4, .h4 {
+    font-size: var(--font-size-2xl);
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: var(--tracking-normal);
+    color: var(--neutral-800);
+  }
+  
+  h5, .h5 {
+    font-size: var(--font-size-xl);
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: var(--tracking-normal);
+    color: var(--neutral-700);
+  }
+  
+  h6, .h6 {
+    font-size: var(--font-size-lg);
+    font-weight: 500;
+    line-height: 1.5;
+    letter-spacing: var(--tracking-normal);
+    color: var(--neutral-700);
+  }
+  
+  /* Executive paragraph styles */
+  p {
+    font-size: var(--font-size-base);
+    font-weight: 400;
+    line-height: var(--leading-relaxed);
+    letter-spacing: var(--tracking-normal);
+    color: var(--neutral-700);
+  }
+  
+  /* Executive small text */
+  small, .text-sm {
+    font-size: var(--font-size-sm);
+    font-weight: 400;
+    line-height: var(--leading-normal);
+    letter-spacing: var(--tracking-normal);
   }
 }
 
@@ -72,6 +168,7 @@
   .btn {
     @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
     transition-timing-function: var(--transition-executive);
+    letter-spacing: var(--tracking-wide);
   }
   
   .btn-primary {
@@ -134,6 +231,10 @@
     @apply block w-full px-3 py-2 border border-neutral-300 rounded-lg shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200;
     border-color: var(--neutral-300);
     transition-timing-function: var(--transition-executive);
+    font-size: var(--font-size-base);
+    font-weight: 400;
+    line-height: var(--leading-normal);
+    letter-spacing: var(--tracking-normal);
   }
   
   .form-input:focus {
@@ -145,6 +246,10 @@
     @apply block w-full px-3 py-2 border border-neutral-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200;
     border-color: var(--neutral-300);
     transition-timing-function: var(--transition-executive);
+    font-size: var(--font-size-base);
+    font-weight: 400;
+    line-height: var(--leading-normal);
+    letter-spacing: var(--tracking-normal);
   }
   
   .form-select:focus {
@@ -156,6 +261,10 @@
     @apply block w-full px-3 py-2 border border-neutral-300 rounded-lg shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200 resize-y;
     border-color: var(--neutral-300);
     transition-timing-function: var(--transition-executive);
+    font-size: var(--font-size-base);
+    font-weight: 400;
+    line-height: var(--leading-relaxed);
+    letter-spacing: var(--tracking-normal);
   }
   
   .form-textarea:focus {
@@ -194,6 +303,7 @@
   /* Professional status badges */
   .badge {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    letter-spacing: var(--tracking-wide);
   }
   
   .badge-applied {
@@ -225,6 +335,7 @@
   .action-button {
     @apply inline-flex items-center px-3 py-2 text-xs font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1;
     transition-timing-function: var(--transition-executive);
+    letter-spacing: var(--tracking-wide);
   }
   
   .action-button-edit {
@@ -293,17 +404,219 @@
     border: 1px solid rgba(0, 102, 204, 0.1);
   }
   
-  /* Executive text styles */
+  /* Enhanced Executive text styles with typography hierarchy */
   .text-executive {
     color: var(--executive-primary);
+    font-weight: 600;
+    letter-spacing: var(--tracking-wide);
   }
   
   .text-intelligence {
     color: var(--intelligence-primary);
+    font-weight: 500;
+    letter-spacing: var(--tracking-wide);
   }
   
   .text-neutral {
     color: var(--neutral-600);
+    font-weight: 400;
+    letter-spacing: var(--tracking-normal);
+  }
+  
+  /* Professional content hierarchy */
+  .text-primary {
+    color: var(--neutral-900);
+    font-weight: 600;
+    font-size: var(--font-size-lg);
+    line-height: 1.4;
+    letter-spacing: var(--tracking-normal);
+  }
+  
+  .text-secondary {
+    color: var(--neutral-700);
+    font-weight: 500;
+    font-size: var(--font-size-base);
+    line-height: var(--leading-relaxed);
+    letter-spacing: var(--tracking-normal);
+  }
+  
+  .text-tertiary {
+    color: var(--neutral-600);
+    font-weight: 400;
+    font-size: var(--font-size-sm);
+    line-height: var(--leading-normal);
+    letter-spacing: var(--tracking-normal);
+  }
+  
+  .text-metadata {
+    color: var(--neutral-500);
+    font-weight: 400;
+    font-size: var(--font-size-xs);
+    line-height: var(--leading-normal);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+  }
+  
+  /* Executive heading styles */
+  .text-display {
+    font-size: var(--font-size-5xl);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: var(--tracking-tight);
+    color: var(--neutral-900);
+  }
+  
+  .text-headline {
+    font-size: var(--font-size-4xl);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: var(--tracking-tight);
+    color: var(--neutral-900);
+  }
+  
+  .text-title {
+    font-size: var(--font-size-3xl);
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: var(--tracking-normal);
+    color: var(--neutral-800);
+  }
+  
+  .text-subtitle {
+    font-size: var(--font-size-2xl);
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: var(--tracking-normal);
+    color: var(--neutral-800);
+  }
+  
+  .text-heading {
+    font-size: var(--font-size-xl);
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: var(--tracking-normal);
+    color: var(--neutral-700);
+  }
+  
+  .text-subheading {
+    font-size: var(--font-size-lg);
+    font-weight: 500;
+    line-height: 1.5;
+    letter-spacing: var(--tracking-normal);
+    color: var(--neutral-700);
+  }
+  
+  /* Executive body text styles */
+  .text-body {
+    font-size: var(--font-size-base);
+    font-weight: 400;
+    line-height: var(--leading-relaxed);
+    letter-spacing: var(--tracking-normal);
+    color: var(--neutral-700);
+  }
+  
+  .text-body-compact {
+    font-size: var(--font-size-sm);
+    font-weight: 400;
+    line-height: var(--leading-normal);
+    letter-spacing: var(--tracking-normal);
+    color: var(--neutral-600);
+  }
+  
+  /* Executive label styles */
+  .text-label {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    line-height: var(--leading-normal);
+    letter-spacing: var(--tracking-wide);
+    color: var(--neutral-700);
+    text-transform: none;
+  }
+  
+  .text-label-small {
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    line-height: var(--leading-normal);
+    letter-spacing: var(--tracking-wider);
+    color: var(--neutral-600);
+    text-transform: uppercase;
+  }
+  
+  /* Executive caption styles */
+  .text-caption {
+    font-size: var(--font-size-xs);
+    font-weight: 400;
+    line-height: var(--leading-normal);
+    letter-spacing: var(--tracking-normal);
+    color: var(--neutral-500);
+  }
+  
+  .text-caption-bold {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    line-height: var(--leading-normal);
+    letter-spacing: var(--tracking-wide);
+    color: var(--neutral-600);
+  }
+  
+  /* Executive emphasis styles */
+  .text-emphasis {
+    font-weight: 600;
+    color: var(--neutral-900);
+  }
+  
+  .text-emphasis-light {
+    font-weight: 500;
+    color: var(--neutral-800);
+  }
+  
+  .text-muted {
+    color: var(--neutral-500);
+    font-weight: 400;
+  }
+  
+  .text-muted-light {
+    color: var(--neutral-400);
+    font-weight: 400;
+  }
+  
+  /* Executive link styles */
+  .text-link {
+    color: var(--executive-primary);
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+    transition: color 0.2s var(--transition-executive);
+  }
+  
+  .text-link:hover {
+    color: var(--executive-primary-dark);
+  }
+  
+  /* Executive code styles */
+  .text-code {
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-size: var(--font-size-sm);
+    font-weight: 400;
+    line-height: var(--leading-normal);
+    letter-spacing: var(--tracking-normal);
+    color: var(--neutral-700);
+    background-color: var(--neutral-100);
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+  }
+  
+  /* Executive quote styles */
+  .text-quote {
+    font-size: var(--font-size-lg);
+    font-weight: 400;
+    font-style: italic;
+    line-height: var(--leading-relaxed);
+    letter-spacing: var(--tracking-normal);
+    color: var(--neutral-600);
+    border-left: 3px solid var(--executive-primary);
+    padding-left: 1rem;
   }
 }
 
@@ -327,9 +640,88 @@
     box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
   }
   
-  /* Executive text utilities */
+  /* Enhanced Executive text utilities */
   .text-balance {
     text-wrap: balance;
+  }
+  
+  .text-pretty {
+    text-wrap: pretty;
+  }
+  
+  /* Executive font weight utilities */
+  .font-thin {
+    font-weight: 100;
+  }
+  
+  .font-light {
+    font-weight: 300;
+  }
+  
+  .font-normal {
+    font-weight: 400;
+  }
+  
+  .font-medium {
+    font-weight: 500;
+  }
+  
+  .font-semibold {
+    font-weight: 600;
+  }
+  
+  .font-bold {
+    font-weight: 700;
+  }
+  
+  /* Executive letter spacing utilities */
+  .tracking-tighter {
+    letter-spacing: -0.05em;
+  }
+  
+  .tracking-tight {
+    letter-spacing: var(--tracking-tight);
+  }
+  
+  .tracking-normal {
+    letter-spacing: var(--tracking-normal);
+  }
+  
+  .tracking-wide {
+    letter-spacing: var(--tracking-wide);
+  }
+  
+  .tracking-wider {
+    letter-spacing: var(--tracking-wider);
+  }
+  
+  .tracking-widest {
+    letter-spacing: var(--tracking-widest);
+  }
+  
+  /* Executive line height utilities */
+  .leading-none {
+    line-height: var(--leading-none);
+  }
+  
+  .leading-tight {
+    line-height: var(--leading-tight);
+  }
+  
+  .leading-snug {
+    line-height: var(--leading-snug);
+  }
+  
+  .leading-normal {
+    line-height: var(--leading-normal);
+  }
+  
+  .leading-relaxed {
+    line-height: var(--leading-relaxed);
+  }
+  
+  .leading-loose {
+    line-height: var(--leading-loose);
   }
   
   /* Executive background utilities */
@@ -356,5 +748,54 @@
   
   .border-neutral-executive {
     border-color: var(--neutral-200);
+  }
+  
+  /* Executive text color utilities */
+  .text-executive-primary {
+    color: var(--executive-primary);
+  }
+  
+  .text-intelligence-primary {
+    color: var(--intelligence-primary);
+  }
+  
+  .text-neutral-50 {
+    color: var(--neutral-50);
+  }
+  
+  .text-neutral-100 {
+    color: var(--neutral-100);
+  }
+  
+  .text-neutral-200 {
+    color: var(--neutral-200);
+  }
+  
+  .text-neutral-300 {
+    color: var(--neutral-300);
+  }
+  
+  .text-neutral-400 {
+    color: var(--neutral-400);
+  }
+  
+  .text-neutral-500 {
+    color: var(--neutral-500);
+  }
+  
+  .text-neutral-600 {
+    color: var(--neutral-600);
+  }
+  
+  .text-neutral-700 {
+    color: var(--neutral-700);
+  }
+  
+  .text-neutral-800 {
+    color: var(--neutral-800);
+  }
+  
+  .text-neutral-900 {
+    color: var(--neutral-900);
   }
 }
