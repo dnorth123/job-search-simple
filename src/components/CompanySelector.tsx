@@ -12,6 +12,7 @@ interface CompanySelectorProps {
 }
 
 export function CompanySelector({ 
+  selectedCompanyId,
   onCompanySelect, 
   onCompanyCreate,
   placeholder = "Search or create company...",
@@ -21,6 +22,7 @@ export function CompanySelector({
   const [companies, setCompanies] = useState<Company[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [createForm, setCreateForm] = useState<CompanyFormData>({
     name: '',
     industry_category: undefined,
@@ -33,6 +35,30 @@ export function CompanySelector({
     funding_stage: '',
   });
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+
+  // Load selected company when selectedCompanyId changes
+  useEffect(() => {
+    if (selectedCompanyId) {
+      loadSelectedCompany();
+    } else {
+      setSelectedCompany(null);
+    }
+  }, [selectedCompanyId]);
+
+  const loadSelectedCompany = async () => {
+    if (!selectedCompanyId) return;
+    
+    try {
+      const companies = await searchCompanies('');
+      const company = companies.find(c => c.id === selectedCompanyId);
+      if (company) {
+        setSelectedCompany(company);
+        setSearchTerm(company.name);
+      }
+    } catch (error) {
+      console.error('Error loading selected company:', error);
+    }
+  };
 
   useEffect(() => {
     if (searchTerm.length >= 2) {
@@ -111,8 +137,11 @@ export function CompanySelector({
       <div className="relative">
         <input
           type="text"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          value={selectedCompany ? selectedCompany.name : searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setSelectedCompany(null); // Clear selected company when user types
+          }}
           placeholder={placeholder}
           className="form-input pr-10"
         />

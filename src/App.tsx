@@ -10,6 +10,9 @@ import {
   addJobApplication,
   updateJobApplication,
   updateApplicationStatus,
+  searchCompanies,
+  createCompany,
+  deleteJobApplication,
 } from './utils/supabaseOperations';
 import { useAuth } from './hooks/useAuth';
 import { LoginForm, SignupForm, ProfileSetupForm } from './components/AuthForms';
@@ -178,7 +181,9 @@ function JobTracker() {
     }));
   };
 
-  const handleJobDataExtracted = (data: { position?: string; company?: string; location?: string; salary_range_min?: number; salary_range_max?: number; remote_policy?: RemotePolicy; application_source?: ApplicationSource; job_req_id?: string; benefits_mentioned?: string; equity_offered?: boolean; equity_details?: string; notes?: string }) => {
+  const handleJobDataExtracted = async (data: { position?: string; company?: string; location?: string; salary_range_min?: number; salary_range_max?: number; remote_policy?: RemotePolicy; application_source?: ApplicationSource; job_req_id?: string; benefits_mentioned?: string; equity_offered?: boolean; equity_details?: string; notes?: string }) => {
+    console.log('handleJobDataExtracted called with data:', data);
+    
     // Update form with extracted data
     setForm(prev => ({
       ...prev,
@@ -187,23 +192,69 @@ function JobTracker() {
       salary_range_min: data.salary_range_min || prev.salary_range_min,
       salary_range_max: data.salary_range_max || prev.salary_range_max,
       remote_policy: data.remote_policy || prev.remote_policy,
-              application_source: data.application_source || prev.application_source,
-        job_req_id: data.job_req_id || prev.job_req_id,
-        benefits_mentioned: data.benefits_mentioned || prev.benefits_mentioned,
-        equity_offered: data.equity_offered || prev.equity_offered,
-        equity_details: data.equity_details || prev.equity_details,
-        notes: data.notes || prev.notes,
+      application_source: data.application_source || prev.application_source,
+      job_req_id: data.job_req_id || prev.job_req_id,
+      benefits_mentioned: data.benefits_mentioned || prev.benefits_mentioned,
+      equity_offered: data.equity_offered || prev.equity_offered,
+      equity_details: data.equity_details || prev.equity_details,
+      notes: data.notes || prev.notes,
     }));
     
     // If company name was extracted, try to find or create the company
     if (data.company) {
-      // This would need to be implemented in CompanySelector
-      // For now, we'll just close the upload modal
+      console.log('Company found in parsed data:', data.company);
+      try {
+        await handleCompanyFromParsedData(data.company);
+      } catch (error) {
+        console.error('Error handling company from parsed data:', error);
+      }
+    } else {
+      console.log('No company found in parsed data');
     }
     
     setShowJobUpload(false);
   };
 
+  const handleCompanyFromParsedData = async (companyName: string) => {
+    console.log('handleCompanyFromParsedData called with:', companyName);
+    try {
+      // First, try to search for existing company
+      console.log('Searching for existing company...');
+      const existingCompanies = await searchCompanies(companyName);
+      console.log('Existing companies found:', existingCompanies);
+      
+      const exactMatch = existingCompanies.find(company => 
+        company.name.toLowerCase() === companyName.toLowerCase()
+      );
+      console.log('Exact match found:', exactMatch);
+      
+      if (exactMatch) {
+        // Use existing company
+        console.log('Using existing company:', exactMatch);
+        handleCompanySelect(exactMatch.id);
+      } else {
+        // Create new company
+        console.log('Creating new company:', companyName);
+        const newCompany = await createCompany({
+          name: companyName,
+          industry_category: undefined,
+          company_size_range: undefined,
+          headquarters_location: '',
+          website_url: '',
+          linkedin_url: '',
+          description: '',
+          founded_year: undefined,
+          funding_stage: '',
+        });
+        console.log('New company created:', newCompany);
+        handleCompanySelect(newCompany.id);
+      }
+    } catch (error) {
+      console.error('Error handling company from parsed data:', error);
+      // If there's an error, we'll just leave the company field empty
+      // The user can manually select/create the company
+    }
+  };
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -335,8 +386,33 @@ function JobTracker() {
     }
   };
 
-
-
+  const handleDelete = async () => {
+    if (!editingId || !user) return;
+    
+    if (!confirm('Are you sure you want to delete this application? This action cannot be undone.')) {
+      return;
+    }
+    
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      await deleteJobApplication(editingId);
+      
+      // Reload data to ensure we get the latest status from the database
+      const updatedJobs = await getJobApplications(user.id);
+      setJobs(updatedJobs);
+      
+      setForm(emptyJob());
+      setEditingId(null);
+      setShowForm(false);
+    } catch (err) {
+      console.error('Delete error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to delete application');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
 
   const filteredJobs = jobs.filter(job => {
@@ -695,34 +771,80 @@ function JobTracker() {
       {/* Application Form Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-large max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="card-header">
+          <div className="bg-white rounded-xl shadow-large max-w-4xl w-full max-h-[90vh] flex flex-col">
+            {/* Sticky Header */}
+            <div className="card-header sticky top-0 bg-white z-10 border-b border-neutral-200">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold text-neutral-900">
                   {editingId ? 'Edit Application' : 'Add New Application'}
                 </h2>
-                <button
-                  onClick={() => {
-                    setShowForm(false);
-                    setForm(emptyJob());
-                    setEditingId(null);
-                    setValidationErrors([]);
-                  }}
-                  className="btn btn-ghost"
-                >
-                  ✕
-                </button>
+                <div className="flex items-center space-x-3">
+                  {editingId && (
+                    <button
+                      type="button"
+                      onClick={handleDelete}
+                      className="btn border-2 border-red-500 bg-white text-red-500 hover:bg-red-50 hover:border-red-600 hover:text-red-600"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <div className="loading-spinner w-4 h-4 mr-2 border-red-500 border-t-transparent"></div>
+                      ) : (
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      )}
+                      Delete
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowForm(false);
+                      setForm(emptyJob());
+                      setEditingId(null);
+                      setValidationErrors([]);
+                    }}
+                    className="btn btn-secondary"
+                    disabled={isLoading}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    form="application-form"
+                    disabled={isLoading}
+                    className="btn btn-strategic"
+                  >
+                    {isLoading ? (
+                      <div className="loading-spinner w-4 h-4 mr-2"></div>
+                    ) : null}
+                    {editingId ? 'Update Application' : 'Add Application'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowForm(false);
+                      setForm(emptyJob());
+                      setEditingId(null);
+                      setValidationErrors([]);
+                    }}
+                    className="btn btn-ghost"
+                  >
+                    ✕
+                  </button>
+                </div>
               </div>
             </div>
             
-            <form onSubmit={handleSubmit} className="card-body space-y-6">
-              {validationErrors.length > 0 && (
-                <div className="bg-error-50 border border-error-200 rounded-lg p-4">
-                  {validationErrors.map((error, index) => (
-                    <div key={index} className="text-error-700 text-sm">{error}</div>
-                  ))}
-                </div>
-              )}
+            {/* Scrollable Form Body */}
+            <div className="flex-1 overflow-y-auto">
+              <form id="application-form" onSubmit={handleSubmit} className="card-body space-y-6">
+                {validationErrors.length > 0 && (
+                  <div className="bg-error-50 border border-error-200 rounded-lg p-4">
+                    {validationErrors.map((error, index) => (
+                      <div key={index} className="text-error-700 text-sm">{error}</div>
+                    ))}
+                  </div>
+                )}
 
               {/* Job Description Upload */}
               {!editingId && (
@@ -788,6 +910,7 @@ function JobTracker() {
                     Company *
                   </label>
                   <CompanySelector
+                    selectedCompanyId={form.company_id}
                     onCompanySelect={handleCompanySelect}
                     placeholder="Search or create company..."
                     className="w-full"
@@ -969,31 +1092,8 @@ function JobTracker() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-end space-x-3 pt-6 border-t border-neutral-200">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowForm(false);
-                    setForm(emptyJob());
-                    setEditingId(null);
-                    setValidationErrors([]);
-                  }}
-                  className="btn btn-secondary"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="btn btn-strategic"
-                >
-                  {isLoading ? (
-                    <div className="loading-spinner w-4 h-4 mr-2"></div>
-                  ) : null}
-                  {editingId ? 'Update Application' : 'Add Application'}
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
         </div>
       )}
@@ -1286,7 +1386,7 @@ function App() {
           <div className="flex items-center justify-center">
             <div className="flex-shrink-0">
               <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.667-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
               </svg>
             </div>
             <div className="ml-3">
