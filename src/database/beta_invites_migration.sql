@@ -18,9 +18,9 @@ CREATE INDEX IF NOT EXISTS idx_beta_invites_expires_at ON beta_invites(expires_a
 ALTER TABLE beta_invites ENABLE ROW LEVEL SECURITY;
 
 -- Create RLS policies for beta_invites
--- Only authenticated users can view beta_invites (for validation purposes)
-CREATE POLICY "Authenticated users can view beta_invites" ON beta_invites
-    FOR SELECT USING (auth.role() = 'authenticated');
+-- Allow unauthenticated users to view beta_invites for validation during signup
+CREATE POLICY "Anyone can view beta_invites for validation" ON beta_invites
+    FOR SELECT USING (true);
 
 -- Only service role or admin can insert/update beta_invites
 CREATE POLICY "Service role can manage beta_invites" ON beta_invites

@@ -1,17 +1,20 @@
 #!/usr/bin/env node
 
 import { createClient } from '@supabase/supabase-js';
-import { readFile } from 'fs/promises';
-import { join } from 'path';
+import fs from 'fs';
+import path from 'path';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import dotenv from 'dotenv';
 
-// Get current directory for ES6 modules
+// Load environment variables from .env.local
+dotenv.config({ path: '.env.local' });
+
+// Get __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = path.dirname(__filename);
 
 // Configuration
-const BETA_LIST_FILE = join(__dirname, '..', 'beta-list.txt');
+const BETA_LIST_FILE = path.join(__dirname, '..', 'beta-list.txt');
 const BATCH_SIZE = 50; // Process emails in batches for better performance
 
 // Colors for console output
@@ -52,11 +55,11 @@ function logProgress(message) {
 
 // Validate environment variables
 function validateEnvironment() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const supabaseUrl = process.env.VITE_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl) {
-    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL or VITE_SUPABASE_URL environment variable');
+    throw new Error('Missing VITE_SUPABASE_URL environment variable');
   }
 
   if (!serviceRoleKey) {
@@ -95,10 +98,15 @@ function parseEmails(content) {
 }
 
 // Read and parse the beta list file
-async function readBetaListFile() {
+function readBetaListFile() {
   try {
     logProgress('Reading beta-list.txt...');
-    const content = await readFile(BETA_LIST_FILE, 'utf8');
+    
+    if (!fs.existsSync(BETA_LIST_FILE)) {
+      throw new Error(`Beta list file not found: ${BETA_LIST_FILE}`);
+    }
+    
+    const content = fs.readFileSync(BETA_LIST_FILE, 'utf8');
     const emails = parseEmails(content);
     
     logSuccess(`Found ${emails.length} valid email addresses`);
@@ -143,7 +151,7 @@ async function insertNewEmails(supabase, emails, existingEmails) {
   
   if (newEmails.length === 0) {
     logSuccess('No new emails to insert - all emails already exist in database');
-    return 0;
+    return { insertedCount: 0, errorCount: 0 };
   }
 
   logProgress(`Inserting ${newEmails.length} new emails...`);
@@ -197,7 +205,7 @@ async function syncBetaList() {
     logSuccess('Supabase client initialized');
 
     // Read and parse emails
-    const emails = await readBetaListFile();
+    const emails = readBetaListFile();
     
     if (emails.length === 0) {
       logWarning('No valid emails found in beta-list.txt');
@@ -240,6 +248,4 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 // Run the sync
-if (import.meta.url === `file://${process.argv[1]}`) {
-  syncBetaList();
-} 
+syncBetaList(); 

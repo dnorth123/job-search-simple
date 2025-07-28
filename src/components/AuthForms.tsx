@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { FormField } from './FormField';
 import { useFieldValidation } from '../hooks/useFieldValidation';
+import { useBetaValidation } from '../hooks/useBetaValidation';
 import { validateField, AUTOCOMPLETE_MAP, trackFormInteraction, trackFormCompletion } from '../utils/formUtils';
 import type { UserProfileFormData } from '../jobTypes';
 import { validateUserProfileForm } from '../utils/validation';
@@ -119,12 +120,28 @@ export function LoginForm({ onAuthSuccess }: AuthFormsProps) {
           {loading ? 'Signing In...' : 'Sign In'}
         </button>
       </form>
+      
+      <div className="text-center pt-4 border-t border-secondary-200">
+        <p className="text-secondary-600 text-sm">
+          Don't have an account?{' '}
+          <button
+            type="button"
+            onClick={() => window.location.href = '/signup'}
+            className="text-primary-600 hover:text-primary-700 font-medium"
+          >
+            Sign up
+          </button>
+        </p>
+      </div>
     </div>
   );
 }
 
 export function SignupForm({ onAuthSuccess }: AuthFormsProps) {
   const { signUp } = useAuth();
+  const { validateBetaAccess, markBetaInviteUsed, isLoading: betaLoading, error: betaError, clearError: clearBetaError } = useBetaValidation();
+  
+  const [step, setStep] = useState<'email' | 'details'>('email');
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -134,6 +151,7 @@ export function SignupForm({ onAuthSuccess }: AuthFormsProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [startTime] = useState(Date.now());
+
 
   // Real-time validation
   const emailValidation = useFieldValidation(
@@ -152,6 +170,28 @@ export function SignupForm({ onAuthSuccess }: AuthFormsProps) {
     300
   );
 
+  const handleEmailStep = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    clearBetaError();
+
+    try {
+      const result = await validateBetaAccess(formData.email);
+      
+      if (result.isValid) {
+        setStep('details');
+      } else {
+        setError(result.error || 'Beta validation failed');
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Beta validation failed';
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -167,6 +207,10 @@ export function SignupForm({ onAuthSuccess }: AuthFormsProps) {
 
     try {
       await signUp(formData.email, formData.password);
+      
+      // Mark beta invite as used after successful signup
+      await markBetaInviteUsed(formData.email);
+      
       setSuccess(true);
       const completionTime = Date.now() - startTime;
       trackFormCompletion('signup', completionTime, 0);
@@ -205,6 +249,12 @@ export function SignupForm({ onAuthSuccess }: AuthFormsProps) {
     trackFormInteraction('signup', field, 'focus');
   };
 
+  const handleBackToEmail = () => {
+    setStep('email');
+    setError(null);
+    clearBetaError();
+  };
+
   if (success) {
     return (
       <div className="text-center">
@@ -223,74 +273,154 @@ export function SignupForm({ onAuthSuccess }: AuthFormsProps) {
 
   return (
     <div className="space-y-6">
+      {/* Step indicator */}
+      <div className="flex items-center justify-center space-x-4 mb-6">
+        <div className={`flex items-center ${step === 'email' ? 'text-primary-600' : 'text-secondary-400'}`}>
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+            step === 'email' ? 'bg-primary-100 text-primary-600' : 'bg-secondary-100 text-secondary-400'
+          }`}>
+            1
+          </div>
+          <span className="ml-2 text-sm font-medium">Beta Validation</span>
+        </div>
+        <div className={`w-8 h-1 ${step === 'details' ? 'bg-primary-200' : 'bg-secondary-200'}`}></div>
+        <div className={`flex items-center ${step === 'details' ? 'text-primary-600' : 'text-secondary-400'}`}>
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+            step === 'details' ? 'bg-primary-100 text-primary-600' : 'bg-secondary-100 text-secondary-400'
+          }`}>
+            2
+          </div>
+          <span className="ml-2 text-sm font-medium">Account Details</span>
+        </div>
+      </div>
+
       {error && (
         <div className="bg-error-50 border border-error-200 rounded-lg p-4" role="alert">
           <div className="text-error-700 text-sm">{error}</div>
         </div>
       )}
+
+      {betaError && (
+        <div className="bg-error-50 border border-error-200 rounded-lg p-4" role="alert">
+          <div className="text-error-700 text-sm">{betaError}</div>
+        </div>
+      )}
       
-      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-        <FormField
-          id="signup-email"
-          name="email"
-          label="Email"
-          type="email"
-          required
-          value={formData.email}
-          onChange={handleFieldChange('email')}
-          onFocus={handleFieldFocus('email')}
-          onBlur={() => emailValidation.validate(formData.email)}
-          error={emailValidation.error}
-          autocomplete={AUTOCOMPLETE_MAP.email}
-          placeholder="Enter your email"
-          isValidating={emailValidation.isValidating}
-          isValid={emailValidation.isValid}
-        />
-        
-        <FormField
-          id="signup-password"
-          name="password"
-          label="Password"
-          type="password"
-          required
-          value={formData.password}
-          onChange={handleFieldChange('password')}
-          onFocus={handleFieldFocus('password')}
-          onBlur={() => passwordValidation.validate(formData.password)}
-          error={passwordValidation.error}
-          autocomplete={AUTOCOMPLETE_MAP.new_password}
-          placeholder="Create a password"
-          min={6}
-          isValidating={passwordValidation.isValidating}
-          isValid={passwordValidation.isValid}
-        />
-        
-        <FormField
-          id="confirm-password"
-          name="confirmPassword"
-          label="Confirm Password"
-          type="password"
-          required
-          value={formData.confirmPassword}
-          onChange={handleFieldChange('confirmPassword')}
-          onFocus={handleFieldFocus('confirmPassword')}
-          onBlur={() => confirmPasswordValidation.validate(formData.confirmPassword)}
-          error={confirmPasswordValidation.error}
-          autocomplete={AUTOCOMPLETE_MAP.confirm_password}
-          placeholder="Confirm your password"
-          min={6}
-          isValidating={confirmPasswordValidation.isValidating}
-          isValid={confirmPasswordValidation.isValid}
-        />
-        
-        <button 
-          type="submit" 
-          disabled={loading || !formData.email || !formData.password || !formData.confirmPassword} 
-          className="btn btn-primary w-full touch-target"
-        >
-          {loading ? 'Creating Account...' : 'Create Account'}
-        </button>
-      </form>
+      {step === 'email' ? (
+        <form onSubmit={handleEmailStep} className="space-y-4" noValidate>
+          <div className="text-center mb-6">
+            <h3 className="text-lg font-medium text-secondary-900 mb-2">Beta Access Required</h3>
+            <p className="text-secondary-600 text-sm">
+              Please enter your email to validate your beta access before creating an account.
+            </p>
+          </div>
+          
+          <FormField
+            id="signup-email"
+            name="email"
+            label="Email"
+            type="email"
+            required
+            value={formData.email}
+            onChange={handleFieldChange('email')}
+            onFocus={handleFieldFocus('email')}
+            onBlur={() => emailValidation.validate(formData.email)}
+            error={emailValidation.error}
+            autocomplete={AUTOCOMPLETE_MAP.email}
+            placeholder="Enter your email"
+            isValidating={emailValidation.isValidating}
+            isValid={emailValidation.isValid}
+          />
+          
+          <button 
+            type="submit" 
+            disabled={loading || betaLoading || !formData.email || !emailValidation.isValid} 
+            className="btn btn-primary w-full touch-target"
+          >
+            {loading || betaLoading ? 'Validating...' : 'Validate Beta Access'}
+          </button>
+        </form>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+          <div className="text-center mb-6">
+            <div className="text-success-600 mb-2">
+              <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-medium text-secondary-900 mb-2">Beta Access Confirmed</h3>
+            <p className="text-secondary-600 text-sm">
+              Your email has been validated. Please complete your account setup.
+            </p>
+          </div>
+          
+          <FormField
+            id="signup-password"
+            name="password"
+            label="Password"
+            type="password"
+            required
+            value={formData.password}
+            onChange={handleFieldChange('password')}
+            onFocus={handleFieldFocus('password')}
+            onBlur={() => passwordValidation.validate(formData.password)}
+            error={passwordValidation.error}
+            autocomplete={AUTOCOMPLETE_MAP.new_password}
+            placeholder="Create a password"
+            min={6}
+            isValidating={passwordValidation.isValidating}
+            isValid={passwordValidation.isValid}
+          />
+          
+          <FormField
+            id="confirm-password"
+            name="confirmPassword"
+            label="Confirm Password"
+            type="password"
+            required
+            value={formData.confirmPassword}
+            onChange={handleFieldChange('confirmPassword')}
+            onFocus={handleFieldFocus('confirmPassword')}
+            onBlur={() => confirmPasswordValidation.validate(formData.confirmPassword)}
+            error={confirmPasswordValidation.error}
+            autocomplete={AUTOCOMPLETE_MAP.confirm_password}
+            placeholder="Confirm your password"
+            min={6}
+            isValidating={confirmPasswordValidation.isValidating}
+            isValid={confirmPasswordValidation.isValid}
+          />
+          
+          <div className="flex space-x-3">
+            <button 
+              type="button"
+              onClick={handleBackToEmail}
+              className="btn btn-secondary flex-1 touch-target"
+            >
+              Back
+            </button>
+            <button 
+              type="submit" 
+              disabled={loading || !formData.password || !formData.confirmPassword || !passwordValidation.isValid || !confirmPasswordValidation.isValid} 
+              className="btn btn-primary flex-1 touch-target"
+            >
+              {loading ? 'Creating Account...' : 'Create Account'}
+            </button>
+          </div>
+        </form>
+      )}
+      
+      <div className="text-center pt-4 border-t border-secondary-200">
+        <p className="text-secondary-600 text-sm">
+          Already have an account?{' '}
+          <button
+            type="button"
+            onClick={() => window.location.href = '/'}
+            className="text-primary-600 hover:text-primary-700 font-medium"
+          >
+            Sign in
+          </button>
+        </p>
+      </div>
     </div>
   );
 }

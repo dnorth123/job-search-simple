@@ -14,7 +14,7 @@ import {
   updateApplicationStatus,
 } from './utils/supabaseOperations';
 import { useAuth } from './hooks/useAuth';
-import { LoginForm, ProfileSetupForm } from './components/AuthForms';
+import { LoginForm, SignupForm, ProfileSetupForm } from './components/AuthForms';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { UserProfile } from './components/UserProfile';
 import { CompanySelector } from './components/CompanySelector';
@@ -1128,6 +1128,7 @@ function JobTracker() {
 function App() {
   const { user, profile, loading, profileLoading } = useAuth();
   const [isDemoMode, setIsDemoMode] = useState(false);
+  const [showSignup, setShowSignup] = useState(false);
 
   console.log('App render state:', { user, profile, loading, profileLoading });
 
@@ -1144,6 +1145,15 @@ function App() {
     } else {
       console.log('Environment variables found, demo mode false');
       setIsDemoMode(false);
+    }
+  }, []);
+
+  // Check if user wants to sign up
+  useEffect(() => {
+    if (window.location.pathname === '/signup') {
+      setShowSignup(true);
+    } else {
+      setShowSignup(false);
     }
   }, []);
 
@@ -1215,6 +1225,23 @@ function App() {
             ))}
           </div>
         </main>
+      </div>
+    );
+  }
+
+  // Show signup screen for unauthenticated users
+  if (!user && showSignup) {
+    return (
+      <div className="min-h-screen bg-secondary-50 flex items-center justify-center p-4">
+        <div className="card max-w-md w-full">
+          <div className="card-header text-center">
+            <h1 className="text-2xl font-bold text-secondary-900">Executive Job Tracker</h1>
+            <p className="text-secondary-600 mt-2">Create your account to get started</p>
+          </div>
+          <div className="card-body">
+            <SignupForm onAuthSuccess={() => {}} />
+          </div>
+        </div>
       </div>
     );
   }
