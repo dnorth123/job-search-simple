@@ -20,6 +20,7 @@ import { DatabaseErrorBoundary } from './components/DatabaseErrorBoundary';
 import { DatabaseStatus } from './components/DatabaseStatus';
 import { AdminBetaInvites } from './components/AdminBetaInvites';
 import { JobCard } from './components/JobCard';
+import { JobDescriptionUpload } from './components/JobDescriptionUpload';
 import { validateJobApplicationForm } from './utils/validation';
 
 const STATUS_OPTIONS: JobStatus[] = ['Applied', 'Interview', 'Offer', 'Rejected', 'Withdrawn'];
@@ -38,6 +39,7 @@ function emptyJob(): Omit<JobApplication, 'id' | 'created_at' | 'updated_at'> {
     date_applied: new Date().toISOString().slice(0, 10),
     current_status: 'Applied',
     priority_level: 3,
+    archived: false,
   };
 }
 
@@ -58,6 +60,8 @@ function JobTracker() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
+  const [showJobUpload, setShowJobUpload] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
 
   // Admin check
   const isAdmin = user?.email === 'dan.northington@gmail.com';
@@ -174,6 +178,34 @@ function JobTracker() {
     }));
   };
 
+  const handleJobDataExtracted = (data: { position?: string; company?: string; location?: string; salary_range_min?: number; salary_range_max?: number; remote_policy?: RemotePolicy; application_source?: ApplicationSource; job_req_id?: string; benefits_mentioned?: string; equity_offered?: boolean; equity_details?: string; notes?: string }) => {
+    // Update form with extracted data
+    setForm(prev => ({
+      ...prev,
+      position: data.position || prev.position,
+      location: data.location || prev.location,
+      salary_range_min: data.salary_range_min || prev.salary_range_min,
+      salary_range_max: data.salary_range_max || prev.salary_range_max,
+      remote_policy: data.remote_policy || prev.remote_policy,
+              application_source: data.application_source || prev.application_source,
+        job_req_id: data.job_req_id || prev.job_req_id,
+        benefits_mentioned: data.benefits_mentioned || prev.benefits_mentioned,
+        equity_offered: data.equity_offered || prev.equity_offered,
+        equity_details: data.equity_details || prev.equity_details,
+        notes: data.notes || prev.notes,
+    }));
+    
+    // If company name was extracted, try to find or create the company
+    if (data.company) {
+      // This would need to be implemented in CompanySelector
+      // For now, we'll just close the upload modal
+    }
+    
+    setShowJobUpload(false);
+  };
+
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -232,7 +264,9 @@ function JobTracker() {
       location: job.location,
       application_source: job.application_source,
       job_posting_url: job.job_posting_url,
+      job_req_id: job.job_req_id,
       notes: job.notes,
+      archived: job.archived || false,
     });
     setEditingId(job.id);
     setShowForm(true);
@@ -313,12 +347,16 @@ function JobTracker() {
     return matchesSearch && matchesStatus;
   });
 
+  const activeJobs = filteredJobs.filter(job => !job.archived);
+  const archivedJobs = showArchived ? filteredJobs.filter(job => job.archived) : [];
+
   const stats = {
     total: jobs.length,
     applied: jobs.filter(j => j.current_status === 'Applied').length,
     interview: jobs.filter(j => j.current_status === 'Interview').length,
     offer: jobs.filter(j => j.current_status === 'Offer').length,
     rejected: jobs.filter(j => j.current_status === 'Rejected').length,
+    archived: jobs.filter(j => j.archived).length,
   };
 
   return (
@@ -391,7 +429,7 @@ function JobTracker() {
       {/* Main Content */}
       <main className="container-padding py-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
           <div className="card">
             <div className="card-body text-center">
               {isLoading ? (
@@ -402,7 +440,7 @@ function JobTracker() {
               ) : (
                 <>
                   <div className="text-2xl font-bold text-neutral-900">{stats.total}</div>
-                  <div className="text-sm text-neutral-600">Total Applications</div>
+                                          <div className="text-base font-medium text-neutral-700">Total Applications</div>
                 </>
               )}
             </div>
@@ -417,7 +455,7 @@ function JobTracker() {
               ) : (
                 <>
                   <div className="text-2xl font-bold text-executive">{stats.applied}</div>
-                  <div className="text-sm text-neutral-600">Applied</div>
+                                          <div className="text-base font-medium text-neutral-700">Applied</div>
                 </>
               )}
             </div>
@@ -432,7 +470,7 @@ function JobTracker() {
               ) : (
                 <>
                   <div className="text-2xl font-bold text-intelligence">{stats.interview}</div>
-                  <div className="text-sm text-neutral-600">Interviews</div>
+                                          <div className="text-base font-medium text-neutral-700">Interviews</div>
                 </>
               )}
             </div>
@@ -447,7 +485,7 @@ function JobTracker() {
               ) : (
                 <>
                   <div className="text-2xl font-bold text-success-600">{stats.offer}</div>
-                  <div className="text-sm text-neutral-600">Offers</div>
+                                          <div className="text-base font-medium text-neutral-700">Offers</div>
                 </>
               )}
             </div>
@@ -462,7 +500,22 @@ function JobTracker() {
               ) : (
                 <>
                   <div className="text-2xl font-bold text-error-600">{stats.rejected}</div>
-                  <div className="text-sm text-neutral-600">Rejected</div>
+                                          <div className="text-base font-medium text-neutral-700">Rejected</div>
+                </>
+              )}
+            </div>
+          </div>
+          <div className="card">
+            <div className="card-body text-center">
+              {isLoading ? (
+                <>
+                  <div className="h-8 w-12 bg-gray-200 rounded mx-auto mb-2 animate-pulse"></div>
+                  <div className="h-4 w-20 bg-gray-200 rounded mx-auto animate-pulse"></div>
+                </>
+              ) : (
+                <>
+                  <div className="text-2xl font-bold text-neutral-600">{stats.archived}</div>
+                                          <div className="text-base font-medium text-neutral-700">Archived</div>
                 </>
               )}
             </div>
@@ -472,7 +525,7 @@ function JobTracker() {
         {/* Filters and Search */}
         <div className="card mb-6">
           <div className="card-body">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                 <label className="block text-sm font-medium text-neutral-700 mb-2">
                   Search
@@ -499,6 +552,17 @@ function JobTracker() {
                     <option key={status} value={status}>{status}</option>
                   ))}
                 </select>
+              </div>
+              <div className="flex items-end">
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={showArchived}
+                    onChange={(e) => setShowArchived(e.target.checked)}
+                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                  />
+                  <span className="text-sm font-medium text-neutral-700">Show Archived</span>
+                </label>
               </div>
               <div className="flex items-end justify-end">
                 <button
@@ -565,18 +629,65 @@ function JobTracker() {
             </div>
           </div>
         ) : (
-          <div className="job-cards-grid">
-            {filteredJobs.map(job => (
-              <JobCard
-                key={job.id}
-                job={job}
-                onEdit={handleEdit}
-                openStatusDropdown={openStatusDropdown}
-                onStatusClick={handleStatusClick}
-                onStatusSelect={handleStatusSelect}
-                isLoading={isLoading}
-              />
-            ))}
+          <div className="space-y-8">
+            {/* Active Applications Section */}
+            {activeJobs.length > 0 && (
+              <div>
+                <div className="job-cards-grid">
+                  {activeJobs.map(job => (
+                    <JobCard
+                      key={job.id}
+                      job={job}
+                      onEdit={handleEdit}
+                      openStatusDropdown={openStatusDropdown}
+                      onStatusClick={handleStatusClick}
+                      onStatusSelect={handleStatusSelect}
+                      isLoading={isLoading}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+                                  {/* Archived Applications Section */}
+                      {archivedJobs.length > 0 && (
+                        <div>
+                          <div className="border-t border-neutral-200 pt-8 mb-6">
+                          </div>
+                          <div className="job-cards-grid">
+                            {archivedJobs.map(job => (
+                              <JobCard
+                                key={job.id}
+                                job={job}
+                                onEdit={handleEdit}
+                                openStatusDropdown={openStatusDropdown}
+                                onStatusClick={handleStatusClick}
+                                onStatusSelect={handleStatusSelect}
+                                isLoading={isLoading}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+            {/* No Applications Message */}
+            {activeJobs.length === 0 && archivedJobs.length === 0 && (
+              <div className="card">
+                <div className="card-body text-center py-12">
+                  <div className="text-neutral-500 mb-4">
+                    {jobs.length === 0 ? 'No applications yet' : 'No applications match your filters'}
+                  </div>
+                  {jobs.length === 0 && (
+                    <button
+                      onClick={() => setShowForm(true)}
+                      className="btn btn-primary"
+                    >
+                      Add Your First Application
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </main>
@@ -610,6 +721,30 @@ function JobTracker() {
                   {validationErrors.map((error, index) => (
                     <div key={index} className="text-error-700 text-sm">{error}</div>
                   ))}
+                </div>
+              )}
+
+              {/* Job Description Upload */}
+              {!editingId && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-medium text-neutral-900 border-b border-neutral-200 pb-2">
+                      Quick Import
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => setShowJobUpload(!showJobUpload)}
+                      className="btn btn-secondary text-sm"
+                    >
+                      {showJobUpload ? 'Hide Upload' : 'Upload Job Description'}
+                    </button>
+                  </div>
+                  
+                                              {showJobUpload && (
+                              <JobDescriptionUpload
+                                onDataExtracted={handleJobDataExtracted}
+                              />
+                            )}
                 </div>
               )}
 
@@ -795,6 +930,19 @@ function JobTracker() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-neutral-700 mb-2">
+                    Job Req ID
+                  </label>
+                  <input
+                    type="text"
+                    name="job_req_id"
+                    value={form.job_req_id || ''}
+                    onChange={handleChange}
+                    className="form-input"
+                    placeholder="e.g., 10979"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-2">
                     Notes
                   </label>
                   <textarea
@@ -805,6 +953,19 @@ function JobTracker() {
                     rows={4}
                     placeholder="Additional notes, interview details, etc."
                   />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="archived"
+                    name="archived"
+                    checked={form.archived || false}
+                    onChange={(e) => setForm(prev => ({ ...prev, archived: e.target.checked }))}
+                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                  />
+                  <label htmlFor="archived" className="text-sm font-medium text-neutral-700">
+                    Archive this application
+                  </label>
                 </div>
               </div>
 

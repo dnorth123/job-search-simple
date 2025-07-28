@@ -910,6 +910,56 @@
     color: var(--status-withdrawn);
   }
   
+  .badge-archived {
+    background-color: rgba(156, 163, 175, 0.1);
+    color: var(--status-withdrawn);
+  }
+  
+  /* Archived card styling */
+  .job-card.archived {
+    opacity: 0.7;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #dee2e6 100%);
+    border-color: var(--neutral-300) !important;
+    border-left-color: var(--neutral-400) !important;
+    border-left-width: 6px !important;
+  }
+  
+  .job-card.archived::before {
+    background: linear-gradient(135deg, rgba(248, 249, 250, 0.8) 0%, rgba(233, 236, 239, 0.9) 100%);
+  }
+  
+  .job-card.archived:hover {
+    opacity: 0.9;
+    transform: translateY(-1px) scale(1.005);
+    box-shadow: var(--shadow-executive), 0 5px 15px -5px rgba(108, 117, 125, 0.1);
+  }
+  
+  /* Archived indicator */
+  .archived-indicator {
+    background-color: var(--neutral-600);
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+    border: 1px solid transparent;
+    min-width: 80px;
+    text-align: center;
+  }
+  
+  .archived-text {
+    font-size: 0.625rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+  
   /* Executive Premium Job Card Styles - LinkedIn Premium Competitive */
   .job-card {
     @apply bg-white rounded-2xl shadow-executive border border-neutral-200 overflow-hidden;
@@ -1061,6 +1111,24 @@
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.95) 100%);
   }
   
+  /* Override status colors for archived cards */
+  .job-card.archived[data-status="Applied"],
+  .job-card.archived[data-status="Interview"],
+  .job-card.archived[data-status="Offer"],
+  .job-card.archived[data-status="Rejected"],
+  .job-card.archived[data-status="Withdrawn"] {
+    border-left-color: var(--neutral-400) !important;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #dee2e6 100%) !important;
+  }
+  
+  .job-card.archived[data-status="Applied"]::before,
+  .job-card.archived[data-status="Interview"]::before,
+  .job-card.archived[data-status="Offer"]::before,
+  .job-card.archived[data-status="Rejected"]::before,
+  .job-card.archived[data-status="Withdrawn"]::before {
+    background: linear-gradient(135deg, rgba(248, 249, 250, 0.8) 0%, rgba(233, 236, 239, 0.9) 100%) !important;
+  }
+  
   /* Premium Card Content Styling */
   .job-card h2 {
     margin: 0 0 0.75rem 0;
@@ -1087,7 +1155,7 @@
   }
   
   .job-card .company::before {
-    content: '🏢';
+    content: '';
     font-size: 0.875rem;
     opacity: 0.8;
   }
@@ -1161,6 +1229,24 @@
     letter-spacing: var(--tracking-normal);
     line-height: 1.3;
     flex: 1;
+  }
+
+  .job-card .metadata-item .value a {
+    color: var(--executive-primary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color 0.2s var(--transition-executive);
+  }
+
+  .job-card .metadata-item .value a:hover {
+    color: var(--executive-primary-dark);
+    text-decoration-thickness: 2px;
+  }
+
+  .job-card .metadata-item .value a:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+    border-radius: 4px;
   }
   
   .job-card .metadata-item:hover {
@@ -1688,21 +1774,18 @@
   
   /* Executive Status Badge Styles with Interactive Dropdown */
   .status-badge {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
+    position: relative;
     padding: 0.5rem 0.75rem;
-    border-radius: 999px;
+    border-radius: 0.5rem;
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     cursor: pointer;
-    transition: all 0.3s var(--transition-executive-smooth);
+    transition: all 0.2s ease-out;
     border: 1px solid transparent;
-    box-shadow: var(--shadow-executive-soft);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
     backdrop-filter: blur(8px);
-    position: relative;
     min-width: 80px;
     text-align: center;
     user-select: none;
@@ -1710,7 +1793,7 @@
   
   .status-badge:hover {
     transform: translateY(-1px);
-    box-shadow: var(--shadow-executive);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   }
   
   .status-badge:active {
@@ -1787,19 +1870,19 @@
   /* Status Dropdown Menu */
   .status-dropdown {
     position: absolute;
-    top: calc(100% + 0.5rem);
+    top: calc(100% + 0.25rem);
     left: 0;
-    min-width: 160px;
+    width: 100%;
     background: white;
-    border-radius: 0.75rem;
-    box-shadow: var(--shadow-executive-large);
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     border: 1px solid var(--neutral-200);
-    backdrop-filter: blur(12px);
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-8px);
-    transition: all 0.3s var(--transition-executive-smooth);
-    z-index: 50;
+    backdrop-filter: blur(8px);
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    transition: all 0.2s ease-out;
+    z-index: 1000;
     overflow: hidden;
   }
   
@@ -1812,13 +1895,15 @@
   .status-dropdown-item {
     display: flex;
     align-items: center;
-    padding: 0.75rem 1rem;
+    padding: 0.5rem 0.75rem;
     color: var(--neutral-700);
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     font-weight: 500;
-    transition: all 0.2s var(--transition-executive-smooth);
+    transition: all 0.15s ease-out;
     cursor: pointer;
     border-bottom: 1px solid var(--neutral-100);
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
   }
   
   .status-dropdown-item:last-child {
@@ -1826,25 +1911,17 @@
   }
   
   .status-dropdown-item:hover {
-    background: linear-gradient(135deg, var(--neutral-50) 0%, var(--neutral-100) 100%);
+    background: var(--neutral-50);
     color: var(--neutral-900);
   }
   
   .status-dropdown-item.active {
-    background: linear-gradient(135deg, var(--executive-primary-lighter) 0%, var(--executive-primary-light) 100%);
+    background: var(--executive-primary-light);
     color: var(--executive-primary-dark);
     font-weight: 600;
   }
   
-  .status-dropdown-item::before {
-    content: '';
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    margin-right: 0.75rem;
-    background: currentColor;
-    opacity: 0.8;
-  }
+
   
   /* Executive Premium Loading States */
   .loading-spinner {

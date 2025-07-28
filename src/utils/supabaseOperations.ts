@@ -368,10 +368,14 @@ export async function getJobApplication(applicationId: string): Promise<JobAppli
 }
 
 export async function addJobApplication(applicationData: Omit<JobApplication, 'id' | 'created_at' | 'updated_at'>): Promise<JobApplication> {
+  // Remove current_status from applicationData since it's computed from timeline
+  const dbApplicationData = { ...applicationData };
+  delete dbApplicationData.current_status;
+  
   // Start a transaction
   const { data: application, error: appError } = await supabase
     .from(TABLES.APPLICATIONS)
-    .insert(applicationData)
+    .insert(dbApplicationData)
     .select()
     .single();
   
@@ -395,9 +399,13 @@ export async function addJobApplication(applicationData: Omit<JobApplication, 'i
 }
 
 export async function updateJobApplication(applicationId: string, updates: Partial<Omit<JobApplication, 'id' | 'created_at' | 'updated_at'>>): Promise<JobApplication> {
+  // Remove current_status from updates since it's computed from timeline
+  const dbUpdates = { ...updates };
+  delete dbUpdates.current_status;
+  
   const { data, error } = await supabase
     .from(TABLES.APPLICATIONS)
-    .update(updates)
+    .update(dbUpdates)
     .eq('id', applicationId)
     .select()
     .single();

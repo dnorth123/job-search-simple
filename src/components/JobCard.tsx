@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import type { JobApplication, JobStatus } from '../jobTypes';
 
 interface JobCardProps {
@@ -20,6 +20,8 @@ export const JobCard: React.FC<JobCardProps> = ({
   onStatusSelect,
   isLoading = false
 }) => {
+  const [pageTitle, setPageTitle] = useState<string | null>(null);
+  const [isLoadingTitle, setIsLoadingTitle] = useState(false);
 
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString('en-US', {
@@ -40,27 +42,66 @@ export const JobCard: React.FC<JobCardProps> = ({
     }
   };
 
-
-
   const formatSalary = (min?: number, max?: number) => {
     if (!min || !max) return null;
     return `$${min.toLocaleString()} - $${max.toLocaleString()}`;
   };
 
+  // Function to fetch page title from URL
+  const fetchPageTitle = async (url: string) => {
+    if (!url) return;
+    
+    setIsLoadingTitle(true);
+    try {
+      // Use a CORS proxy to fetch the page title
+      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+      const response = await fetch(proxyUrl);
+      const data = await response.json();
+      
+      if (data.contents) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(data.contents, 'text/html');
+        const title = doc.querySelector('title')?.textContent || 'Job Posting';
+        setPageTitle(title);
+      } else {
+        setPageTitle('Job Posting');
+      }
+    } catch (error) {
+      console.error('Error fetching page title:', error);
+      setPageTitle('Job Posting');
+    } finally {
+      setIsLoadingTitle(false);
+    }
+  };
 
+  // Fetch page title when job URL changes
+  useEffect(() => {
+    if (job.job_posting_url) {
+      fetchPageTitle(job.job_posting_url);
+    }
+  }, [job.job_posting_url]);
+
+
+
+  const handleJobUrlClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (job.job_posting_url) {
+      window.open(job.job_posting_url, '_blank', 'noopener,noreferrer');
+    }
+  };
 
   return (
     <div 
-      className={`job-card ${isLoading ? 'loading' : ''}`}
+      className={`job-card ${isLoading ? 'loading' : ''} ${job.archived ? 'archived' : ''}`}
       data-status={job.current_status || 'Applied'}
     >
       {/* Executive Header with Edit Button */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
-          <h2 className="text-executive-primary font-bold mb-2">
+          <h2 className={`font-bold mb-2 ${job.archived ? 'text-neutral-500' : 'text-executive-primary'}`}>
             {job.position}
           </h2>
-          <div className="company text-intelligence-primary">
+          <div className={`company ${job.archived ? 'text-neutral-400' : 'text-intelligence-primary'}`}>
             {job.company?.name || 'Unknown Company'}
           </div>
         </div>
@@ -85,7 +126,34 @@ export const JobCard: React.FC<JobCardProps> = ({
           <span className="value">{formatDate(job.date_applied)}</span>
         </div>
         
-
+        {job.job_posting_url && (
+          <div className="metadata-item">
+            <span className="label">Job Posting:</span>
+            <span className="value">
+              <a
+                href={job.job_posting_url}
+                onClick={handleJobUrlClick}
+                className="text-blue-600 hover:text-blue-800 underline flex items-center gap-1"
+                target="_blank"
+                rel="noopener noreferrer"
+                title={job.job_posting_url}
+              >
+                {isLoadingTitle ? (
+                  <span className="text-gray-500">Loading...</span>
+                ) : (
+                  <>
+                    <span className="truncate">
+                      {pageTitle || 'Job Posting'}
+                    </span>
+                    <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </>
+                )}
+              </a>
+            </span>
+          </div>
+        )}
         
         {formatSalary(job.salary_range_min, job.salary_range_max) && (
           <div className="metadata-item">
@@ -114,27 +182,50 @@ export const JobCard: React.FC<JobCardProps> = ({
             <span className="value">{job.application_source}</span>
           </div>
         )}
+        
+        {job.job_req_id && (
+          <div className="metadata-item">
+            <span className="label">Req ID:</span>
+            <span className="value">{job.job_req_id}</span>
+          </div>
+        )}
       </div>
 
-      {/* Status Badge in Bottom Right */}
-      <div className="absolute bottom-6 right-4">
-        <div className="relative status-dropdown-container">
-          <button
-            onClick={() => onStatusClick(job)}
-            className={`status-badge ${getStatusColor(job.current_status || 'Applied')} ${
-              openStatusDropdown === job.id ? 'open' : ''
-            }`}
-            title="Click to change status"
-          >
-            {job.current_status || 'Applied'}
-          </button>
+                        {/* Archived Indicator in Bottom Left */}
+                  {job.archived && (
+                    <div className="absolute bottom-6 left-4">
+                      <div className="archived-indicator">
+                        <span className="archived-text">Archived</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Status Badge in Bottom Right */}
+                  <div className="absolute bottom-6 right-4">
+                    <div className="relative status-dropdown-container">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onStatusClick(job);
+                        }}
+                        className={`status-badge !relative !top-auto !right-auto ${job.archived ? 'badge-archived' : getStatusColor(job.current_status || 'Applied')} ${
+                          openStatusDropdown === job.id ? 'open' : ''
+                        }`}
+                        title="Click to change status"
+                      >
+                        {job.current_status || 'Applied'}
+                      </button>
           
           {openStatusDropdown === job.id && (
             <div className="status-dropdown">
+              {/* Status dropdown options */}
               {STATUS_OPTIONS.map(status => (
                 <button
                   key={status}
-                  onClick={() => onStatusSelect(job, status)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onStatusSelect(job, status);
+                  }}
                   className={`status-dropdown-item ${
                     job.current_status === status ? 'active' : ''
                   }`}

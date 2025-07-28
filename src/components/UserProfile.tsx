@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import type { UserProfileFormData } from '../jobTypes';
 import { validateUserProfileForm } from '../utils/validation';
-import ProfileUpload from './ProfileUpload';
+import { ResumeUpload } from './ResumeUpload';
 import { AdminBetaInvites } from './AdminBetaInvites';
 
 export function UserProfile() {
@@ -108,17 +108,19 @@ export function UserProfile() {
     }));
   };
 
-  const handleDataPopulated = (uploadedData: Partial<UserProfileFormData>) => {
+  const handleResumeDataExtracted = (data: { first_name?: string; last_name?: string; professional_title?: string; industry_category?: import('../jobTypes').IndustryCategory; career_level?: import('../jobTypes').CareerLevel; linkedin_url?: string; portfolio_url?: string; phone_number?: string; location?: string; years_experience?: number; skills?: string[] }) => {
     setFormData(prev => ({
       ...prev,
-      ...uploadedData
+      ...data
     }));
     
-    // Update skills text if skills were uploaded
-    if (uploadedData.skills && Array.isArray(uploadedData.skills)) {
-      setSkillsText(uploadedData.skills.join(', '));
+    // Update skills text if skills were extracted
+    if (data.skills && Array.isArray(data.skills)) {
+      setSkillsText(data.skills.join(', '));
     }
   };
+
+
 
 
 
@@ -155,12 +157,12 @@ export function UserProfile() {
         )}
         
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Profile Upload */}
+          {/* Resume Upload */}
           <div className="space-y-4">
             <h3 className="text-lg font-medium text-secondary-900 border-b border-secondary-200 pb-2">
               Import Profile Data
             </h3>
-            <ProfileUpload onDataPopulated={handleDataPopulated} disabled={loading} />
+            <ResumeUpload onDataExtracted={handleResumeDataExtracted} disabled={loading} />
           </div>
 
           {/* Basic Information */}

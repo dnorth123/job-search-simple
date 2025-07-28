@@ -58,6 +58,7 @@ export interface JobApplication {
   notes?: string;
   date_applied: string; // ISO date string
   job_posting_url?: string;
+  job_req_id?: string;
   recruiter_name?: string;
   recruiter_email?: string;
   recruiter_phone?: string;
@@ -65,6 +66,7 @@ export interface JobApplication {
   benefits_mentioned?: string;
   equity_offered?: boolean;
   equity_details?: string;
+  archived?: boolean;
   created_at: string;
   updated_at: string;
   // Joined data
@@ -99,12 +101,14 @@ export interface JobApplicationFormData {
   notes?: string;
   date_applied: string;
   job_posting_url?: string;
+  job_req_id?: string;
   recruiter_name?: string;
   recruiter_email?: string;
   recruiter_phone?: string;
   benefits_mentioned?: string;
   equity_offered?: boolean;
   equity_details?: string;
+  archived?: boolean;
 }
 
 export interface CompanyFormData {
