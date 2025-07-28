@@ -58,7 +58,6 @@ function JobTracker() {
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<JobStatus | 'All'>('All');
-  const [priorityFilter, setPriorityFilter] = useState<PriorityLevel | 'All'>('All');
   const [dataLoaded, setDataLoaded] = useState(false);
   const [openStatusDropdown, setOpenStatusDropdown] = useState<string | null>(null);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -353,9 +352,8 @@ function JobTracker() {
     const matchesSearch = job.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          job.company?.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'All' || job.current_status === statusFilter;
-    const matchesPriority = priorityFilter === 'All' || job.priority_level === priorityFilter;
     
-    return matchesSearch && matchesStatus && matchesPriority;
+    return matchesSearch && matchesStatus;
   });
 
   const stats = {
@@ -367,14 +365,14 @@ function JobTracker() {
   };
 
   return (
-            <div className="min-h-screen bg-gray-50">
+            <div className="min-h-screen bg-neutral-50">
             {/* Header */}
-      <header className="bg-white shadow-soft border-b border-gray-200">
+      <header className="bg-white shadow-executive border-b border-neutral-200">
         <div className="container-padding">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:py-0 sm:h-16">
             {/* Title and User Info */}
             <div className="flex items-center justify-between sm:justify-start mb-3 sm:mb-0">
-              <h1 className="text-xl sm:text-2xl font-bold text-secondary-900 truncate">Executive Job Tracker</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-neutral-900 truncate">Executive Job Tracker</h1>
               <div className="sm:hidden">
                 <button
                   onClick={() => {
@@ -382,7 +380,7 @@ function JobTracker() {
                       setShowProfile(true);
                     }
                   }}
-                  className="flex items-center space-x-1 text-sm text-secondary-600 hover:text-secondary-700 hover:bg-secondary-50 border border-secondary-200 px-2 py-1 rounded-lg transition-all duration-200"
+                  className="flex items-center space-x-1 text-sm text-neutral-600 hover:text-neutral-700 hover:bg-neutral-50 border border-neutral-200 px-2 py-1 rounded-lg transition-all duration-200"
                   disabled={showForm || showLogoutConfirm}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -401,7 +399,7 @@ function JobTracker() {
                     setShowProfile(true);
                   }
                 }}
-                className="flex items-center space-x-2 text-sm text-secondary-600 hover:text-secondary-700 hover:bg-secondary-50 border border-secondary-200 px-3 py-2 rounded-lg transition-all duration-200"
+                className="flex items-center space-x-2 text-sm text-neutral-600 hover:text-neutral-700 hover:bg-neutral-50 border border-neutral-200 px-3 py-2 rounded-lg transition-all duration-200"
                 disabled={showForm || showLogoutConfirm}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -456,8 +454,8 @@ function JobTracker() {
                 </>
               ) : (
                 <>
-                  <div className="text-2xl font-bold text-secondary-900">{stats.total}</div>
-                  <div className="text-sm text-secondary-600">Total Applications</div>
+                  <div className="text-2xl font-bold text-neutral-900">{stats.total}</div>
+                  <div className="text-sm text-neutral-600">Total Applications</div>
                 </>
               )}
             </div>
@@ -471,8 +469,8 @@ function JobTracker() {
                 </>
               ) : (
                 <>
-                  <div className="text-2xl font-bold text-primary-600">{stats.applied}</div>
-                  <div className="text-sm text-secondary-600">Applied</div>
+                  <div className="text-2xl font-bold text-executive">{stats.applied}</div>
+                  <div className="text-sm text-neutral-600">Applied</div>
                 </>
               )}
             </div>
@@ -486,8 +484,8 @@ function JobTracker() {
                 </>
               ) : (
                 <>
-                  <div className="text-2xl font-bold text-accent-600">{stats.interview}</div>
-                  <div className="text-sm text-secondary-600">Interviews</div>
+                  <div className="text-2xl font-bold text-intelligence">{stats.interview}</div>
+                  <div className="text-sm text-neutral-600">Interviews</div>
                 </>
               )}
             </div>
@@ -502,7 +500,7 @@ function JobTracker() {
               ) : (
                 <>
                   <div className="text-2xl font-bold text-success-600">{stats.offer}</div>
-                  <div className="text-sm text-secondary-600">Offers</div>
+                  <div className="text-sm text-neutral-600">Offers</div>
                 </>
               )}
             </div>
@@ -517,7 +515,7 @@ function JobTracker() {
               ) : (
                 <>
                   <div className="text-2xl font-bold text-error-600">{stats.rejected}</div>
-                  <div className="text-sm text-secondary-600">Rejected</div>
+                  <div className="text-sm text-neutral-600">Rejected</div>
                 </>
               )}
             </div>
@@ -527,9 +525,9 @@ function JobTracker() {
         {/* Filters and Search */}
         <div className="card mb-6">
           <div className="card-body">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-secondary-700 mb-2">
+                <label className="block text-sm font-medium text-neutral-700 mb-2">
                   Search
                 </label>
                 <input
@@ -541,7 +539,7 @@ function JobTracker() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-secondary-700 mb-2">
+                <label className="block text-sm font-medium text-neutral-700 mb-2">
                   Status
                 </label>
                 <select
@@ -555,27 +553,11 @@ function JobTracker() {
                   ))}
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-secondary-700 mb-2">
-                  Priority
-                </label>
-                <select
-                  value={priorityFilter}
-                  onChange={(e) => setPriorityFilter(e.target.value as PriorityLevel | 'All')}
-                  className="form-select"
-                >
-                  <option value="All">All Priorities</option>
-                  {PRIORITY_OPTIONS.map(option => (
-                    <option key={option.value} value={option.value}>{option.label}</option>
-                  ))}
-                </select>
-              </div>
               <div className="flex items-end">
                 <button
                   onClick={() => {
                     setSearchTerm('');
                     setStatusFilter('All');
-                    setPriorityFilter('All');
                   }}
                   className="btn btn-secondary w-full"
                 >
@@ -619,7 +601,7 @@ function JobTracker() {
         ) : filteredJobs.length === 0 ? (
           <div className="card">
             <div className="card-body text-center py-12">
-              <div className="text-secondary-500 mb-4">
+              <div className="text-neutral-500 mb-4">
                 {jobs.length === 0 ? 'No applications yet' : 'No applications match your filters'}
               </div>
               {jobs.length === 0 && (
@@ -639,8 +621,8 @@ function JobTracker() {
                 <div className="card-body">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
-                      <h3 className="font-semibold text-secondary-900 mb-1">{job.position}</h3>
-                      <p className="text-sm text-secondary-600">{job.company?.name || 'Unknown Company'}</p>
+                                          <h3 className="font-semibold text-neutral-900 mb-1">{job.position}</h3>
+                    <p className="text-sm text-neutral-600">{job.company?.name || 'Unknown Company'}</p>
                     </div>
                                          <div className="flex items-center space-x-2 relative status-dropdown-container">
                        <button
@@ -678,25 +660,25 @@ function JobTracker() {
                   </div>
                   
                   <div className="space-y-2 mb-4">
-                    <div className="flex items-center text-sm text-secondary-600">
+                    <div className="flex items-center text-sm text-neutral-600">
                       <span className="font-medium mr-2">Applied:</span>
                       {formatDate(job.date_applied)}
                     </div>
                                          {job.salary_range_min && job.salary_range_max && (
-                       <div className="flex items-center text-sm text-secondary-600">
+                       <div className="flex items-center text-sm text-neutral-600">
                          <span className="font-medium mr-2">Salary:</span>
                          ${job.salary_range_min.toLocaleString()} - ${job.salary_range_max.toLocaleString()}
                        </div>
                      )}
                     {job.remote_policy && (
-                      <div className="flex items-center text-sm text-secondary-600">
+                      <div className="flex items-center text-sm text-neutral-600">
                         <span className="font-medium mr-2">Work Policy:</span>
                         {job.remote_policy}
                       </div>
                     )}
                   </div>
                   
-                  <div className="flex items-center justify-end pt-3 border-t border-secondary-200">
+                  <div className="flex items-center justify-end pt-3 border-t border-neutral-200">
                     <div className="flex space-x-1">
                       <button
                         onClick={() => handleEdit(job)}
@@ -733,7 +715,7 @@ function JobTracker() {
           <div className="bg-white rounded-xl shadow-large max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="card-header">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-secondary-900">
+                <h2 className="text-xl font-semibold text-neutral-900">
                   {editingId ? 'Edit Application' : 'Add New Application'}
                 </h2>
                 <button
@@ -761,12 +743,12 @@ function JobTracker() {
 
               {/* Basic Information */}
               <div className="space-y-4">
-                <h3 className="text-lg font-medium text-secondary-900 border-b border-secondary-200 pb-2">
+                <h3 className="text-lg font-medium text-neutral-900 border-b border-neutral-200 pb-2">
                   Basic Information
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-secondary-700 mb-2">
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
                       Position Title *
                     </label>
                     <input
@@ -780,7 +762,7 @@ function JobTracker() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-secondary-700 mb-2">
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
                       Date Applied *
                     </label>
                     <input
@@ -795,7 +777,7 @@ function JobTracker() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-secondary-700 mb-2">
+                  <label className="block text-sm font-medium text-neutral-700 mb-2">
                     Company *
                   </label>
                   <CompanySelector
@@ -808,12 +790,12 @@ function JobTracker() {
 
               {/* Compensation & Benefits */}
               <div className="space-y-4">
-                <h3 className="text-lg font-medium text-secondary-900 border-b border-secondary-200 pb-2">
+                <h3 className="text-lg font-medium text-neutral-900 border-b border-neutral-200 pb-2">
                   Compensation & Benefits
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                      <div>
-                     <label className="block text-sm font-medium text-secondary-700 mb-2">
+                     <label className="block text-sm font-medium text-neutral-700 mb-2">
                        Salary Range (Min)
                      </label>
                      <input
@@ -826,7 +808,7 @@ function JobTracker() {
                      />
                    </div>
                    <div>
-                     <label className="block text-sm font-medium text-secondary-700 mb-2">
+                     <label className="block text-sm font-medium text-neutral-700 mb-2">
                        Salary Range (Max)
                      </label>
                      <input
@@ -839,7 +821,7 @@ function JobTracker() {
                      />
                    </div>
                   <div>
-                    <label className="block text-sm font-medium text-secondary-700 mb-2">
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
                       Equity Offered
                     </label>
                                          <input
@@ -853,7 +835,7 @@ function JobTracker() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-secondary-700 mb-2">
+                  <label className="block text-sm font-medium text-neutral-700 mb-2">
                     Benefits Offered
                   </label>
                   <textarea
@@ -869,12 +851,12 @@ function JobTracker() {
 
               {/* Location & Work Policy */}
               <div className="space-y-4">
-                <h3 className="text-lg font-medium text-secondary-900 border-b border-secondary-200 pb-2">
+                <h3 className="text-lg font-medium text-neutral-900 border-b border-neutral-200 pb-2">
                   Location & Work Policy
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-secondary-700 mb-2">
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
                       Remote Policy
                     </label>
                     <select
@@ -890,7 +872,7 @@ function JobTracker() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-secondary-700 mb-2">
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
                       Location
                     </label>
                     <input
@@ -907,12 +889,12 @@ function JobTracker() {
 
               {/* Application Details */}
               <div className="space-y-4">
-                <h3 className="text-lg font-medium text-secondary-900 border-b border-secondary-200 pb-2">
+                <h3 className="text-lg font-medium text-neutral-900 border-b border-neutral-200 pb-2">
                   Application Details
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-secondary-700 mb-2">
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
                       Application Source
                     </label>
                     <select
@@ -928,7 +910,7 @@ function JobTracker() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-secondary-700 mb-2">
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
                       Priority Level
                     </label>
                     <select
@@ -944,7 +926,7 @@ function JobTracker() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-secondary-700 mb-2">
+                  <label className="block text-sm font-medium text-neutral-700 mb-2">
                     Job URL
                   </label>
                   <input
@@ -957,7 +939,7 @@ function JobTracker() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-secondary-700 mb-2">
+                  <label className="block text-sm font-medium text-neutral-700 mb-2">
                     Notes
                   </label>
                   <textarea
@@ -971,7 +953,7 @@ function JobTracker() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-end space-x-3 pt-6 border-t border-secondary-200">
+              <div className="flex items-center justify-end space-x-3 pt-6 border-t border-neutral-200">
                 <button
                   type="button"
                   onClick={() => {
@@ -1013,7 +995,7 @@ function JobTracker() {
           <div className="bg-white rounded-xl shadow-large max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="card-header sticky top-0 bg-white z-10">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-secondary-900">Profile</h2>
+                <h2 className="text-xl font-semibold text-neutral-900">Profile</h2>
                 <div className="flex items-center space-x-3">
                   <button
                     onClick={() => setShowLogoutConfirm(true)}
@@ -1051,7 +1033,7 @@ function JobTracker() {
           <div className="bg-white rounded-xl shadow-large max-w-md w-full">
             <div className="card-header">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-secondary-900">Confirm Logout</h2>
+                <h2 className="text-xl font-semibold text-neutral-900">Confirm Logout</h2>
                 <button
                   onClick={() => setShowLogoutConfirm(false)}
                   className="btn btn-ghost"
@@ -1068,8 +1050,8 @@ function JobTracker() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-medium text-secondary-900 mb-2">Are you sure you want to logout?</h3>
-                <p className="text-secondary-600 mb-6">
+                <h3 className="text-lg font-medium text-neutral-900 mb-2">Are you sure you want to logout?</h3>
+                <p className="text-neutral-600 mb-6">
                   You will be signed out of your account and redirected to the login page.
                 </p>
                 {error && (
@@ -1169,13 +1151,13 @@ function App() {
   if (loading) {
     console.log('Showing progressive loading state');
     return (
-      <div className="min-h-screen bg-gray-50">
+              <div className="min-h-screen bg-neutral-50">
         {/* Show skeleton UI immediately for better perceived performance */}
-        <header className="bg-white shadow-soft border-b border-gray-200">
+        <header className="bg-white shadow-executive border-b border-neutral-200">
           <div className="container-padding">
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center space-x-4">
-                <h1 className="text-2xl font-bold text-secondary-900">Executive Job Tracker</h1>
+                <h1 className="text-2xl font-bold text-neutral-900">Executive Job Tracker</h1>
                 <div className="hidden sm:block">
                   <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
                 </div>
@@ -1232,11 +1214,11 @@ function App() {
   // Show signup screen for unauthenticated users
   if (!user && showSignup) {
     return (
-      <div className="min-h-screen bg-secondary-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center p-4">
         <div className="card max-w-md w-full">
           <div className="card-header text-center">
-            <h1 className="text-2xl font-bold text-secondary-900">Executive Job Tracker</h1>
-            <p className="text-secondary-600 mt-2">Create your account to get started</p>
+            <h1 className="text-2xl font-bold text-neutral-900">Executive Job Tracker</h1>
+            <p className="text-neutral-600 mt-2">Create your account to get started</p>
           </div>
           <div className="card-body">
             <SignupForm onAuthSuccess={() => {}} />
@@ -1249,11 +1231,11 @@ function App() {
   // Show login screen for unauthenticated users
   if (!user) {
     return (
-      <div className="min-h-screen bg-secondary-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center p-4">
         <div className="card max-w-md w-full">
           <div className="card-header text-center">
-            <h1 className="text-2xl font-bold text-secondary-900">Executive Job Tracker</h1>
-            <p className="text-secondary-600 mt-2">Sign in to manage your job applications</p>
+            <h1 className="text-2xl font-bold text-neutral-900">Executive Job Tracker</h1>
+            <p className="text-neutral-600 mt-2">Sign in to manage your job applications</p>
           </div>
           <div className="card-body">
             <LoginForm onAuthSuccess={() => {}} />
@@ -1266,11 +1248,11 @@ function App() {
   // Show profile setup only if user exists but no profile (and not still loading profile)
   if (!profile && !profileLoading) {
     return (
-      <div className="min-h-screen bg-secondary-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center p-4">
         <div className="card max-w-2xl w-full">
           <div className="card-header text-center">
-            <h1 className="text-2xl font-bold text-secondary-900">Complete Your Profile</h1>
-            <p className="text-secondary-600 mt-2">Set up your professional profile to get started</p>
+            <h1 className="text-2xl font-bold text-neutral-900">Complete Your Profile</h1>
+            <p className="text-neutral-600 mt-2">Set up your professional profile to get started</p>
           </div>
           <div className="card-body">
             <ProfileSetupForm onComplete={() => {}} />

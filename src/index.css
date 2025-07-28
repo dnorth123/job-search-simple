@@ -4,16 +4,66 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* Executive-level color system */
+    --executive-primary: #0066cc;
+    --executive-primary-dark: #0052a3;
+    --executive-primary-deep: #003d7a;
+    --executive-primary-light: #7bb8ff;
+    --executive-primary-lighter: #c7e3ff;
+    
+    /* Intelligence accent colors */
+    --intelligence-primary: #9b7cff;
+    --intelligence-secondary: #7c5af6;
+    --intelligence-deep: #6b46c1;
+    --intelligence-light: #d4ccff;
+    --intelligence-lighter: #f0eeff;
+    
+    /* Executive-grade neutral palette */
+    --neutral-50: #fafaf9;
+    --neutral-100: #f5f5f4;
+    --neutral-200: #e7e5e4;
+    --neutral-300: #d6d3d1;
+    --neutral-400: #a8a29e;
+    --neutral-500: #78716c;
+    --neutral-600: #57534e;
+    --neutral-700: #44403c;
+    --neutral-800: #292524;
+    --neutral-900: #1c1917;
+    
+    /* Professional status colors */
+    --status-applied: #0ea5e9;
+    --status-interview: #f2750f;
+    --status-offer: #22c55e;
+    --status-rejected: #ef4444;
+    --status-withdrawn: #64748b;
+    
+    /* Executive shadows */
+    --shadow-executive-soft: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+    --shadow-executive: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+    --shadow-executive-medium: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-executive-large: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-executive-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    
+    /* Executive transitions */
+    --transition-executive: cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-executive-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    --transition-executive-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
   html {
     font-family: 'Inter', system-ui, sans-serif;
   }
   
   body {
-    @apply bg-gray-50 text-gray-900 antialiased;
+    @apply bg-neutral-50 text-neutral-900 antialiased;
+    background-color: var(--neutral-50);
+    color: var(--neutral-900);
   }
   
   * {
-    @apply border-gray-200;
+    @apply border-neutral-200;
+    border-color: var(--neutral-200);
   }
 }
 
@@ -21,102 +71,184 @@
   /* Executive-level button styles */
   .btn {
     @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    transition-timing-function: var(--transition-executive);
   }
   
   .btn-primary {
-    @apply bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 shadow-soft hover:shadow-medium;
+    @apply bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 shadow-executive hover:shadow-executive-medium;
+    background-color: var(--executive-primary);
+    box-shadow: var(--shadow-executive);
+  }
+  
+  .btn-primary:hover {
+    background-color: var(--executive-primary-dark);
+    box-shadow: var(--shadow-executive-medium);
   }
   
   .btn-secondary {
-    @apply bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-gray-500 shadow-soft hover:shadow-medium;
+    @apply bg-white text-neutral-700 border border-neutral-300 hover:bg-neutral-50 focus:ring-neutral-500 shadow-executive-soft hover:shadow-executive;
+    color: var(--neutral-700);
+    border-color: var(--neutral-300);
+  }
+  
+  .btn-secondary:hover {
+    background-color: var(--neutral-50);
+    box-shadow: var(--shadow-executive);
+  }
+  
+  .btn-intelligence {
+    @apply bg-intelligence-600 text-white hover:bg-intelligence-700 focus:ring-intelligence-500 shadow-executive hover:shadow-executive-medium;
+    background-color: var(--intelligence-primary);
+    box-shadow: var(--shadow-executive);
+  }
+  
+  .btn-intelligence:hover {
+    background-color: var(--intelligence-secondary);
+    box-shadow: var(--shadow-executive-medium);
   }
   
   .btn-success {
-    @apply bg-success-600 text-white hover:bg-success-700 focus:ring-success-500 shadow-soft hover:shadow-medium;
+    @apply bg-success-600 text-white hover:bg-success-700 focus:ring-success-500 shadow-executive hover:shadow-executive-medium;
   }
   
   .btn-warning {
-    @apply bg-warning-600 text-white hover:bg-warning-700 focus:ring-warning-500 shadow-soft hover:shadow-medium;
+    @apply bg-warning-600 text-white hover:bg-warning-700 focus:ring-warning-500 shadow-executive hover:shadow-executive-medium;
   }
   
   .btn-error {
-    @apply bg-error-600 text-white hover:bg-error-700 focus:ring-error-500 shadow-soft hover:shadow-medium;
+    @apply bg-error-600 text-white hover:bg-error-700 focus:ring-error-500 shadow-executive hover:shadow-executive-medium;
   }
   
   .btn-ghost {
-    @apply text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:ring-gray-500;
+    @apply text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 focus:ring-neutral-500;
+    color: var(--neutral-600);
   }
   
-  /* Form styles */
+  .btn-ghost:hover {
+    color: var(--neutral-900);
+    background-color: var(--neutral-100);
+  }
+  
+  /* Executive form styles */
   .form-input {
-    @apply block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200;
+    @apply block w-full px-3 py-2 border border-neutral-300 rounded-lg shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200;
+    border-color: var(--neutral-300);
+    transition-timing-function: var(--transition-executive);
+  }
+  
+  .form-input:focus {
+    border-color: var(--executive-primary);
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
   }
   
   .form-select {
-    @apply block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200;
+    @apply block w-full px-3 py-2 border border-neutral-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200;
+    border-color: var(--neutral-300);
+    transition-timing-function: var(--transition-executive);
+  }
+  
+  .form-select:focus {
+    border-color: var(--executive-primary);
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
   }
   
   .form-textarea {
-    @apply block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200 resize-y;
+    @apply block w-full px-3 py-2 border border-neutral-300 rounded-lg shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200 resize-y;
+    border-color: var(--neutral-300);
+    transition-timing-function: var(--transition-executive);
   }
   
-  /* Card styles */
+  .form-textarea:focus {
+    border-color: var(--executive-primary);
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+  }
+  
+  /* Executive card styles */
   .card {
-    @apply bg-white rounded-xl shadow-soft border border-gray-200 overflow-hidden;
+    @apply bg-white rounded-xl shadow-executive border border-neutral-200 overflow-hidden;
+    background-color: white;
+    box-shadow: var(--shadow-executive);
+    border-color: var(--neutral-200);
   }
   
   .card-header {
-    @apply px-6 py-4 border-b border-gray-200 bg-gray-50;
+    @apply px-6 py-4 border-b border-neutral-200 bg-neutral-50;
+    border-color: var(--neutral-200);
+    background-color: var(--neutral-50);
   }
   
   .card-body {
     @apply px-6 py-4;
   }
   
-  /* Status badges */
+  .card-elevated {
+    @apply bg-white rounded-xl shadow-executive-large border border-neutral-200 overflow-hidden;
+    box-shadow: var(--shadow-executive-large);
+  }
+  
+  .card-premium {
+    @apply bg-white rounded-xl shadow-executive-xl border border-neutral-200 overflow-hidden;
+    box-shadow: var(--shadow-executive-xl);
+  }
+  
+  /* Professional status badges */
   .badge {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
   }
   
   .badge-applied {
-    @apply bg-primary-100 text-primary-800;
+    background-color: rgba(14, 165, 233, 0.1);
+    color: var(--status-applied);
   }
   
   .badge-interview {
-    @apply bg-accent-100 text-accent-800;
+    background-color: rgba(155, 124, 255, 0.1);
+    color: var(--intelligence-primary);
   }
   
   .badge-offer {
-    @apply bg-success-100 text-success-800;
+    background-color: rgba(34, 197, 94, 0.1);
+    color: var(--status-offer);
   }
   
   .badge-rejected {
-    @apply bg-error-100 text-error-800;
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--status-rejected);
   }
   
   .badge-withdrawn {
-    @apply bg-gray-100 text-gray-800;
+    background-color: rgba(100, 116, 139, 0.1);
+    color: var(--status-withdrawn);
   }
   
-  /* Action buttons */
+  /* Executive action buttons */
   .action-button {
     @apply inline-flex items-center px-3 py-2 text-xs font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1;
+    transition-timing-function: var(--transition-executive);
   }
   
   .action-button-edit {
-    @apply text-gray-600 bg-gray-50 hover:bg-gray-100 focus:ring-gray-300;
+    @apply text-neutral-600 bg-neutral-50 hover:bg-neutral-100 focus:ring-neutral-300;
+    color: var(--neutral-600);
+    background-color: var(--neutral-50);
+  }
+  
+  .action-button-edit:hover {
+    background-color: var(--neutral-100);
   }
   
   .action-button-delete {
     @apply text-red-600 bg-red-50 hover:bg-red-100 focus:ring-red-300;
   }
   
-  /* Loading states */
+  /* Executive loading states */
   .loading-spinner {
-    @apply animate-spin rounded-full border-2 border-gray-300 border-t-primary-600;
+    @apply animate-spin rounded-full border-2 border-neutral-300 border-t-primary-600;
+    border-color: var(--neutral-300);
+    border-top-color: var(--executive-primary);
   }
   
-  /* Animations */
+  /* Executive animations */
   .fade-in {
     @apply animate-fade-in;
   }
@@ -132,6 +264,47 @@
   .scale-in {
     @apply animate-scale-in;
   }
+  
+  .executive-fade {
+    @apply animate-executive-fade;
+  }
+  
+  .executive-slide {
+    @apply animate-executive-slide;
+  }
+  
+  /* Executive gradients */
+  .executive-gradient {
+    background: linear-gradient(135deg, var(--executive-primary) 0%, var(--executive-primary-dark) 50%, var(--executive-primary-deep) 100%);
+  }
+  
+  .intelligence-gradient {
+    background: linear-gradient(135deg, var(--intelligence-primary) 0%, var(--intelligence-secondary) 50%, var(--intelligence-deep) 100%);
+  }
+  
+  /* Executive focus states */
+  .executive-focus:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+  }
+  
+  /* Executive borders */
+  .executive-border {
+    border: 1px solid rgba(0, 102, 204, 0.1);
+  }
+  
+  /* Executive text styles */
+  .text-executive {
+    color: var(--executive-primary);
+  }
+  
+  .text-intelligence {
+    color: var(--intelligence-primary);
+  }
+  
+  .text-neutral {
+    color: var(--neutral-600);
+  }
 }
 
 @layer utilities {
@@ -144,13 +317,44 @@
     @apply px-4 sm:px-6 lg:px-8 xl:px-12;
   }
   
-  /* Focus utilities for accessibility */
+  /* Executive focus utilities for accessibility */
   .focus-ring {
     @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
   }
   
-  /* Text utilities */
+  .focus-ring-executive {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+  }
+  
+  /* Executive text utilities */
   .text-balance {
     text-wrap: balance;
+  }
+  
+  /* Executive background utilities */
+  .bg-executive {
+    background-color: var(--executive-primary);
+  }
+  
+  .bg-intelligence {
+    background-color: var(--intelligence-primary);
+  }
+  
+  .bg-neutral-executive {
+    background-color: var(--neutral-50);
+  }
+  
+  /* Executive border utilities */
+  .border-executive {
+    border-color: var(--executive-primary);
+  }
+  
+  .border-intelligence {
+    border-color: var(--intelligence-primary);
+  }
+  
+  .border-neutral-executive {
+    border-color: var(--neutral-200);
   }
 }
