@@ -375,7 +375,7 @@ const ProfileUpload: React.FC<ProfileUploadProps> = ({ onDataPopulated, disabled
                 <button
                   type="button"
                   onClick={confirmDataImport}
-                  className="btn btn-primary"
+                  className="btn btn-strategic"
                 >
                   Import Data
                 </button>

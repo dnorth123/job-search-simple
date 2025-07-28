@@ -351,7 +351,7 @@ export function CompanySelector({
                 type="button"
                 onClick={handleCreateCompany}
                 disabled={isLoading}
-                className="btn btn-primary"
+                className="btn btn-intelligence"
               >
                 {isLoading ? (
                   <div className="loading-spinner w-4 h-4 mr-2"></div>

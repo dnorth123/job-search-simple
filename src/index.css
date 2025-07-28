@@ -164,77 +164,343 @@
 }
 
 @layer components {
-  /* Executive-level button styles */
+  /* Executive-level button styles with premium interactions */
   .btn {
-    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
-    transition-timing-function: var(--transition-executive);
+    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    transition-timing-function: var(--transition-executive-smooth);
     letter-spacing: var(--tracking-wide);
+    transform: translateY(0);
+    will-change: transform, box-shadow;
   }
   
+  .btn:hover {
+    transform: translateY(-1px);
+  }
+  
+  .btn:active {
+    transform: translateY(0);
+    transition-duration: 150ms;
+  }
+  
+  /* Enhanced Primary Button with Executive Gradient */
   .btn-primary {
-    @apply bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 shadow-executive hover:shadow-executive-medium;
-    background-color: var(--executive-primary);
+    @apply text-white focus:ring-primary-500 shadow-executive hover:shadow-executive-medium;
+    background: linear-gradient(135deg, var(--executive-primary) 0%, var(--executive-primary-dark) 50%, var(--executive-primary-deep) 100%);
     box-shadow: var(--shadow-executive);
+    border: 1px solid rgba(0, 102, 204, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s var(--transition-executive-smooth);
   }
   
   .btn-primary:hover {
-    background-color: var(--executive-primary-dark);
+    background: linear-gradient(135deg, var(--executive-primary-dark) 0%, var(--executive-primary-deep) 50%, var(--executive-primary-deep) 100%);
     box-shadow: var(--shadow-executive-medium);
+    border-color: rgba(0, 102, 204, 0.2);
   }
   
+  .btn-primary:hover::before {
+    left: 100%;
+  }
+  
+  .btn-primary:focus {
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15), var(--shadow-executive-medium);
+  }
+  
+  /* Enhanced Secondary Button with Refined Interactions */
   .btn-secondary {
-    @apply bg-white text-neutral-700 border border-neutral-300 hover:bg-neutral-50 focus:ring-neutral-500 shadow-executive-soft hover:shadow-executive;
+    @apply text-neutral-700 border border-neutral-300 focus:ring-neutral-500 shadow-executive-soft hover:shadow-executive;
+    background: linear-gradient(135deg, #ffffff 0%, #fafafa 50%, #f5f5f4 100%);
     color: var(--neutral-700);
     border-color: var(--neutral-300);
+    position: relative;
   }
   
   .btn-secondary:hover {
-    background-color: var(--neutral-50);
+    background: linear-gradient(135deg, #fafafa 0%, #f5f5f4 50%, #e7e5e4 100%);
     box-shadow: var(--shadow-executive);
+    border-color: var(--neutral-400);
+    color: var(--neutral-800);
   }
   
+  .btn-secondary:focus {
+    box-shadow: 0 0 0 3px rgba(87, 83, 78, 0.1), var(--shadow-executive);
+  }
+  
+  /* Strategic Button for Key Actions */
+  .btn-strategic {
+    @apply text-white focus:ring-primary-500 shadow-executive-large hover:shadow-executive-xl;
+    background: linear-gradient(135deg, var(--executive-primary) 0%, var(--executive-primary-dark) 30%, var(--intelligence-primary) 70%, var(--intelligence-secondary) 100%);
+    box-shadow: var(--shadow-executive-large);
+    border: 1px solid rgba(0, 102, 204, 0.15);
+    position: relative;
+    overflow: hidden;
+    font-weight: 600;
+    letter-spacing: var(--tracking-wider);
+  }
+  
+  .btn-strategic::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+    transition: left 0.6s var(--transition-executive-smooth);
+  }
+  
+  .btn-strategic:hover {
+    background: linear-gradient(135deg, var(--executive-primary-dark) 0%, var(--executive-primary-deep) 30%, var(--intelligence-secondary) 70%, var(--intelligence-deep) 100%);
+    box-shadow: var(--shadow-executive-xl);
+    border-color: rgba(0, 102, 204, 0.25);
+    transform: translateY(-2px);
+  }
+  
+  .btn-strategic:hover::before {
+    left: 100%;
+  }
+  
+  .btn-strategic:focus {
+    box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.2), var(--shadow-executive-xl);
+  }
+  
+  /* Enhanced Intelligence Button for Company Data Actions */
   .btn-intelligence {
-    @apply bg-intelligence-600 text-white hover:bg-intelligence-700 focus:ring-intelligence-500 shadow-executive hover:shadow-executive-medium;
-    background-color: var(--intelligence-primary);
+    @apply text-white focus:ring-intelligence-500 shadow-executive hover:shadow-executive-medium;
+    background: linear-gradient(135deg, var(--intelligence-primary) 0%, var(--intelligence-secondary) 50%, var(--intelligence-deep) 100%);
     box-shadow: var(--shadow-executive);
+    border: 1px solid rgba(155, 124, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .btn-intelligence::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s var(--transition-executive-smooth);
   }
   
   .btn-intelligence:hover {
-    background-color: var(--intelligence-secondary);
+    background: linear-gradient(135deg, var(--intelligence-secondary) 0%, var(--intelligence-deep) 50%, var(--intelligence-deep) 100%);
     box-shadow: var(--shadow-executive-medium);
+    border-color: rgba(155, 124, 255, 0.2);
   }
   
+  .btn-intelligence:hover::before {
+    left: 100%;
+  }
+  
+  .btn-intelligence:focus {
+    box-shadow: 0 0 0 3px rgba(155, 124, 255, 0.15), var(--shadow-executive-medium);
+  }
+  
+  /* Enhanced Success Button with Professional Gradients */
   .btn-success {
-    @apply bg-success-600 text-white hover:bg-success-700 focus:ring-success-500 shadow-executive hover:shadow-executive-medium;
+    @apply text-white focus:ring-success-500 shadow-executive hover:shadow-executive-medium;
+    background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+    box-shadow: var(--shadow-executive);
+    border: 1px solid rgba(16, 185, 129, 0.1);
+    position: relative;
+    overflow: hidden;
   }
   
+  .btn-success::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s var(--transition-executive-smooth);
+  }
+  
+  .btn-success:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 50%, #065f46 100%);
+    box-shadow: var(--shadow-executive-medium);
+    border-color: rgba(16, 185, 129, 0.2);
+  }
+  
+  .btn-success:hover::before {
+    left: 100%;
+  }
+  
+  .btn-success:focus {
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15), var(--shadow-executive-medium);
+  }
+  
+  /* Enhanced Warning Button */
   .btn-warning {
-    @apply bg-warning-600 text-white hover:bg-warning-700 focus:ring-warning-500 shadow-executive hover:shadow-executive-medium;
+    @apply text-white focus:ring-warning-500 shadow-executive hover:shadow-executive-medium;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+    box-shadow: var(--shadow-executive);
+    border: 1px solid rgba(245, 158, 11, 0.1);
+    position: relative;
+    overflow: hidden;
   }
   
+  .btn-warning::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s var(--transition-executive-smooth);
+  }
+  
+  .btn-warning:hover {
+    background: linear-gradient(135deg, #d97706 0%, #b45309 50%, #92400e 100%);
+    box-shadow: var(--shadow-executive-medium);
+    border-color: rgba(245, 158, 11, 0.2);
+  }
+  
+  .btn-warning:hover::before {
+    left: 100%;
+  }
+  
+  .btn-warning:focus {
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15), var(--shadow-executive-medium);
+  }
+  
+  /* Enhanced Error Button */
   .btn-error {
-    @apply bg-error-600 text-white hover:bg-error-700 focus:ring-error-500 shadow-executive hover:shadow-executive-medium;
+    @apply text-white focus:ring-error-500 shadow-executive hover:shadow-executive-medium;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%);
+    box-shadow: var(--shadow-executive);
+    border: 1px solid rgba(239, 68, 68, 0.1);
+    position: relative;
+    overflow: hidden;
   }
   
+  .btn-error::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s var(--transition-executive-smooth);
+  }
+  
+  .btn-error:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #991b1b 100%);
+    box-shadow: var(--shadow-executive-medium);
+    border-color: rgba(239, 68, 68, 0.2);
+  }
+  
+  .btn-error:hover::before {
+    left: 100%;
+  }
+  
+  .btn-error:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15), var(--shadow-executive-medium);
+  }
+  
+  /* Enhanced Ghost Button with Subtle Interactions */
   .btn-ghost {
     @apply text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 focus:ring-neutral-500;
     color: var(--neutral-600);
+    background: transparent;
+    border: 1px solid transparent;
+    position: relative;
   }
   
   .btn-ghost:hover {
     color: var(--neutral-900);
-    background-color: var(--neutral-100);
+    background: linear-gradient(135deg, var(--neutral-50) 0%, var(--neutral-100) 100%);
+    border-color: var(--neutral-200);
+    box-shadow: var(--shadow-executive-soft);
+  }
+  
+  .btn-ghost:focus {
+    box-shadow: 0 0 0 3px rgba(87, 83, 78, 0.1);
+  }
+  
+  /* Premium Action Buttons for Job Cards */
+  .action-button {
+    @apply inline-flex items-center px-3 py-2 text-xs font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-1;
+    transition-timing-function: var(--transition-executive-smooth);
+    letter-spacing: var(--tracking-wide);
+    transform: translateY(0);
+    will-change: transform, box-shadow;
+  }
+  
+  .action-button:hover {
+    transform: translateY(-1px);
+  }
+  
+  .action-button:active {
+    transform: translateY(0);
+    transition-duration: 150ms;
+  }
+  
+  .action-button-edit {
+    @apply text-neutral-600 bg-neutral-50 hover:bg-neutral-100 focus:ring-neutral-300;
+    color: var(--neutral-600);
+    background: linear-gradient(135deg, var(--neutral-50) 0%, var(--neutral-100) 100%);
+    border: 1px solid var(--neutral-200);
+    box-shadow: var(--shadow-executive-soft);
+  }
+  
+  .action-button-edit:hover {
+    background: linear-gradient(135deg, var(--neutral-100) 0%, var(--neutral-200) 100%);
+    color: var(--neutral-800);
+    border-color: var(--neutral-300);
+    box-shadow: var(--shadow-executive);
+  }
+  
+  .action-button-edit:focus {
+    box-shadow: 0 0 0 3px rgba(87, 83, 78, 0.1), var(--shadow-executive);
+  }
+  
+  .action-button-delete {
+    @apply text-red-600 bg-red-50 hover:bg-red-100 focus:ring-red-300;
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    border: 1px solid #fecaca;
+    box-shadow: var(--shadow-executive-soft);
+  }
+  
+  .action-button-delete:hover {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #dc2626;
+    border-color: #fca5a5;
+    box-shadow: var(--shadow-executive);
+  }
+  
+  .action-button-delete:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1), var(--shadow-executive);
   }
   
   /* Executive form styles */
   .form-input {
     @apply block w-full px-3 py-2 border border-neutral-300 rounded-lg shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200;
     border-color: var(--neutral-300);
+    background-color: white;
     transition-timing-function: var(--transition-executive);
     font-size: var(--font-size-base);
     font-weight: 400;
     line-height: var(--leading-normal);
     letter-spacing: var(--tracking-normal);
+    min-height: 44px;
   }
   
   .form-input:focus {
@@ -242,14 +508,21 @@
     box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
   }
   
+  .form-input::placeholder {
+    color: var(--neutral-400);
+    opacity: 1;
+  }
+  
   .form-select {
     @apply block w-full px-3 py-2 border border-neutral-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200;
     border-color: var(--neutral-300);
+    background-color: white;
     transition-timing-function: var(--transition-executive);
     font-size: var(--font-size-base);
     font-weight: 400;
     line-height: var(--leading-normal);
     letter-spacing: var(--tracking-normal);
+    min-height: 44px;
   }
   
   .form-select:focus {
@@ -260,11 +533,13 @@
   .form-textarea {
     @apply block w-full px-3 py-2 border border-neutral-300 rounded-lg shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200 resize-y;
     border-color: var(--neutral-300);
+    background-color: white;
     transition-timing-function: var(--transition-executive);
     font-size: var(--font-size-base);
     font-weight: 400;
     line-height: var(--leading-relaxed);
     letter-spacing: var(--tracking-normal);
+    min-height: 44px;
   }
   
   .form-textarea:focus {
@@ -331,25 +606,104 @@
     color: var(--status-withdrawn);
   }
   
-  /* Executive action buttons */
-  .action-button {
-    @apply inline-flex items-center px-3 py-2 text-xs font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1;
-    transition-timing-function: var(--transition-executive);
-    letter-spacing: var(--tracking-wide);
+  /* Executive job card styles */
+  .job-card {
+    @apply bg-white rounded-xl shadow-executive border border-neutral-200 overflow-hidden;
+    background-color: white;
+    box-shadow: var(--shadow-executive);
+    border-color: var(--neutral-200);
+    position: relative;
+    border-left: 4px solid var(--neutral-200);
+    transition: transform 0.2s var(--transition-executive), box-shadow 0.2s var(--transition-executive);
   }
   
-  .action-button-edit {
-    @apply text-neutral-600 bg-neutral-50 hover:bg-neutral-100 focus:ring-neutral-300;
+  .job-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-executive-medium);
+  }
+  
+  .job-card[data-status="Applied"] {
+    border-left-color: var(--status-applied);
+  }
+  
+  .job-card[data-status="Interview"] {
+    border-left-color: var(--intelligence-primary);
+  }
+  
+  .job-card[data-status="Offer"] {
+    border-left-color: var(--status-offer);
+  }
+  
+  .job-card[data-status="Rejected"] {
+    border-left-color: var(--status-rejected);
+  }
+  
+  .job-card[data-status="Withdrawn"] {
+    border-left-color: var(--status-withdrawn);
+  }
+  
+  .job-card h2 {
+    margin: 0 0 0.5rem 0;
+    color: var(--neutral-900);
+    font-size: 1.2rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  
+  .job-card .company {
     color: var(--neutral-600);
-    background-color: var(--neutral-50);
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
   }
   
-  .action-button-edit:hover {
-    background-color: var(--neutral-100);
+  .job-card p {
+    margin: 0.25rem 0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: var(--neutral-700);
   }
   
-  .action-button-delete {
-    @apply text-red-600 bg-red-50 hover:bg-red-100 focus:ring-red-300;
+  .job-card strong {
+    color: var(--neutral-900);
+    font-weight: 600;
+  }
+  
+  /* Status badge styles */
+  .status-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .status-badge.Applied {
+    background: rgba(14, 165, 233, 0.1);
+    color: var(--status-applied);
+  }
+  
+  .status-badge.Interview {
+    background: rgba(155, 124, 255, 0.1);
+    color: var(--intelligence-primary);
+  }
+  
+  .status-badge.Offer {
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--status-offer);
+  }
+  
+  .status-badge.Rejected {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--status-rejected);
+  }
+  
+  .status-badge.Withdrawn {
+    background: rgba(100, 116, 139, 0.1);
+    color: var(--status-withdrawn);
   }
   
   /* Executive loading states */
@@ -621,6 +975,40 @@
 }
 
 @layer utilities {
+  /* Custom keyframe animations for premium interactions */
+  @keyframes executive-shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+  
+  @keyframes executive-pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.02);
+    }
+  }
+  
+  @keyframes executive-bounce {
+    0%, 20%, 53%, 80%, 100% {
+      transform: translateY(0);
+    }
+    40%, 43% {
+      transform: translateY(-3px);
+    }
+    70% {
+      transform: translateY(-1px);
+    }
+    90% {
+      transform: translateY(-1px);
+    }
+  }
+  
   /* Executive-level spacing utilities */
   .section-padding {
     @apply px-4 sm:px-6 lg:px-8;
@@ -797,5 +1185,32 @@
   
   .text-neutral-900 {
     color: var(--neutral-900);
+  }
+  
+  /* Premium animation utilities */
+  .animate-executive-shimmer {
+    animation: executive-shimmer 2s ease-in-out infinite;
+  }
+  
+  .animate-executive-pulse {
+    animation: executive-pulse 2s ease-in-out infinite;
+  }
+  
+  .animate-executive-bounce {
+    animation: executive-bounce 1s ease-in-out;
+  }
+  
+  /* Premium hover effects */
+  .hover-executive-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-executive-large);
+  }
+  
+  .hover-executive-glow:hover {
+    box-shadow: 0 0 20px rgba(0, 102, 204, 0.15);
+  }
+  
+  .hover-executive-scale:hover {
+    transform: scale(1.02);
   }
 }

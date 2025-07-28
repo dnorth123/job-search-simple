@@ -403,7 +403,7 @@ export function UserProfile() {
             <button
               type="submit"
               disabled={loading}
-              className="btn btn-primary"
+              className="btn btn-strategic"
             >
               {loading ? (
                 <div className="loading-spinner w-4 h-4 mr-2"></div>

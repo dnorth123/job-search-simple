@@ -316,7 +316,6 @@ function JobTracker() {
       setEditingId(null);
       setSearchTerm('');
       setStatusFilter('All');
-      setPriorityFilter('All');
       setDataLoaded(false);
       
     } catch (err) {
@@ -430,7 +429,7 @@ function JobTracker() {
                     setShowForm(true);
                   }
                 }}
-                className="btn btn-primary text-sm px-3 py-2"
+                className="btn btn-strategic text-sm px-4 py-2"
                 disabled={showProfile || showLogoutConfirm}
               >
                 <span className="hidden sm:inline">+ Add Application</span>
@@ -969,7 +968,7 @@ function JobTracker() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="btn btn-primary"
+                  className="btn btn-strategic"
                 >
                   {isLoading ? (
                     <div className="loading-spinner w-4 h-4 mr-2"></div>
