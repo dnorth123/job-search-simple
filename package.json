@@ -20,7 +20,9 @@
     "test:cypress:open": "cypress open",
     "test:cypress:headed": "cypress run --headed",
     "test:cypress:staging": "cypress run --env environment=staging",
-    "test:cypress:production": "cypress run --env environment=production"
+    "test:cypress:production": "cypress run --env environment=production",
+    "sync:beta": "node scripts/sync-beta-list.js",
+    "test:sync": "node scripts/test-sync.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.52.1",

@@ -20,6 +20,7 @@ import { UserProfile } from './components/UserProfile';
 import { CompanySelector } from './components/CompanySelector';
 import { DatabaseErrorBoundary } from './components/DatabaseErrorBoundary';
 import { DatabaseStatus } from './components/DatabaseStatus';
+import { AdminBetaInvites } from './components/AdminBetaInvites';
 import { validateJobApplicationForm } from './utils/validation';
 
 const STATUS_OPTIONS: JobStatus[] = ['Applied', 'Interview', 'Offer', 'Rejected', 'Withdrawn'];
@@ -62,6 +63,13 @@ function JobTracker() {
   const [openStatusDropdown, setOpenStatusDropdown] = useState<string | null>(null);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
+  const [showAdmin, setShowAdmin] = useState(false);
+
+  // Admin check
+  const isAdmin = user?.email === 'dan.northington@gmail.com';
+  
+  // Debug admin status
+  console.log('Admin check:', { userEmail: user?.email, isAdmin });
 
   useEffect(() => {
     if (user && !dataLoaded) {
@@ -99,15 +107,19 @@ function JobTracker() {
         if (showLogoutConfirm) {
           setShowLogoutConfirm(false);
         }
+        if (showAdmin) {
+          setShowAdmin(false);
+        }
       }
     };
 
     const handlePopState = () => {
       // Close modals when browser back button is pressed
-      if (showProfile || showForm || showLogoutConfirm) {
+      if (showProfile || showForm || showLogoutConfirm || showAdmin) {
         setShowProfile(false);
         setShowForm(false);
         setShowLogoutConfirm(false);
+        setShowAdmin(false);
         setForm(emptyJob());
         setEditingId(null);
         setValidationErrors([]);
@@ -121,7 +133,7 @@ function JobTracker() {
       document.removeEventListener('keydown', handleEscape);
       window.removeEventListener('popstate', handlePopState);
     };
-  }, [showProfile, showForm, showLogoutConfirm]);
+  }, [showProfile, showForm, showLogoutConfirm, showAdmin]);
 
   const loadData = async () => {
     if (!user) return;
@@ -401,6 +413,19 @@ function JobTracker() {
             
             {/* Action Buttons */}
             <div className="flex items-center justify-end space-x-2 sm:space-x-3">
+              {isAdmin && (
+                <button
+                  onClick={() => {
+                    console.log('Admin button clicked, setting showAdmin to true');
+                    setShowAdmin(true);
+                  }}
+                  className="btn btn-secondary text-sm px-3 py-2"
+                  disabled={showProfile || showLogoutConfirm}
+                >
+                  <span className="hidden sm:inline">Admin</span>
+                  <span className="sm:hidden">Admin</span>
+                </button>
+              )}
               <button
                 onClick={() => {
                   if (!showProfile && !showLogoutConfirm) {
@@ -1077,6 +1102,22 @@ function JobTracker() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Admin Interface Modal */}
+      {showAdmin && (
+        <div 
+          className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowAdmin(false);
+            }
+          }}
+        >
+          <div className="relative top-0 mx-auto p-5 w-full h-full">
+            <AdminBetaInvites onNavigateBack={() => setShowAdmin(false)} />
           </div>
         </div>
       )}

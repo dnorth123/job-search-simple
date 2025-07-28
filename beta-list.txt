@@ -1,0 +1,6 @@
+# Beta Invite List - Knowledge Worker Job Tracker
+# Add one email per line, comments start with #
+
+dan.northington@gmail.com
+test@example.com
+beta.user@company.com
