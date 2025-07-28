@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../utils/supabase';
 import { useAuth } from '../hooks/useAuth';
+import { emailService } from '../utils/emailService';
+import { EmailConfigChecker } from './EmailConfigChecker';
 
 interface BetaInvite {
   id: string;
@@ -154,6 +156,24 @@ export const AdminBetaInvites: React.FC<AdminBetaInvitesProps> = ({ onNavigateBa
 
       setSuccess(`Successfully added ${validEmails.length} beta invite(s).`);
       setNewEmails('');
+      
+      // Send email notification to admin
+      try {
+        const notificationSent = await emailService.sendBetaUserNotification({
+          adminEmail: ADMIN_EMAIL,
+          newBetaUsers: validEmails,
+          totalCount: stats.total + validEmails.length
+        });
+        
+        if (notificationSent) {
+          console.log('Email notification sent successfully');
+        } else {
+          console.warn('Email notification failed to send');
+        }
+      } catch (error) {
+        console.error('Error sending email notification:', error);
+      }
+      
       await loadInvites();
     } catch (err) {
       console.error('Error adding beta invites:', err);
@@ -319,6 +339,9 @@ export const AdminBetaInvites: React.FC<AdminBetaInvitesProps> = ({ onNavigateBa
             )}
           </div>
         )}
+
+        {/* Email Configuration Checker */}
+        <EmailConfigChecker adminEmail={ADMIN_EMAIL} />
 
         {/* Stats Dashboard */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
