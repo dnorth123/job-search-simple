@@ -239,10 +239,10 @@
   
   /* Strategic Button for Key Actions */
   .btn-strategic {
-    @apply text-white focus:ring-primary-500 shadow-executive-large hover:shadow-executive-xl;
-    background: linear-gradient(135deg, var(--executive-primary) 0%, var(--executive-primary-dark) 30%, var(--intelligence-primary) 70%, var(--intelligence-secondary) 100%);
-    box-shadow: var(--shadow-executive-large);
-    border: 1px solid rgba(0, 102, 204, 0.15);
+    @apply text-white focus:ring-primary-500 shadow-executive hover:shadow-executive-medium;
+    background: radial-gradient(circle at center, var(--executive-primary) 0%, var(--executive-primary-dark) 100%);
+    box-shadow: var(--shadow-executive);
+    border: 1px solid rgba(0, 102, 204, 0.1);
     position: relative;
     overflow: hidden;
     font-weight: 600;
@@ -256,15 +256,15 @@
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
-    transition: left 0.6s var(--transition-executive-smooth);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.4s var(--transition-executive-smooth);
   }
   
   .btn-strategic:hover {
-    background: linear-gradient(135deg, var(--executive-primary-dark) 0%, var(--executive-primary-deep) 30%, var(--intelligence-secondary) 70%, var(--intelligence-deep) 100%);
-    box-shadow: var(--shadow-executive-xl);
-    border-color: rgba(0, 102, 204, 0.25);
-    transform: translateY(-2px);
+    background: radial-gradient(circle at center, var(--executive-primary-dark) 0%, var(--executive-primary-deep) 100%);
+    box-shadow: var(--shadow-executive-medium);
+    border-color: rgba(0, 102, 204, 0.2);
+    transform: translateY(-1px);
   }
   
   .btn-strategic:hover::before {
@@ -272,7 +272,7 @@
   }
   
   .btn-strategic:focus {
-    box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.2), var(--shadow-executive-xl);
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15), var(--shadow-executive-medium);
   }
   
   /* Enhanced Intelligence Button for Company Data Actions */
@@ -435,17 +435,36 @@
     box-shadow: 0 0 0 3px rgba(87, 83, 78, 0.1);
   }
   
-  /* Premium Action Buttons for Job Cards */
+  /* Executive Premium Action Buttons for Job Cards */
   .action-button {
-    @apply inline-flex items-center px-3 py-2 text-xs font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-1;
+    @apply inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
     transition-timing-function: var(--transition-executive-smooth);
     letter-spacing: var(--tracking-wide);
     transform: translateY(0);
-    will-change: transform, box-shadow;
+    will-change: transform, box-shadow, background;
+    position: relative;
+    overflow: hidden;
+    min-height: 44px;
+    gap: 0.5rem;
+  }
+  
+  .action-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+    transition: left 0.4s var(--transition-executive-smooth);
   }
   
   .action-button:hover {
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+  }
+  
+  .action-button:hover::before {
+    left: 100%;
   }
   
   .action-button:active {
@@ -453,98 +472,383 @@
     transition-duration: 150ms;
   }
   
+  .action-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15);
+  }
+  
+  /* Enhanced Edit Action Button with Professional Gradients */
   .action-button-edit {
-    @apply text-neutral-600 bg-neutral-50 hover:bg-neutral-100 focus:ring-neutral-300;
-    color: var(--neutral-600);
-    background: linear-gradient(135deg, var(--neutral-50) 0%, var(--neutral-100) 100%);
+    @apply text-neutral-700 bg-white hover:text-neutral-900 focus:ring-neutral-400;
+    background: linear-gradient(135deg, #ffffff 0%, #fafafa 50%, #f5f5f4 100%);
+    color: var(--neutral-700);
     border: 1px solid var(--neutral-200);
     box-shadow: var(--shadow-executive-soft);
+    position: relative;
   }
   
   .action-button-edit:hover {
-    background: linear-gradient(135deg, var(--neutral-100) 0%, var(--neutral-200) 100%);
-    color: var(--neutral-800);
+    background: linear-gradient(135deg, #fafafa 0%, #f5f5f4 50%, #e7e5e4 100%);
+    color: var(--neutral-900);
     border-color: var(--neutral-300);
     box-shadow: var(--shadow-executive);
+    transform: translateY(-2px);
   }
   
   .action-button-edit:focus {
     box-shadow: 0 0 0 3px rgba(87, 83, 78, 0.1), var(--shadow-executive);
   }
   
+  .action-button-edit:active {
+    background: linear-gradient(135deg, #f5f5f4 0%, #e7e5e4 50%, #d6d3d1 100%);
+    transform: translateY(0);
+  }
+  
+  /* Enhanced Delete Action Button with Sophisticated Warning States */
   .action-button-delete {
-    @apply text-red-600 bg-red-50 hover:bg-red-100 focus:ring-red-300;
-    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    @apply text-red-700 bg-white hover:text-red-900 focus:ring-red-400;
+    background: linear-gradient(135deg, #ffffff 0%, #fefefe 50%, #fef2f2 100%);
+    color: var(--status-rejected);
     border: 1px solid #fecaca;
     box-shadow: var(--shadow-executive-soft);
+    position: relative;
   }
   
   .action-button-delete:hover {
-    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 50%, #fecaca 100%);
     color: #dc2626;
     border-color: #fca5a5;
     box-shadow: var(--shadow-executive);
+    transform: translateY(-2px);
   }
   
   .action-button-delete:focus {
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1), var(--shadow-executive);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15), var(--shadow-executive);
   }
   
-  /* Executive form styles */
+  .action-button-delete:active {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 50%, #fca5a5 100%);
+    transform: translateY(0);
+  }
+  
+  /* New Strategic Action Button for Primary Actions */
+  .action-button-strategic {
+    @apply text-white bg-executive-primary hover:bg-executive-primary-dark focus:ring-executive-primary;
+    background: linear-gradient(135deg, var(--executive-primary) 0%, var(--executive-primary-dark) 50%, var(--executive-primary-deep) 100%);
+    color: white;
+    border: 1px solid rgba(0, 102, 204, 0.1);
+    box-shadow: var(--shadow-executive);
+    position: relative;
+  }
+  
+  .action-button-strategic:hover {
+    background: linear-gradient(135deg, var(--executive-primary-dark) 0%, var(--executive-primary-deep) 50%, var(--executive-primary-deep) 100%);
+    box-shadow: var(--shadow-executive-medium);
+    border-color: rgba(0, 102, 204, 0.2);
+    transform: translateY(-2px);
+  }
+  
+  .action-button-strategic:focus {
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.2), var(--shadow-executive-medium);
+  }
+  
+  .action-button-strategic:active {
+    background: linear-gradient(135deg, var(--executive-primary-deep) 0%, var(--executive-primary-deep) 50%, var(--executive-primary-deep) 100%);
+    transform: translateY(0);
+  }
+  
+  /* Intelligence Action Button for Data Operations */
+  .action-button-intelligence {
+    @apply text-white bg-intelligence-primary hover:bg-intelligence-secondary focus:ring-intelligence-primary;
+    background: linear-gradient(135deg, var(--intelligence-primary) 0%, var(--intelligence-secondary) 50%, var(--intelligence-deep) 100%);
+    color: white;
+    border: 1px solid rgba(155, 124, 255, 0.1);
+    box-shadow: var(--shadow-executive);
+    position: relative;
+  }
+  
+  .action-button-intelligence:hover {
+    background: linear-gradient(135deg, var(--intelligence-secondary) 0%, var(--intelligence-deep) 50%, var(--intelligence-deep) 100%);
+    box-shadow: var(--shadow-executive-medium);
+    border-color: rgba(155, 124, 255, 0.2);
+    transform: translateY(-2px);
+  }
+  
+  .action-button-intelligence:focus {
+    box-shadow: 0 0 0 3px rgba(155, 124, 255, 0.2), var(--shadow-executive-medium);
+  }
+  
+  .action-button-intelligence:active {
+    background: linear-gradient(135deg, var(--intelligence-deep) 0%, var(--intelligence-deep) 50%, var(--intelligence-deep) 100%);
+    transform: translateY(0);
+  }
+  
+  /* Success Action Button for Positive Actions */
+  .action-button-success {
+    @apply text-white bg-green-600 hover:bg-green-700 focus:ring-green-500;
+    background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+    color: white;
+    border: 1px solid rgba(16, 185, 129, 0.1);
+    box-shadow: var(--shadow-executive);
+    position: relative;
+  }
+  
+  .action-button-success:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 50%, #065f46 100%);
+    box-shadow: var(--shadow-executive-medium);
+    border-color: rgba(16, 185, 129, 0.2);
+    transform: translateY(-2px);
+  }
+  
+  .action-button-success:focus {
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2), var(--shadow-executive-medium);
+  }
+  
+  .action-button-success:active {
+    background: linear-gradient(135deg, #047857 0%, #065f46 50%, #064e3b 100%);
+    transform: translateY(0);
+  }
+  
+  /* Loading State for Action Buttons */
+  .action-button.loading {
+    pointer-events: none;
+    opacity: 0.7;
+  }
+  
+  .action-button.loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: action-spinner 0.8s linear infinite;
+    right: 0.75rem;
+  }
+  
+  @keyframes action-spinner {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* Executive Premium Form Styles */
   .form-input {
-    @apply block w-full px-3 py-2 border border-neutral-300 rounded-lg shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200;
+    @apply block w-full px-4 py-3 border border-neutral-300 rounded-xl shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300;
     border-color: var(--neutral-300);
-    background-color: white;
-    transition-timing-function: var(--transition-executive);
+    background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+    transition-timing-function: var(--transition-executive-smooth);
     font-size: var(--font-size-base);
     font-weight: 400;
     line-height: var(--leading-normal);
     letter-spacing: var(--tracking-normal);
-    min-height: 44px;
+    min-height: 48px;
+    position: relative;
   }
   
   .form-input:focus {
     border-color: var(--executive-primary);
-    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1), var(--shadow-executive-soft);
+    background: white;
+    transform: translateY(-1px);
+  }
+  
+  .form-input:hover {
+    border-color: var(--neutral-400);
+    background: white;
   }
   
   .form-input::placeholder {
     color: var(--neutral-400);
     opacity: 1;
+    transition: color 0.2s var(--transition-executive-smooth);
+  }
+  
+  .form-input:focus::placeholder {
+    color: var(--neutral-500);
   }
   
   .form-select {
-    @apply block w-full px-3 py-2 border border-neutral-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200;
+    @apply block w-full px-4 py-3 border border-neutral-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300;
     border-color: var(--neutral-300);
-    background-color: white;
-    transition-timing-function: var(--transition-executive);
+    background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+    transition-timing-function: var(--transition-executive-smooth);
     font-size: var(--font-size-base);
     font-weight: 400;
     line-height: var(--leading-normal);
     letter-spacing: var(--tracking-normal);
-    min-height: 44px;
+    min-height: 48px;
+    position: relative;
+    cursor: pointer;
   }
   
   .form-select:focus {
     border-color: var(--executive-primary);
-    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1), var(--shadow-executive-soft);
+    background: white;
+    transform: translateY(-1px);
+  }
+  
+  .form-select:hover {
+    border-color: var(--neutral-400);
+    background: white;
+  }
+  
+  .form-select::after {
+    content: '▼';
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.75rem;
+    color: var(--neutral-500);
+    pointer-events: none;
+    transition: transform 0.2s var(--transition-executive-smooth);
+  }
+  
+  .form-select:focus::after {
+    transform: translateY(-50%) rotate(180deg);
   }
   
   .form-textarea {
-    @apply block w-full px-3 py-2 border border-neutral-300 rounded-lg shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200 resize-y;
+    @apply block w-full px-4 py-3 border border-neutral-300 rounded-xl shadow-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 resize-y;
     border-color: var(--neutral-300);
-    background-color: white;
-    transition-timing-function: var(--transition-executive);
+    background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+    transition-timing-function: var(--transition-executive-smooth);
     font-size: var(--font-size-base);
     font-weight: 400;
     line-height: var(--leading-relaxed);
     letter-spacing: var(--tracking-normal);
-    min-height: 44px;
+    min-height: 48px;
+    position: relative;
   }
   
   .form-textarea:focus {
     border-color: var(--executive-primary);
-    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1), var(--shadow-executive-soft);
+    background: white;
+    transform: translateY(-1px);
+  }
+  
+  .form-textarea:hover {
+    border-color: var(--neutral-400);
+    background: white;
+  }
+  
+  /* Executive Dropdown Styles */
+  .executive-dropdown {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .executive-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-executive-large);
+    border: 1px solid var(--neutral-200);
+    backdrop-filter: blur(12px);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: all 0.3s var(--transition-executive-smooth);
+    z-index: 50;
+    overflow: hidden;
+    min-width: 200px;
+  }
+  
+  .executive-dropdown-menu.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  
+  .executive-dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 0.875rem 1.25rem;
+    color: var(--neutral-700);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s var(--transition-executive-smooth);
+    cursor: pointer;
+    border-bottom: 1px solid var(--neutral-100);
+  }
+  
+  .executive-dropdown-item:last-child {
+    border-bottom: none;
+  }
+  
+  .executive-dropdown-item:hover {
+    background: linear-gradient(135deg, var(--neutral-50) 0%, var(--neutral-100) 100%);
+    color: var(--neutral-900);
+    transform: translateX(4px);
+  }
+  
+  .executive-dropdown-item.active {
+    background: linear-gradient(135deg, var(--executive-primary-lighter) 0%, var(--executive-primary-light) 100%);
+    color: var(--executive-primary-dark);
+    font-weight: 600;
+  }
+  
+  .executive-dropdown-item.selected {
+    background: linear-gradient(135deg, var(--intelligence-lighter) 0%, var(--intelligence-light) 100%);
+    color: var(--intelligence-deep);
+    font-weight: 600;
+  }
+  
+  /* Form Field Groups */
+  .form-field-group {
+    position: relative;
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-field-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--neutral-700);
+    letter-spacing: var(--tracking-wide);
+  }
+  
+  .form-field-helper {
+    margin-top: 0.25rem;
+    font-size: var(--font-size-xs);
+    color: var(--neutral-500);
+    letter-spacing: var(--tracking-normal);
+  }
+  
+  .form-field-error {
+    margin-top: 0.25rem;
+    font-size: var(--font-size-xs);
+    color: var(--status-rejected);
+    font-weight: 500;
+    letter-spacing: var(--tracking-normal);
+  }
+  
+  /* Form Validation States */
+  .form-input.valid {
+    border-color: var(--status-offer);
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+  }
+  
+  .form-input.invalid {
+    border-color: var(--status-rejected);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+  }
+  
+  .form-input.valid:focus {
+    border-color: var(--status-offer);
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
+  }
+  
+  .form-input.invalid:focus {
+    border-color: var(--status-rejected);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
   }
   
   /* Executive card styles */
@@ -606,110 +910,1029 @@
     color: var(--status-withdrawn);
   }
   
-  /* Executive job card styles */
+  /* Executive Premium Job Card Styles - LinkedIn Premium Competitive */
   .job-card {
-    @apply bg-white rounded-xl shadow-executive border border-neutral-200 overflow-hidden;
-    background-color: white;
+    @apply bg-white rounded-2xl shadow-executive border border-neutral-200 overflow-hidden;
+    background: linear-gradient(135deg, #ffffff 0%, #fafafa 50%, #f8fafc 100%);
     box-shadow: var(--shadow-executive);
     border-color: var(--neutral-200);
     position: relative;
-    border-left: 4px solid var(--neutral-200);
-    transition: transform 0.2s var(--transition-executive), box-shadow 0.2s var(--transition-executive);
+    border-left: 6px solid var(--neutral-200);
+    transition: all 0.4s var(--transition-executive-smooth);
+    backdrop-filter: blur(8px);
+    min-height: 200px;
+    overflow: visible;
+    padding: 1.5rem;
+    /* Premium Executive Enhancements */
+    isolation: isolate;
+    transform-style: preserve-3d;
+    perspective: 1000px;
+  }
+  
+  /* Premium Card Grid Layout */
+  .job-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem;
+  }
+  
+  .job-cards-grid.compact {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+  
+  .job-cards-grid.expanded {
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 2rem;
+  }
+  
+  .job-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 252, 0.9) 100%);
+    border-radius: inherit;
+    z-index: -1;
+  }
+  
+  .job-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0, 102, 204, 0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.3s var(--transition-executive-smooth);
   }
   
   .job-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-executive-medium);
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: var(--shadow-executive-large), 0 10px 25px -5px rgba(0, 102, 204, 0.1);
+    border-color: var(--neutral-300);
   }
   
+  .job-card:hover::after {
+    opacity: 1;
+    background: linear-gradient(90deg, transparent, rgba(0, 102, 204, 0.2), transparent);
+  }
+  
+  /* Premium Card Depth Layers */
+  .job-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 252, 0.9) 100%);
+    border-radius: inherit;
+    z-index: -1;
+    transform: translateZ(-1px);
+  }
+  
+  /* Premium Card Glow Effect */
+  .job-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0, 102, 204, 0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.3s var(--transition-executive-smooth);
+    transform: translateZ(1px);
+  }
+  
+  /* Premium Status Accent Borders with Gradient */
   .job-card[data-status="Applied"] {
     border-left-color: var(--status-applied);
+    border-left-width: 6px;
+    background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 50%, #e0f2fe 100%);
+  }
+  
+  .job-card[data-status="Applied"]::before {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 249, 255, 0.95) 100%);
   }
   
   .job-card[data-status="Interview"] {
     border-left-color: var(--intelligence-primary);
+    border-left-width: 6px;
+    background: linear-gradient(135deg, #ffffff 0%, #faf5ff 50%, #f3e8ff 100%);
+  }
+  
+  .job-card[data-status="Interview"]::before {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(250, 245, 255, 0.95) 100%);
   }
   
   .job-card[data-status="Offer"] {
     border-left-color: var(--status-offer);
+    border-left-width: 6px;
+    background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 50%, #dcfce7 100%);
+  }
+  
+  .job-card[data-status="Offer"]::before {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 253, 244, 0.95) 100%);
   }
   
   .job-card[data-status="Rejected"] {
     border-left-color: var(--status-rejected);
+    border-left-width: 6px;
+    background: linear-gradient(135deg, #ffffff 0%, #fef2f2 50%, #fee2e2 100%);
+  }
+  
+  .job-card[data-status="Rejected"]::before {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(254, 242, 242, 0.95) 100%);
   }
   
   .job-card[data-status="Withdrawn"] {
     border-left-color: var(--status-withdrawn);
+    border-left-width: 6px;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
   }
   
+  .job-card[data-status="Withdrawn"]::before {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.95) 100%);
+  }
+  
+  /* Premium Card Content Styling */
   .job-card h2 {
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.75rem 0;
     color: var(--neutral-900);
-    font-size: 1.2rem;
-    font-weight: 600;
+    font-size: 1.25rem;
+    font-weight: 700;
     line-height: 1.3;
+    letter-spacing: var(--tracking-tight);
+    background: linear-gradient(135deg, var(--neutral-900) 0%, var(--neutral-800) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
   
   .job-card .company {
-    color: var(--neutral-600);
-    font-size: 0.9rem;
-    margin-bottom: 0.75rem;
+    color: var(--neutral-700);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    letter-spacing: var(--tracking-wide);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .job-card .company::before {
+    content: '🏢';
+    font-size: 0.875rem;
+    opacity: 0.8;
   }
   
   .job-card p {
-    margin: 0.25rem 0;
-    font-size: 0.9rem;
-    line-height: 1.4;
-    color: var(--neutral-700);
+    margin: 0.5rem 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--neutral-600);
+    letter-spacing: var(--tracking-normal);
   }
   
   .job-card strong {
-    color: var(--neutral-900);
+    color: var(--neutral-800);
     font-weight: 600;
+    letter-spacing: var(--tracking-wide);
   }
   
-  /* Status badge styles */
+  /* Premium Card Metadata with Executive Data Density */
+  .job-card .metadata {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 1rem 0 2rem 0;
+    padding: 1rem;
+    background: linear-gradient(135deg, rgba(248, 250, 252, 0.7) 0%, rgba(241, 245, 249, 0.7) 100%);
+    border-radius: 1rem;
+    border: 1px solid rgba(226, 232, 240, 0.6);
+    backdrop-filter: blur(4px);
+    position: relative;
+    transform: translateZ(1px);
+  }
+  
+  .job-card .metadata::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 100%);
+    border-radius: inherit;
+    z-index: -1;
+  }
+  
+  .job-card .metadata-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+    position: relative;
+    padding: 0.25rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s var(--transition-executive-smooth);
+  }
+  
+  .job-card .metadata-item .label {
+    min-width: 100px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--neutral-500);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wider);
+    flex-shrink: 0;
+  }
+  
+  .job-card .metadata-item .value {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--neutral-700);
+    letter-spacing: var(--tracking-normal);
+    line-height: 1.3;
+    flex: 1;
+  }
+  
+  .job-card .metadata-item:hover {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(248, 250, 252, 0.5) 100%);
+    transform: translateY(-1px);
+  }
+  
+  .job-card .metadata-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--neutral-500);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wider);
+    position: relative;
+  }
+  
+
+  
+  .job-card .metadata-value {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--neutral-700);
+    letter-spacing: var(--tracking-normal);
+    line-height: 1.3;
+  }
+  
+  /* Premium Card Actions - HIDDEN */
+  .job-card .actions {
+    display: none;
+  }
+  
+  /* Premium Card Status Indicator with Executive Glow - HIDDEN */
+  .job-card .status-indicator {
+    display: none;
+  }
+  
+  /* Premium Card Hover Effects */
+  .job-card:hover .company {
+    color: var(--neutral-800);
+  }
+  
+  .job-card:hover .metadata {
+    background: linear-gradient(135deg, rgba(248, 250, 252, 0.8) 0%, rgba(241, 245, 249, 0.8) 100%);
+    border-color: rgba(226, 232, 240, 0.8);
+  }
+  
+  /* Premium Card Loading State */
+  .job-card.loading {
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  
+  .job-card.loading::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 32px;
+    height: 32px;
+    margin: -16px 0 0 -16px;
+    border: 3px solid transparent;
+    border-top: 3px solid var(--executive-primary);
+    border-radius: 50%;
+    animation: card-spinner 1s linear infinite;
+    z-index: 10;
+  }
+  
+  @keyframes card-spinner {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* Premium Card Selection State */
+  .job-card.selected {
+    border-color: var(--executive-primary);
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1), var(--shadow-executive-large);
+  }
+  
+  .job-card.selected::after {
+    opacity: 1;
+    background: linear-gradient(90deg, transparent, rgba(0, 102, 204, 0.2), transparent);
+  }
+  
+  /* Premium Card Focus State */
+  .job-card:focus-within {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15), var(--shadow-executive-large);
+  }
+  
+  /* Premium Card Variants with Executive Positioning */
+  .job-card.premium {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
+    box-shadow: var(--shadow-executive-large);
+    border: 1px solid rgba(0, 102, 204, 0.1);
+    position: relative;
+  }
+  
+  .job-card.premium::before {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.98) 100%);
+  }
+  
+  .job-card.premium::after {
+    content: '💎';
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    font-size: 1.25rem;
+    opacity: 0.9;
+    z-index: 5;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+  }
+  
+  .job-card.premium:hover {
+    transform: translateY(-8px) scale(1.03) rotateX(3deg);
+    box-shadow: var(--shadow-executive-xl), 0 30px 60px -12px rgba(0, 102, 204, 0.2);
+  }
+  
+  .job-card.featured {
+    background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 50%, #e0f2fe 100%);
+    border: 1px solid rgba(0, 102, 204, 0.15);
+    box-shadow: var(--shadow-executive-large);
+    position: relative;
+  }
+  
+  .job-card.featured::before {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 249, 255, 0.98) 100%);
+  }
+  
+  .job-card.featured::after {
+    content: '⭐';
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    font-size: 1.25rem;
+    opacity: 0.9;
+    z-index: 5;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+    animation: featured-pulse 2s ease-in-out infinite;
+  }
+  
+  @keyframes featured-pulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 0.9;
+    }
+    50% {
+      transform: scale(1.1);
+      opacity: 1;
+    }
+  }
+  
+  .job-card.featured:hover {
+    transform: translateY(-8px) scale(1.03) rotateX(3deg);
+    box-shadow: var(--shadow-executive-xl), 0 30px 60px -12px rgba(0, 102, 204, 0.2);
+  }
+  
+  /* Executive Focus States for Accessibility */
+  .job-card:focus-within {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.2), var(--shadow-executive-large);
+    transform: translateY(-2px);
+  }
+  
+  /* Premium Card Selection State */
+  .job-card.selected {
+    border-color: var(--executive-primary);
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15), var(--shadow-executive-large);
+    transform: translateY(-2px);
+  }
+  
+  .job-card.selected::after {
+    opacity: 1;
+    background: linear-gradient(90deg, transparent, rgba(0, 102, 204, 0.3), transparent);
+  }
+  
+  /* Premium Data Presentation with Executive Insights */
+  .job-card .salary-range {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.08) 100%);
+    border-radius: 0.75rem;
+    border: 1px solid rgba(34, 197, 94, 0.25);
+    font-weight: 700;
+    color: var(--status-offer);
+    font-size: 0.875rem;
+    box-shadow: var(--shadow-executive-soft);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s var(--transition-executive-smooth);
+  }
+  
+  .job-card .salary-range::before {
+    content: '💰';
+    font-size: 0.875rem;
+    opacity: 0.8;
+  }
+  
+  .job-card .salary-range::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s var(--transition-executive-smooth);
+  }
+  
+  .job-card .salary-range:hover {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(34, 197, 94, 0.12) 100%);
+    border-color: rgba(34, 197, 94, 0.35);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-executive);
+  }
+  
+  .job-card .salary-range:hover::after {
+    left: 100%;
+  }
+  
+  .job-card .remote-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    background: linear-gradient(135deg, rgba(155, 124, 255, 0.15) 0%, rgba(155, 124, 255, 0.08) 100%);
+    border-radius: 0.5rem;
+    border: 1px solid rgba(155, 124, 255, 0.25);
+    font-weight: 600;
+    color: var(--intelligence-primary);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wider);
+    box-shadow: var(--shadow-executive-soft);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s var(--transition-executive-smooth);
+  }
+  
+  .job-card .remote-badge::before {
+    content: '🏠';
+    font-size: 0.75rem;
+    opacity: 0.8;
+  }
+  
+  .job-card .remote-badge::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s var(--transition-executive-smooth);
+  }
+  
+  .job-card .remote-badge:hover {
+    background: linear-gradient(135deg, rgba(155, 124, 255, 0.2) 0%, rgba(155, 124, 255, 0.12) 100%);
+    border-color: rgba(155, 124, 255, 0.35);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-executive);
+  }
+  
+  .job-card .remote-badge:hover::after {
+    left: 100%;
+  }
+  
+  .job-card .urgency-indicator {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--status-interview);
+    animation: urgency-pulse 2s ease-in-out infinite;
+  }
+  
+  @keyframes urgency-pulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.5);
+      opacity: 0.5;
+    }
+  }
+  
+  /* Premium Card Progress Indicators with Executive Analytics */
+  .job-card .progress-bar {
+    width: 100%;
+    height: 6px;
+    background: linear-gradient(135deg, var(--neutral-200) 0%, var(--neutral-300) 100%);
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 1.25rem 0 0 0;
+    position: relative;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  
+  .job-card .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--executive-primary) 0%, var(--executive-primary-dark) 100%);
+    border-radius: 3px;
+    transition: width 0.8s var(--transition-executive-smooth);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .job-card .progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: progress-shimmer 2s ease-in-out infinite;
+  }
+  
+  @keyframes progress-shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+  }
+  
+  .job-card[data-status="Applied"] .progress-fill {
+    width: 25%;
+    background: linear-gradient(90deg, var(--status-applied) 0%, var(--status-applied) 100%);
+  }
+  
+  .job-card[data-status="Interview"] .progress-fill {
+    width: 50%;
+    background: linear-gradient(90deg, var(--intelligence-primary) 0%, var(--intelligence-secondary) 100%);
+  }
+  
+  .job-card[data-status="Offer"] .progress-fill {
+    width: 100%;
+    background: linear-gradient(90deg, var(--status-offer) 0%, var(--status-offer) 100%);
+  }
+  
+  .job-card[data-status="Rejected"] .progress-fill {
+    width: 100%;
+    background: linear-gradient(90deg, var(--status-rejected) 0%, var(--status-rejected) 100%);
+  }
+  
+  .job-card[data-status="Withdrawn"] .progress-fill {
+    width: 100%;
+    background: linear-gradient(90deg, var(--status-withdrawn) 0%, var(--status-withdrawn) 100%);
+  }
+  
+  /* Premium Card Timeline */
+  .job-card .timeline {
+    margin: 1rem 0;
+    padding: 1rem;
+    background: linear-gradient(135deg, rgba(248, 250, 252, 0.5) 0%, rgba(241, 245, 249, 0.5) 100%);
+    border-radius: 0.75rem;
+    border: 1px solid rgba(226, 232, 240, 0.5);
+  }
+  
+  .job-card .timeline-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    font-size: 0.875rem;
+    color: var(--neutral-600);
+  }
+  
+  .job-card .timeline-item::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--neutral-400);
+    flex-shrink: 0;
+  }
+  
+  .job-card .timeline-item.completed::before {
+    background: var(--status-offer);
+  }
+  
+  .job-card .timeline-item.current::before {
+    background: var(--intelligence-primary);
+    animation: timeline-pulse 2s ease-in-out infinite;
+  }
+  
+  @keyframes timeline-pulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.2);
+      opacity: 0.7;
+    }
+  }
+  
+  /* Premium Card Analytics with Executive Data Insights */
+  .job-card .analytics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin: 1.25rem 0;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, rgba(248, 250, 252, 0.7) 0%, rgba(241, 245, 249, 0.7) 100%);
+    border-radius: 1rem;
+    border: 1px solid rgba(226, 232, 240, 0.6);
+    backdrop-filter: blur(4px);
+    position: relative;
+    transform: translateZ(1px);
+  }
+  
+  .job-card .analytics::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 100%);
+    border-radius: inherit;
+    z-index: -1;
+  }
+  
+  .job-card .analytics-item {
+    text-align: center;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s var(--transition-executive-smooth);
+    position: relative;
+  }
+  
+  .job-card .analytics-item:hover {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(248, 250, 252, 0.5) 100%);
+    transform: translateY(-2px);
+  }
+  
+  .job-card .analytics-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--neutral-900);
+    line-height: 1;
+    background: linear-gradient(135deg, var(--neutral-900) 0%, var(--neutral-800) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .job-card .analytics-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--neutral-500);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wider);
+    margin-top: 0.375rem;
+    position: relative;
+  }
+  
+  .job-card .analytics-label::after {
+    content: '';
+    position: absolute;
+    bottom: -0.25rem;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--executive-primary);
+    transition: width 0.3s var(--transition-executive-smooth);
+    transform: translateX(-50%);
+  }
+  
+  .job-card .analytics-item:hover .analytics-label::after {
+    width: 100%;
+  }
+  
+  /* Premium Card Interactions with Executive Quick Actions - HIDDEN */
+  .job-card .quick-actions {
+    display: none;
+  }
+  
+  /* Executive Edit Button for Top-Right Positioning */
+  .job-card .edit-button {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+    border: 1px solid var(--neutral-200);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s var(--transition-executive-smooth);
+    font-size: 0.875rem;
+    color: var(--neutral-600);
+    box-shadow: var(--shadow-executive-soft);
+    z-index: 15;
+    opacity: 0;
+  }
+  
+  .job-card:hover .edit-button {
+    opacity: 1;
+  }
+  
+  .job-card .edit-button:hover {
+    background: linear-gradient(135deg, var(--executive-primary) 0%, var(--executive-primary-dark) 100%);
+    color: white;
+    border-color: var(--executive-primary);
+    transform: scale(1.05);
+    box-shadow: var(--shadow-executive);
+  }
+  
+  .job-card .edit-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15), var(--shadow-executive);
+  }
+  
+  .job-card .edit-button:active {
+    transform: scale(1.02);
+    transition-duration: 150ms;
+  }
+  
+  /* Executive Status Badge Styles with Interactive Dropdown */
   .status-badge {
     position: absolute;
     top: 1rem;
     right: 1rem;
-    padding: 0.25rem 0.5rem;
+    padding: 0.5rem 0.75rem;
     border-radius: 999px;
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.3s var(--transition-executive-smooth);
+    border: 1px solid transparent;
+    box-shadow: var(--shadow-executive-soft);
+    backdrop-filter: blur(8px);
+    position: relative;
+    min-width: 80px;
+    text-align: center;
+    user-select: none;
+  }
+  
+  .status-badge:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-executive);
+  }
+  
+  .status-badge:active {
+    transform: translateY(0);
+  }
+  
+  .status-badge::after {
+    content: '▼';
+    font-size: 0.625rem;
+    margin-left: 0.25rem;
+    opacity: 0.7;
+    transition: transform 0.2s var(--transition-executive-smooth);
+  }
+  
+  .status-badge.open::after {
+    transform: rotate(180deg);
   }
   
   .status-badge.Applied {
-    background: rgba(14, 165, 233, 0.1);
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(14, 165, 233, 0.15) 100%);
     color: var(--status-applied);
+    border-color: rgba(14, 165, 233, 0.2);
+  }
+  
+  .status-badge.Applied:hover {
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.15) 0%, rgba(14, 165, 233, 0.2) 100%);
+    border-color: rgba(14, 165, 233, 0.3);
   }
   
   .status-badge.Interview {
-    background: rgba(155, 124, 255, 0.1);
+    background: linear-gradient(135deg, rgba(155, 124, 255, 0.1) 0%, rgba(155, 124, 255, 0.15) 100%);
     color: var(--intelligence-primary);
+    border-color: rgba(155, 124, 255, 0.2);
+  }
+  
+  .status-badge.Interview:hover {
+    background: linear-gradient(135deg, rgba(155, 124, 255, 0.15) 0%, rgba(155, 124, 255, 0.2) 100%);
+    border-color: rgba(155, 124, 255, 0.3);
   }
   
   .status-badge.Offer {
-    background: rgba(34, 197, 94, 0.1);
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(34, 197, 94, 0.15) 100%);
     color: var(--status-offer);
+    border-color: rgba(34, 197, 94, 0.2);
+  }
+  
+  .status-badge.Offer:hover {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.2) 100%);
+    border-color: rgba(34, 197, 94, 0.3);
   }
   
   .status-badge.Rejected {
-    background: rgba(239, 68, 68, 0.1);
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.15) 100%);
     color: var(--status-rejected);
+    border-color: rgba(239, 68, 68, 0.2);
+  }
+  
+  .status-badge.Rejected:hover {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.2) 100%);
+    border-color: rgba(239, 68, 68, 0.3);
   }
   
   .status-badge.Withdrawn {
-    background: rgba(100, 116, 139, 0.1);
+    background: linear-gradient(135deg, rgba(100, 116, 139, 0.1) 0%, rgba(100, 116, 139, 0.15) 100%);
     color: var(--status-withdrawn);
+    border-color: rgba(100, 116, 139, 0.2);
   }
   
-  /* Executive loading states */
+  .status-badge.Withdrawn:hover {
+    background: linear-gradient(135deg, rgba(100, 116, 139, 0.15) 0%, rgba(100, 116, 139, 0.2) 100%);
+    border-color: rgba(100, 116, 139, 0.3);
+  }
+  
+  /* Status Dropdown Menu */
+  .status-dropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    min-width: 160px;
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-executive-large);
+    border: 1px solid var(--neutral-200);
+    backdrop-filter: blur(12px);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: all 0.3s var(--transition-executive-smooth);
+    z-index: 50;
+    overflow: hidden;
+  }
+  
+  .status-dropdown.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  
+  .status-dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    color: var(--neutral-700);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s var(--transition-executive-smooth);
+    cursor: pointer;
+    border-bottom: 1px solid var(--neutral-100);
+  }
+  
+  .status-dropdown-item:last-child {
+    border-bottom: none;
+  }
+  
+  .status-dropdown-item:hover {
+    background: linear-gradient(135deg, var(--neutral-50) 0%, var(--neutral-100) 100%);
+    color: var(--neutral-900);
+  }
+  
+  .status-dropdown-item.active {
+    background: linear-gradient(135deg, var(--executive-primary-lighter) 0%, var(--executive-primary-light) 100%);
+    color: var(--executive-primary-dark);
+    font-weight: 600;
+  }
+  
+  .status-dropdown-item::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 0.75rem;
+    background: currentColor;
+    opacity: 0.8;
+  }
+  
+  /* Executive Premium Loading States */
   .loading-spinner {
     @apply animate-spin rounded-full border-2 border-neutral-300 border-t-primary-600;
     border-color: var(--neutral-300);
+    border-top-color: var(--executive-primary);
+    width: 24px;
+    height: 24px;
+  }
+  
+  .loading-spinner-sm {
+    width: 16px;
+    height: 16px;
+    border-width: 1.5px;
+  }
+  
+  .loading-spinner-lg {
+    width: 32px;
+    height: 32px;
+    border-width: 3px;
+  }
+  
+  .loading-spinner-xl {
+    width: 48px;
+    height: 48px;
+    border-width: 4px;
+  }
+  
+  /* Premium Loading Spinner with Gradient */
+  .loading-spinner-premium {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, transparent, var(--executive-primary), transparent);
+    animation: premium-spinner 1.2s linear infinite;
+    position: relative;
+  }
+  
+  .loading-spinner-premium::before {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: 50%;
+    background: white;
+  }
+  
+  @keyframes premium-spinner {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* Executive Pulse Loading */
+  .loading-pulse {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--executive-primary);
+    animation: executive-pulse-loading 1.5s ease-in-out infinite;
+  }
+  
+  @keyframes executive-pulse-loading {
+    0%, 100% {
+      transform: scale(0.8);
+      opacity: 0.5;
+    }
+    50% {
+      transform: scale(1.2);
+      opacity: 1;
+    }
+  }
+  
+  /* Loading Overlay for Forms */
+  .loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: inherit;
+    z-index: 10;
+  }
+  
+  .loading-overlay .loading-spinner {
     border-top-color: var(--executive-primary);
   }
   
@@ -1212,5 +2435,111 @@
   
   .hover-executive-scale:hover {
     transform: scale(1.02);
+  }
+  
+  /* Executive Interaction Utilities */
+  .interactive-lift {
+    transition: all 0.3s var(--transition-executive-smooth);
+    transform: translateY(0);
+  }
+  
+  .interactive-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-executive-medium);
+  }
+  
+  .interactive-scale {
+    transition: all 0.3s var(--transition-executive-smooth);
+    transform: scale(1);
+  }
+  
+  .interactive-scale:hover {
+    transform: scale(1.05);
+  }
+  
+  .interactive-glow {
+    transition: all 0.3s var(--transition-executive-smooth);
+  }
+  
+  .interactive-glow:hover {
+    box-shadow: 0 0 25px rgba(0, 102, 204, 0.2);
+  }
+  
+  /* Executive Focus States */
+  .focus-executive:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15);
+  }
+  
+  .focus-intelligence:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(155, 124, 255, 0.15);
+  }
+  
+  /* Executive Disabled States */
+  .disabled-executive {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+  
+  .disabled-executive:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  
+  /* Executive Loading States */
+  .loading-executive {
+    position: relative;
+    pointer-events: none;
+  }
+  
+  .loading-executive::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: executive-spinner 0.8s linear infinite;
+  }
+  
+  @keyframes executive-spinner {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* Executive Success States */
+  .success-executive {
+    border-color: var(--status-offer) !important;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1) !important;
+  }
+  
+  .success-executive:focus {
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15) !important;
+  }
+  
+  /* Executive Error States */
+  .error-executive {
+    border-color: var(--status-rejected) !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+  }
+  
+  .error-executive:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+  }
+  
+  /* Executive Warning States */
+  .warning-executive {
+    border-color: var(--status-interview) !important;
+    box-shadow: 0 0 0 3px rgba(242, 117, 15, 0.1) !important;
+  }
+  
+  .warning-executive:focus {
+    box-shadow: 0 0 0 3px rgba(242, 117, 15, 0.15) !important;
   }
 }

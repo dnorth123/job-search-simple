@@ -3,14 +3,12 @@ import type {
   JobApplication, 
   JobStatus, 
   RemotePolicy, 
-  PriorityLevel, 
   ApplicationSource
 } from './jobTypes';
 import {
   getJobApplications,
   addJobApplication,
   updateJobApplication,
-  deleteJobApplication,
   updateApplicationStatus,
 } from './utils/supabaseOperations';
 import { useAuth } from './hooks/useAuth';
@@ -21,15 +19,12 @@ import { CompanySelector } from './components/CompanySelector';
 import { DatabaseErrorBoundary } from './components/DatabaseErrorBoundary';
 import { DatabaseStatus } from './components/DatabaseStatus';
 import { AdminBetaInvites } from './components/AdminBetaInvites';
+import { JobCard } from './components/JobCard';
 import { validateJobApplicationForm } from './utils/validation';
 
 const STATUS_OPTIONS: JobStatus[] = ['Applied', 'Interview', 'Offer', 'Rejected', 'Withdrawn'];
 const REMOTE_POLICY_OPTIONS: RemotePolicy[] = ['Remote', 'Hybrid', 'On-site'];
-const PRIORITY_OPTIONS: { value: PriorityLevel; label: string }[] = [
-  { value: 1, label: 'High' },
-  { value: 2, label: 'Medium' },
-  { value: 3, label: 'Low' },
-];
+
 const APPLICATION_SOURCE_OPTIONS: ApplicationSource[] = [
   'LinkedIn', 'Indeed', 'Company Website', 'Referral', 'Recruiter',
   'Glassdoor', 'AngelList', 'Handshake', 'Career Fair', 'Other'
@@ -39,10 +34,10 @@ function emptyJob(): Omit<JobApplication, 'id' | 'created_at' | 'updated_at'> {
   return {
     user_id: '',
     position: '',
-    priority_level: 3,
     notes: '',
     date_applied: new Date().toISOString().slice(0, 10),
     current_status: 'Applied',
+    priority_level: 3,
   };
 }
 
@@ -243,27 +238,7 @@ function JobTracker() {
     setShowForm(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this application?')) return;
-    
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      await deleteJobApplication(id);
-      
-      // Reload data to ensure we get the latest data from the database
-      if (user) {
-        const updatedJobs = await getJobApplications(user.id);
-        setJobs(updatedJobs);
-      }
-    } catch (err) {
-      console.error('Delete error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to delete application');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+
 
   const handleStatusChange = async (job: JobApplication, status: JobStatus) => {
     setIsLoading(true);
@@ -326,24 +301,7 @@ function JobTracker() {
     }
   };
 
-  function formatDate(dateStr: string) {
-    return new Date(dateStr).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  }
 
-  function getStatusColor(status: JobStatus) {
-    switch (status) {
-      case 'Applied': return 'badge-applied';
-      case 'Interview': return 'badge-interview';
-      case 'Offer': return 'badge-offer';
-      case 'Rejected': return 'badge-rejected';
-      case 'Withdrawn': return 'badge-withdrawn';
-      default: return 'badge-secondary';
-    }
-  }
 
 
 
@@ -369,9 +327,46 @@ function JobTracker() {
       <header className="bg-white shadow-executive border-b border-neutral-200">
         <div className="container-padding">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:py-0 sm:h-16">
-            {/* Title and User Info */}
+            {/* Title */}
             <div className="flex items-center justify-between sm:justify-start mb-3 sm:mb-0">
               <h1 className="text-xl sm:text-2xl font-bold text-neutral-900 truncate">Executive Job Tracker</h1>
+            </div>
+            
+            {/* Action Buttons and User Info */}
+            <div className="flex items-center justify-end space-x-2 sm:space-x-3">
+              {isAdmin && (
+                <button
+                  onClick={() => {
+                    console.log('Admin button clicked, setting showAdmin to true');
+                    setShowAdmin(true);
+                  }}
+                  className="btn btn-secondary text-sm px-3 py-2"
+                  disabled={showProfile || showLogoutConfirm}
+                >
+                  <span className="hidden sm:inline">Admin</span>
+                  <span className="sm:hidden">Admin</span>
+                </button>
+              )}
+              
+              {/* User Info for Desktop */}
+              <div className="hidden sm:block">
+                <button
+                  onClick={() => {
+                    if (!showForm && !showLogoutConfirm) {
+                      setShowProfile(true);
+                    }
+                  }}
+                  className="flex items-center space-x-2 text-sm text-neutral-600 hover:text-neutral-700 hover:bg-neutral-50 border border-neutral-200 px-3 py-2 rounded-lg transition-all duration-200"
+                  disabled={showForm || showLogoutConfirm}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  <span>{profile?.first_name} {profile?.last_name}</span>
+                </button>
+              </div>
+              
+              {/* User Info for Mobile */}
               <div className="sm:hidden">
                 <button
                   onClick={() => {
@@ -388,53 +383,6 @@ function JobTracker() {
                   <span>{profile?.first_name} {profile?.last_name}</span>
                 </button>
               </div>
-            </div>
-            
-            {/* User Info for Desktop */}
-            <div className="hidden sm:block">
-              <button
-                onClick={() => {
-                  if (!showForm && !showLogoutConfirm) {
-                    setShowProfile(true);
-                  }
-                }}
-                className="flex items-center space-x-2 text-sm text-neutral-600 hover:text-neutral-700 hover:bg-neutral-50 border border-neutral-200 px-3 py-2 rounded-lg transition-all duration-200"
-                disabled={showForm || showLogoutConfirm}
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-                <span>{profile?.first_name} {profile?.last_name}</span>
-              </button>
-            </div>
-            
-            {/* Action Buttons */}
-            <div className="flex items-center justify-end space-x-2 sm:space-x-3">
-              {isAdmin && (
-                <button
-                  onClick={() => {
-                    console.log('Admin button clicked, setting showAdmin to true');
-                    setShowAdmin(true);
-                  }}
-                  className="btn btn-secondary text-sm px-3 py-2"
-                  disabled={showProfile || showLogoutConfirm}
-                >
-                  <span className="hidden sm:inline">Admin</span>
-                  <span className="sm:hidden">Admin</span>
-                </button>
-              )}
-              <button
-                onClick={() => {
-                  if (!showProfile && !showLogoutConfirm) {
-                    setShowForm(true);
-                  }
-                }}
-                className="btn btn-strategic text-sm px-4 py-2"
-                disabled={showProfile || showLogoutConfirm}
-              >
-                <span className="hidden sm:inline">+ Add Application</span>
-                <span className="sm:hidden">+ Application</span>
-              </button>
             </div>
           </div>
         </div>
@@ -552,15 +500,18 @@ function JobTracker() {
                   ))}
                 </select>
               </div>
-              <div className="flex items-end">
+              <div className="flex items-end justify-end">
                 <button
                   onClick={() => {
-                    setSearchTerm('');
-                    setStatusFilter('All');
+                    if (!showProfile && !showLogoutConfirm) {
+                      setShowForm(true);
+                    }
                   }}
-                  className="btn btn-secondary w-full"
+                  className="btn btn-strategic px-6"
+                  disabled={showProfile || showLogoutConfirm}
                 >
-                  Clear Filters
+                  <span className="hidden sm:inline">+ Add Application</span>
+                  <span className="sm:hidden">+ Application</span>
                 </button>
               </div>
             </div>
@@ -614,95 +565,17 @@ function JobTracker() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="job-cards-grid">
             {filteredJobs.map(job => (
-              <div key={job.id} className="card hover:shadow-medium transition-shadow duration-200">
-                <div className="card-body">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                                          <h3 className="font-semibold text-neutral-900 mb-1">{job.position}</h3>
-                    <p className="text-sm text-neutral-600">{job.company?.name || 'Unknown Company'}</p>
-                    </div>
-                                         <div className="flex items-center space-x-2 relative status-dropdown-container">
-                       <button
-                         onClick={() => handleStatusClick(job)}
-                         className={`badge ${getStatusColor(job.current_status || 'Applied')} cursor-pointer hover:opacity-80 transition-opacity flex items-center gap-1`}
-                         title="Click to change status"
-                       >
-                         {job.current_status || 'Applied'}
-                         <svg className="w-3 h-3 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                         </svg>
-                       </button>
-                       
-                       {/* Status Dropdown */}
-                       {openStatusDropdown === job.id && (
-                         <div className="absolute top-full right-0 mt-1 z-10 bg-white border border-gray-200 rounded-lg shadow-lg min-w-[120px]">
-                           {STATUS_OPTIONS.map(status => (
-                             <button
-                               key={status}
-                               onClick={() => handleStatusSelect(job, status)}
-                               className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 transition-colors ${
-                                 job.current_status === status
-                                   ? 'bg-primary-50 text-primary-700 font-medium'
-                                   : 'text-gray-700'
-                               } ${status === STATUS_OPTIONS[0] ? 'rounded-t-lg' : ''} ${
-                                 status === STATUS_OPTIONS[STATUS_OPTIONS.length - 1] ? 'rounded-b-lg' : ''
-                               }`}
-                             >
-                               {status}
-                             </button>
-                           ))}
-                         </div>
-                       )}
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center text-sm text-neutral-600">
-                      <span className="font-medium mr-2">Applied:</span>
-                      {formatDate(job.date_applied)}
-                    </div>
-                                         {job.salary_range_min && job.salary_range_max && (
-                       <div className="flex items-center text-sm text-neutral-600">
-                         <span className="font-medium mr-2">Salary:</span>
-                         ${job.salary_range_min.toLocaleString()} - ${job.salary_range_max.toLocaleString()}
-                       </div>
-                     )}
-                    {job.remote_policy && (
-                      <div className="flex items-center text-sm text-neutral-600">
-                        <span className="font-medium mr-2">Work Policy:</span>
-                        {job.remote_policy}
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="flex items-center justify-end pt-3 border-t border-neutral-200">
-                    <div className="flex space-x-1">
-                      <button
-                        onClick={() => handleEdit(job)}
-                        className="action-button action-button-edit"
-                        title="Edit application"
-                      >
-                        <svg className="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                        <span className="hidden sm:inline">Edit</span>
-                      </button>
-                      <button
-                        onClick={() => handleDelete(job.id)}
-                        className="action-button action-button-delete"
-                        title="Delete application"
-                      >
-                        <svg className="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                        <span className="hidden sm:inline">Delete</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <JobCard
+                key={job.id}
+                job={job}
+                onEdit={handleEdit}
+                openStatusDropdown={openStatusDropdown}
+                onStatusClick={handleStatusClick}
+                onStatusSelect={handleStatusSelect}
+                isLoading={isLoading}
+              />
             ))}
           </div>
         )}
@@ -748,7 +621,7 @@ function JobTracker() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-neutral-700 mb-2">
-                      Position Title *
+                      Position title *
                     </label>
                     <input
                       type="text"
@@ -762,7 +635,7 @@ function JobTracker() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-neutral-700 mb-2">
-                      Date Applied *
+                      Date applied *
                     </label>
                     <input
                       type="date"
@@ -795,7 +668,7 @@ function JobTracker() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                      <div>
                      <label className="block text-sm font-medium text-neutral-700 mb-2">
-                       Salary Range (Min)
+                       Salary range (min)
                      </label>
                      <input
                        type="number"
@@ -808,7 +681,7 @@ function JobTracker() {
                    </div>
                    <div>
                      <label className="block text-sm font-medium text-neutral-700 mb-2">
-                       Salary Range (Max)
+                       Salary range (max)
                      </label>
                      <input
                        type="number"
@@ -821,7 +694,7 @@ function JobTracker() {
                    </div>
                   <div>
                     <label className="block text-sm font-medium text-neutral-700 mb-2">
-                      Equity Offered
+                      Equity offered
                     </label>
                                          <input
                        type="text"
@@ -835,7 +708,7 @@ function JobTracker() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-neutral-700 mb-2">
-                    Benefits Offered
+                    Benefits offered
                   </label>
                   <textarea
                     name="benefits_mentioned"
@@ -856,7 +729,7 @@ function JobTracker() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-neutral-700 mb-2">
-                      Remote Policy
+                      Remote policy
                     </label>
                     <select
                       name="remote_policy"
@@ -891,38 +764,21 @@ function JobTracker() {
                 <h3 className="text-lg font-medium text-neutral-900 border-b border-neutral-200 pb-2">
                   Application Details
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-700 mb-2">
-                      Application Source
-                    </label>
-                    <select
-                      name="application_source"
-                      value={form.application_source || ''}
-                      onChange={handleChange}
-                      className="form-select"
-                    >
-                      <option value="">Select source...</option>
-                      {APPLICATION_SOURCE_OPTIONS.map(source => (
-                        <option key={source} value={source}>{source}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-700 mb-2">
-                      Priority Level
-                    </label>
-                    <select
-                      name="priority_level"
-                      value={form.priority_level}
-                      onChange={handleChange}
-                      className="form-select"
-                    >
-                      {PRIORITY_OPTIONS.map(option => (
-                        <option key={option.value} value={option.value}>{option.label}</option>
-                      ))}
-                    </select>
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-2">
+                    Application source
+                  </label>
+                  <select
+                    name="application_source"
+                    value={form.application_source || ''}
+                    onChange={handleChange}
+                    className="form-select"
+                  >
+                    <option value="">Select source...</option>
+                    {APPLICATION_SOURCE_OPTIONS.map(source => (
+                      <option key={source} value={source}>{source}</option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-neutral-700 mb-2">
