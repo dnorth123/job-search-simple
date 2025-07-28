@@ -14,6 +14,7 @@ A modern React TypeScript job application tracker with Supabase backend integrat
 - **Modern UI**: Responsive design with enhanced form layout
 - **Status Tracking**: Track application progress with timeline
 - **Company Management**: Associate applications with companies
+- **Email Notifications**: Admin notifications when new beta users are added
 
 ## Tech Stack
 
@@ -72,7 +73,19 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 2. Enable Email authentication
 3. Configure your site URL (e.g., `http://localhost:5173` for development)
 
-### 5. Run the Application
+### 5. Configure Email Notifications (Optional)
+
+To receive email notifications when new beta users are added:
+
+1. Set up an email service (Resend recommended - see `EMAIL_SETUP_GUIDE.md`)
+2. Add environment variables to your `.env.local`:
+
+```env
+VITE_EMAIL_API_KEY=your_email_api_key
+VITE_FROM_EMAIL=noreply@yourdomain.com
+```
+
+### 6. Run the Application
 
 ```bash
 npm run dev
