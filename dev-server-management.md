@@ -2,6 +2,21 @@
 
 This guide provides a complete dev server management system that can be implemented in any Cursor project to prevent port conflicts and streamline development workflows.
 
+## 🐛 Recent Bug Fixes (v2.0)
+
+### **Fixed Issues**
+- **Next.js Process Detection**: Now properly detects and kills `next-server` processes
+- **Port Cleanup**: Added comprehensive port cleanup for common dev ports (3000, 3001, 3002, 3003, 5173-5177)
+- **Process Termination**: Added wait times to ensure processes fully terminate before starting new ones
+- **Multiple Server Types**: Now supports Vite, Next.js, Webpack, Parcel, React Scripts, Express, Fastify
+- **Backend Support**: Added dedicated backend server management
+
+### **Improvements**
+- **Enhanced Process Detection**: More comprehensive pattern matching for different dev tools
+- **Port-Specific Cleanup**: Kills processes on specific ports rather than just by name
+- **Better Error Handling**: More robust error checking and reporting
+- **Extended Wait Times**: Longer waits to ensure clean startup/shutdown
+
 ## 🚀 Quick Implementation
 
 ### 1. Create the Dev Server Script
