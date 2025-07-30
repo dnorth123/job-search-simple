@@ -25,6 +25,7 @@ import { AdminBetaInvites } from './components/AdminBetaInvites';
 import { JobCard } from './components/JobCard';
 import { JobDescriptionUpload } from './components/JobDescriptionUpload';
 import { validateJobApplicationForm } from './utils/validation';
+import { initializeEmailService } from './utils/emailService';
 
 const STATUS_OPTIONS: JobStatus[] = ['Applied', 'Interview', 'Offer', 'Rejected', 'Withdrawn'];
 const REMOTE_POLICY_OPTIONS: RemotePolicy[] = ['Remote', 'Hybrid', 'On-site'];
@@ -1229,6 +1230,11 @@ function App() {
   const [showSignup, setShowSignup] = useState(false);
 
   console.log('App render state:', { user, profile, loading, profileLoading });
+
+  // Initialize email service
+  useEffect(() => {
+    initializeEmailService();
+  }, []);
 
   // Check if we're in demo mode (no Supabase connection)
   useEffect(() => {

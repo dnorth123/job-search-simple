@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../utils/supabase';
 import { useAuth } from '../hooks/useAuth';
+import { sendBetaInviteEmail, initializeEmailService } from '../utils/emailService';
 
 interface BetaInvite {
   id: string;
@@ -33,6 +34,8 @@ export const AdminBetaInvites: React.FC<AdminBetaInvitesProps> = ({ onNavigateBa
   const [newEmails, setNewEmails] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const [sendEmails, setSendEmails] = useState(true);
+  const [emailResults, setEmailResults] = useState<{ [email: string]: { success: boolean; message?: string } }>({});
 
   // Admin email check
   const ADMIN_EMAIL = 'dan.northington@gmail.com';
@@ -47,6 +50,9 @@ export const AdminBetaInvites: React.FC<AdminBetaInvitesProps> = ({ onNavigateBa
       if (isAdmin) {
         console.log('AdminBetaInvites: loading invites');
         loadInvites();
+        // Initialize email service
+        console.log('AdminBetaInvites: initializing email service');
+        initializeEmailService();
       }
     }
   }, [user]);
@@ -142,9 +148,10 @@ export const AdminBetaInvites: React.FC<AdminBetaInvitesProps> = ({ onNavigateBa
         notes: 'Added via admin interface'
       }));
 
-      const { error: insertError } = await supabase
+      const { data: insertedInvites, error: insertError } = await supabase
         .from('beta_invites')
-        .insert(newInvites);
+        .insert(newInvites)
+        .select('id, email, expires_at');
 
       if (insertError) {
         console.error('Error adding beta invites:', insertError);
@@ -152,7 +159,52 @@ export const AdminBetaInvites: React.FC<AdminBetaInvitesProps> = ({ onNavigateBa
         return;
       }
 
-      setSuccess(`Successfully added ${validEmails.length} beta invite(s).`);
+      // Send email notifications if enabled
+      if (sendEmails && insertedInvites) {
+        console.log('Sending email notifications for invites:', insertedInvites);
+        
+        const emailPromises = insertedInvites.map(async (invite) => {
+          console.log(`Sending email to ${invite.email} with invite ID ${invite.id}`);
+          
+          try {
+            const result = await sendBetaInviteEmail(
+              invite.email,
+              invite.id,
+              user?.email,
+              invite.expires_at
+            );
+            
+            console.log(`Email result for ${invite.email}:`, result);
+            
+            setEmailResults(prev => ({
+              ...prev,
+              [invite.email]: {
+                success: result.success,
+                message: result.error || 'Email sent successfully'
+              }
+            }));
+            
+            return result;
+          } catch (error) {
+            console.error(`Failed to send email to ${invite.email}:`, error);
+            setEmailResults(prev => ({
+              ...prev,
+              [invite.email]: {
+                success: false,
+                message: 'Failed to send email'
+              }
+            }));
+            return { success: false, error: 'Email sending failed' };
+          }
+        });
+
+        console.log('Waiting for all email promises to complete...');
+        await Promise.allSettled(emailPromises);
+        console.log('All email promises completed');
+      }
+
+      const emailStatus = sendEmails ? ' and sent email notifications' : '';
+      setSuccess(`Successfully added ${validEmails.length} beta invite(s)${emailStatus}.`);
       setNewEmails('');
       await loadInvites();
     } catch (err) {
@@ -391,6 +443,39 @@ export const AdminBetaInvites: React.FC<AdminBetaInvitesProps> = ({ onNavigateBa
                   onChange={(e) => setNewEmails(e.target.value)}
                 />
               </div>
+              
+              {/* Email Settings */}
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="sendEmails"
+                  checked={sendEmails}
+                  onChange={(e) => setSendEmails(e.target.checked)}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label htmlFor="sendEmails" className="text-sm text-gray-700">
+                  Send email notifications to invitees
+                </label>
+              </div>
+              
+              {/* Email Results */}
+              {Object.keys(emailResults).length > 0 && (
+                <div className="mt-4">
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">Email Status:</h4>
+                  <div className="space-y-2">
+                    {Object.entries(emailResults).map(([email, result]) => (
+                      <div key={email} className={`text-sm p-2 rounded ${
+                        result.success 
+                          ? 'bg-green-50 text-green-700 border border-green-200' 
+                          : 'bg-red-50 text-red-700 border border-red-200'
+                      }`}>
+                        <span className="font-medium">{email}:</span> {result.message}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
               <div className="flex justify-end">
                 <button
                   onClick={addInvites}

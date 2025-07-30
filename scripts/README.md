@@ -127,3 +127,124 @@ user4@domain.org
 - Validates environment variables before execution
 - Handles sensitive data securely
 - No logging of email addresses in error messages 
+
+# Development Server Management
+
+This directory contains scripts to help manage development servers and prevent port conflicts.
+
+## Quick Start
+
+### Using npm scripts (recommended)
+```bash
+# Start both frontend and email servers
+npm run dev:start
+
+# Stop all development servers
+npm run dev:stop
+
+# Check server status
+npm run dev:status
+
+# Clean up ports
+npm run dev:clean
+```
+
+### Using the script directly
+```bash
+# Start both servers
+./scripts/dev-server.sh start
+
+# Stop all servers
+./scripts/dev-server.sh stop
+
+# Check status
+./scripts/dev-server.sh status
+
+# Clean ports
+./scripts/dev-server.sh clean
+```
+
+## Available Commands
+
+| Command | Description |
+|---------|-------------|
+| `start` | Start both frontend and email servers |
+| `frontend` | Start only frontend dev server |
+| `email` | Start only email server |
+| `stop` | Stop all development servers |
+| `status` | Show status of all servers |
+| `clean` | Kill processes on common dev ports |
+| `help` | Show help message |
+
+## Port Management
+
+The script automatically:
+- Finds available ports starting from 5173 (frontend) and 3001 (email)
+- Kills existing processes on those ports before starting
+- Provides clear feedback about which ports are being used
+
+## Troubleshooting
+
+### Port conflicts
+If you see "Port X is in use" messages:
+```bash
+# Clean up all common dev ports
+npm run dev:clean
+
+# Then start servers
+npm run dev:start
+```
+
+### Servers not starting
+```bash
+# Check what's running
+npm run dev:status
+
+# Stop everything and restart
+npm run dev:stop
+npm run dev:start
+```
+
+### Manual cleanup
+```bash
+# Kill all vite processes
+pkill -f "vite"
+
+# Kill all email server processes
+pkill -f "email-api"
+
+# Kill npm dev processes
+pkill -f "npm run dev"
+```
+
+## Development Workflow
+
+1. **Start development environment:**
+   ```bash
+   npm run dev:start
+   ```
+
+2. **Check status:**
+   ```bash
+   npm run dev:status
+   ```
+
+3. **Stop when done:**
+   ```bash
+   npm run dev:stop
+   ```
+
+## Server URLs
+
+When running, you'll have access to:
+- **Frontend**: http://localhost:5173 (or next available port)
+- **Email API**: http://localhost:3001
+- **Health Check**: http://localhost:3001/api/health
+
+## Benefits
+
+- ✅ **No more port conflicts** - Automatically finds available ports
+- ✅ **Clean startup** - Kills existing processes before starting
+- ✅ **Easy management** - Simple commands to start/stop/status
+- ✅ **Clear feedback** - Colored output shows what's happening
+- ✅ **Consistent environment** - Same setup every time 

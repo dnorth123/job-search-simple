@@ -27,6 +27,13 @@ export default defineConfig({
     hmr: {
       overlay: false, // Disable error overlay for better performance
     },
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
   // Optimize dependencies
   optimizeDeps: {
