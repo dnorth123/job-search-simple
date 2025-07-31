@@ -11,6 +11,25 @@ export type ApplicationSource =
   | 'LinkedIn' | 'Indeed' | 'Company Website' | 'Referral' | 'Recruiter' 
   | 'Glassdoor' | 'AngelList' | 'Handshake' | 'Career Fair' | 'Other';
 
+export type TodoPriority = 'High' | 'Medium' | 'Low';
+export type TodoCategory = 'Follow-up' | 'Preparation' | 'Networking' | 'Administrative' | 'Career Development' | 'Other';
+
+export interface Todo {
+  id: string;
+  user_id: string;
+  title: string;
+  description?: string;
+  due_date?: string; // ISO date string
+  priority: TodoPriority;
+  category?: TodoCategory;
+  completed: boolean;
+  linked_job_id?: string;
+  created_at: string;
+  updated_at: string;
+  // Joined data
+  linked_job?: JobApplication;
+}
+
 export interface User {
   id: string;
   email: string;

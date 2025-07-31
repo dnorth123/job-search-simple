@@ -263,6 +263,45 @@
   border-left-color: var(--text-light);
 }
 
+/* ====== TODO CARD STYLES ====== */
+.todo-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow);
+  position: relative;
+  border-left: 4px solid var(--border-gray);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.todo-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.todo-card.completed {
+  opacity: 0.7;
+  background: var(--neutral-50);
+}
+
+.todo-card[data-priority="High"] {
+  border-left-color: var(--error-red);
+}
+
+.todo-card[data-priority="Medium"] {
+  border-left-color: var(--warning-orange);
+}
+
+.todo-card[data-priority="Low"] {
+  border-left-color: var(--success-green);
+}
+
+.todo-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: var(--space-lg);
+}
+
 .job-card h2 {
   margin: 0 0 var(--space-sm) 0;
   color: var(--text-dark);

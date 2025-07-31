@@ -5,7 +5,10 @@ import type {
   JobStatus, 
   LegacyJobApplication,
   CompanyFormData,
-  UserProfileFormData
+  UserProfileFormData,
+  Todo,
+  TodoPriority,
+  TodoCategory
 } from '../jobTypes';
 
 // Simplified error handling - no retries, just direct operations
@@ -515,4 +518,76 @@ export async function migrateLocalStorageData(legacyData: LegacyJobApplication[]
       }
     }
   }
-} 
+}
+
+// ====== TODO OPERATIONS ======
+
+export async function getTodos(userId: string): Promise<Todo[]> {
+  const { data, error } = await supabase
+    .from('todos')
+    .select(`
+      *,
+      linked_job:applications(*)
+    `)
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+  
+  if (error) handleError(error, 'getTodos');
+  return data || [];
+}
+
+export async function getTodo(todoId: string): Promise<Todo | null> {
+  const { data, error } = await supabase
+    .from('todos')
+    .select(`
+      *,
+      linked_job:applications(*)
+    `)
+    .eq('id', todoId)
+    .single();
+  
+  if (error) handleError(error, 'getTodo');
+  return data;
+}
+
+export async function addTodo(todoData: Omit<Todo, 'id' | 'created_at' | 'updated_at'>): Promise<Todo> {
+  const { data, error } = await supabase
+    .from('todos')
+    .insert(todoData)
+    .select(`
+      *,
+      linked_job:applications(*)
+    `)
+    .single();
+  
+  if (error) handleError(error, 'addTodo');
+  return data;
+}
+
+export async function updateTodo(todoId: string, updates: Partial<Omit<Todo, 'id' | 'created_at' | 'updated_at'>>): Promise<Todo> {
+  const { data, error } = await supabase
+    .from('todos')
+    .update(updates)
+    .eq('id', todoId)
+    .select(`
+      *,
+      linked_job:applications(*)
+    `)
+    .single();
+  
+  if (error) handleError(error, 'updateTodo');
+  return data;
+}
+
+export async function deleteTodo(todoId: string): Promise<void> {
+  const { error } = await supabase
+    .from('todos')
+    .delete()
+    .eq('id', todoId);
+  
+  if (error) handleError(error, 'deleteTodo');
+}
+
+export async function toggleTodoComplete(todoId: string, completed: boolean): Promise<Todo> {
+  return updateTodo(todoId, { completed });
+}

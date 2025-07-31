@@ -3,7 +3,10 @@ import type {
   JobApplication, 
   JobStatus, 
   RemotePolicy, 
-  ApplicationSource
+  ApplicationSource,
+  Todo,
+  TodoPriority,
+  TodoCategory
 } from './jobTypes';
 import {
   getJobApplications,
@@ -13,6 +16,11 @@ import {
   searchCompanies,
   createCompany,
   deleteJobApplication,
+  getTodos,
+  addTodo,
+  updateTodo,
+  deleteTodo,
+  toggleTodoComplete,
 } from './utils/supabaseOperations';
 import { useAuth } from './hooks/useAuth';
 import { LoginForm, SignupForm, ProfileSetupForm } from './components/AuthForms';
@@ -24,6 +32,10 @@ import { DatabaseStatus } from './components/DatabaseStatus';
 import { AdminBetaInvites } from './components/AdminBetaInvites';
 import { JobCard } from './components/JobCard';
 import { JobDescriptionUpload } from './components/JobDescriptionUpload';
+import { TodoCard } from './components/TodoCard';
+import { TodoForm } from './components/TodoForm';
+import { TodoList } from './components/TodoList';
+import { TodoFilters } from './components/TodoFilters';
 import { validateJobApplicationForm } from './utils/validation';
 import { initializeEmailService } from './utils/emailService';
 
@@ -67,6 +79,16 @@ function JobTracker() {
   const [showJobUpload, setShowJobUpload] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
 
+  // Todo state
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [showTodoForm, setShowTodoForm] = useState(false);
+  const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
+  const [todoFilters, setTodoFilters] = useState({
+    showCompleted: false,
+    priority: 'All' as TodoPriority | 'All',
+    category: 'All' as TodoCategory | 'All'
+  });
+
   // Admin check
   const isAdmin = user?.email === 'dan.northington@gmail.com';
   
@@ -106,6 +128,10 @@ function JobTracker() {
           setEditingId(null);
           setValidationErrors([]);
         }
+        if (showTodoForm) {
+          setShowTodoForm(false);
+          setEditingTodo(null);
+        }
         if (showLogoutConfirm) {
           setShowLogoutConfirm(false);
         }
@@ -117,13 +143,15 @@ function JobTracker() {
 
     const handlePopState = () => {
       // Close modals when browser back button is pressed
-      if (showProfile || showForm || showLogoutConfirm || showAdmin) {
+      if (showProfile || showForm || showTodoForm || showLogoutConfirm || showAdmin) {
         setShowProfile(false);
         setShowForm(false);
+        setShowTodoForm(false);
         setShowLogoutConfirm(false);
         setShowAdmin(false);
         setForm(emptyJob());
         setEditingId(null);
+        setEditingTodo(null);
         setValidationErrors([]);
       }
     };
@@ -135,7 +163,7 @@ function JobTracker() {
       document.removeEventListener('keydown', handleEscape);
       window.removeEventListener('popstate', handlePopState);
     };
-  }, [showProfile, showForm, showLogoutConfirm, showAdmin]);
+  }, [showProfile, showForm, showTodoForm, showLogoutConfirm, showAdmin]);
 
   const loadData = async () => {
     if (!user) return;
@@ -149,6 +177,12 @@ function JobTracker() {
       const jobsData = await getJobApplications(user.id);
       console.log('getJobApplications returned:', jobsData);
       setJobs(jobsData);
+      
+      console.log('Calling getTodos...');
+      const todosData = await getTodos(user.id);
+      console.log('getTodos returned:', todosData);
+      setTodos(todosData);
+      
       setDataLoaded(true);
     } catch (err) {
       console.error('loadData error:', err);
@@ -415,6 +449,91 @@ function JobTracker() {
     }
   };
 
+  // ====== TODO HANDLERS ======
+
+  const handleAddTodo = () => {
+    setEditingTodo(null);
+    setShowTodoForm(true);
+  };
+
+  const handleEditTodo = (todo: Todo) => {
+    setEditingTodo(todo);
+    setShowTodoForm(true);
+  };
+
+  const handleSaveTodo = async (todoData: Omit<Todo, 'id' | 'created_at' | 'updated_at'>) => {
+    if (!user) return;
+    
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const todoWithUserId = {
+        ...todoData,
+        user_id: user.id
+      };
+      
+      if (editingTodo) {
+        // Update existing todo
+        const updatedTodo = await updateTodo(editingTodo.id, todoWithUserId);
+        setTodos(prev => prev.map(todo => todo.id === editingTodo.id ? updatedTodo : todo));
+      } else {
+        // Add new todo
+        const newTodo = await addTodo(todoWithUserId);
+        setTodos(prev => [newTodo, ...prev]);
+      }
+      
+      setShowTodoForm(false);
+      setEditingTodo(null);
+    } catch (err) {
+      console.error('Todo save error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to save todo');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleToggleTodo = async (todo: Todo) => {
+    if (!user) return;
+    
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const updatedTodo = await toggleTodoComplete(todo.id, !todo.completed);
+      setTodos(prev => prev.map(t => t.id === todo.id ? updatedTodo : t));
+    } catch (err) {
+      console.error('Todo toggle error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to update todo');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteTodo = async (todo: Todo) => {
+    if (!user) return;
+    
+    if (!confirm('Are you sure you want to delete this todo? This action cannot be undone.')) {
+      return;
+    }
+    
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      await deleteTodo(todo.id);
+      setTodos(prev => prev.filter(t => t.id !== todo.id));
+    } catch (err) {
+      console.error('Todo delete error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to delete todo');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleTodoFiltersChange = (filters: Partial<typeof todoFilters>) => {
+    setTodoFilters(prev => ({ ...prev, ...filters }));
+  };
 
   const filteredJobs = jobs.filter(job => {
     const matchesSearch = job.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -767,6 +886,40 @@ function JobTracker() {
             )}
           </div>
         )}
+
+        {/* Todo Section */}
+        <div className="border-t border-neutral-200 pt-8 mt-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-neutral-900">Task Management</h2>
+            <div className="text-sm text-neutral-600">
+              {todos.filter(t => !t.completed).length} active tasks
+            </div>
+          </div>
+
+          {/* Todo Filters */}
+          <TodoFilters
+            showCompleted={todoFilters.showCompleted}
+            priorityFilter={todoFilters.priority}
+            categoryFilter={todoFilters.category}
+            onShowCompletedChange={(show) => handleTodoFiltersChange({ showCompleted: show })}
+            onPriorityFilterChange={(priority) => handleTodoFiltersChange({ priority })}
+            onCategoryFilterChange={(category) => handleTodoFiltersChange({ category })}
+            onAddTodo={handleAddTodo}
+            isLoading={isLoading}
+          />
+
+          {/* Todo List */}
+          <TodoList
+            todos={todos}
+            onEdit={handleEditTodo}
+            onToggle={handleToggleTodo}
+            onDelete={handleDeleteTodo}
+            isLoading={isLoading}
+            showCompleted={todoFilters.showCompleted}
+            priorityFilter={todoFilters.priority}
+            categoryFilter={todoFilters.category}
+          />
+        </div>
       </main>
 
       {/* Application Form Modal */}
@@ -1203,6 +1356,20 @@ function JobTracker() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Todo Form Modal */}
+      {showTodoForm && (
+        <TodoForm
+          todo={editingTodo}
+          jobs={jobs}
+          onSave={handleSaveTodo}
+          onCancel={() => {
+            setShowTodoForm(false);
+            setEditingTodo(null);
+          }}
+          isLoading={isLoading}
+        />
       )}
 
       {/* Admin Interface Modal */}
