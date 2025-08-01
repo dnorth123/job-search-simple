@@ -651,7 +651,7 @@ function JobTracker() {
                 </>
               ) : (
                 <>
-                  <div className="text-2xl font-bold text-orange-600">{stats.preApplication}</div>
+                  <div className="text-2xl font-bold text-yellow-600">{stats.preApplication}</div>
                   <div className="text-base font-medium text-neutral-700">Pre-application</div>
                 </>
               )}
