@@ -32,7 +32,7 @@ import { DatabaseStatus } from './components/DatabaseStatus';
 import { AdminBetaInvites } from './components/AdminBetaInvites';
 import { JobCard } from './components/JobCard';
 import { JobDescriptionUpload } from './components/JobDescriptionUpload';
-import { TodoCard } from './components/TodoCard';
+
 import { TodoForm } from './components/TodoForm';
 import { TodoList } from './components/TodoList';
 import { TodoFilters } from './components/TodoFilters';
@@ -548,6 +548,7 @@ function JobTracker() {
 
   const stats = {
     total: jobs.length,
+    preApplication: jobs.filter(j => j.current_status === 'Pre-application').length,
     applied: jobs.filter(j => j.current_status === 'Applied').length,
     interview: jobs.filter(j => j.current_status === 'Interview').length,
     offer: jobs.filter(j => j.current_status === 'Offer').length,
@@ -625,7 +626,7 @@ function JobTracker() {
       {/* Main Content */}
       <main className="container-padding py-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-4 mb-8">
           <div className="card">
             <div className="card-body text-center">
               {isLoading ? (
@@ -637,6 +638,21 @@ function JobTracker() {
                 <>
                   <div className="text-2xl font-bold text-neutral-900">{stats.total}</div>
                                           <div className="text-base font-medium text-neutral-700">Total Applications</div>
+                </>
+              )}
+            </div>
+          </div>
+          <div className="card">
+            <div className="card-body text-center">
+              {isLoading ? (
+                <>
+                  <div className="h-8 w-12 bg-gray-200 rounded mx-auto mb-2 animate-pulse"></div>
+                  <div className="h-4 w-20 bg-gray-200 rounded mx-auto animate-pulse"></div>
+                </>
+              ) : (
+                <>
+                  <div className="text-2xl font-bold text-orange-600">{stats.preApplication}</div>
+                  <div className="text-base font-medium text-neutral-700">Pre-application</div>
                 </>
               )}
             </div>
