@@ -885,6 +885,11 @@
     letter-spacing: var(--tracking-wide);
   }
   
+  .badge-pre-application {
+    background-color: rgba(168, 85, 247, 0.1);
+    color: var(--intelligence-primary);
+  }
+  
   .badge-applied {
     background-color: rgba(14, 165, 233, 0.1);
     color: var(--status-applied);
@@ -1061,6 +1066,16 @@
   }
   
   /* Premium Status Accent Borders with Gradient */
+  .job-card[data-status="Pre-application"] {
+    border-left-color: var(--intelligence-primary);
+    border-left-width: 6px;
+    background: linear-gradient(135deg, #ffffff 0%, #faf5ff 50%, #f3e8ff 100%);
+  }
+  
+  .job-card[data-status="Pre-application"]::before {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(250, 245, 255, 0.95) 100%);
+  }
+  
   .job-card[data-status="Applied"] {
     border-left-color: var(--status-applied);
     border-left-width: 6px;
@@ -1112,6 +1127,7 @@
   }
   
   /* Override status colors for archived cards */
+  .job-card.archived[data-status="Pre-application"],
   .job-card.archived[data-status="Applied"],
   .job-card.archived[data-status="Interview"],
   .job-card.archived[data-status="Offer"],
@@ -1121,6 +1137,7 @@
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #dee2e6 100%) !important;
   }
   
+  .job-card.archived[data-status="Pre-application"]::before,
   .job-card.archived[data-status="Applied"]::before,
   .job-card.archived[data-status="Interview"]::before,
   .job-card.archived[data-status="Offer"]::before,

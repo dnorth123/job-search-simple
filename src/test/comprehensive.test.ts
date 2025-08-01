@@ -2,13 +2,14 @@ describe('Comprehensive TypeScript and Data Validation Tests', () => {
   describe('1. Type Definition Validation', () => {
     test('should validate enum types match expected values', () => {
       // JobStatus enum validation
-      const validJobStatuses = ['Applied', 'Interview', 'Offer', 'Rejected', 'Withdrawn'];
-      expect(validJobStatuses).toHaveLength(5);
-      expect(validJobStatuses).toContain('Applied');
-      expect(validJobStatuses).toContain('Interview');
-      expect(validJobStatuses).toContain('Offer');
-      expect(validJobStatuses).toContain('Rejected');
-      expect(validJobStatuses).toContain('Withdrawn');
+const validJobStatuses = ['Pre-application', 'Applied', 'Interview', 'Offer', 'Rejected', 'Withdrawn'];
+expect(validJobStatuses).toHaveLength(6);
+expect(validJobStatuses).toContain('Pre-application');
+expect(validJobStatuses).toContain('Applied');
+expect(validJobStatuses).toContain('Interview');
+expect(validJobStatuses).toContain('Offer');
+expect(validJobStatuses).toContain('Rejected');
+expect(validJobStatuses).toContain('Withdrawn');
 
       // PriorityLevel enum validation
       const validPriorityLevels = [1, 2, 3];

@@ -21,10 +21,9 @@ import {
 describe('Type Definition Validation', () => {
   describe('Enum Type Validation', () => {
     test('JobStatus should have correct values', () => {
-      const validStatuses: JobStatus[] = ['Applied', 'Interview', 'Offer', 'Rejected', 'Withdrawn'];
-      const invalidStatus = 'Invalid' as JobStatus;
+  const validStatuses: JobStatus[] = ['Pre-application', 'Applied', 'Interview', 'Offer', 'Rejected', 'Withdrawn'];
       
-      expect(validStatuses).toHaveLength(5);
+              expect(validStatuses).toHaveLength(6);
       expect(validStatuses).toContain('Applied');
       expect(validStatuses).toContain('Interview');
       expect(validStatuses).toContain('Offer');
@@ -378,6 +377,7 @@ describe('Type Definition Validation', () => {
   describe('Enum Type Transitions', () => {
     test('JobStatus transitions should be valid', () => {
       const validTransitions: Record<JobStatus, JobStatus[]> = {
+        'Pre-application': ['Applied', 'Rejected', 'Withdrawn'],
         'Applied': ['Interview', 'Rejected', 'Withdrawn'],
         'Interview': ['Offer', 'Rejected', 'Withdrawn'],
         'Offer': ['Rejected', 'Withdrawn'],

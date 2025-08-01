@@ -172,6 +172,7 @@ describe('Schema Migration Testing', () => {
     test('should validate data transformation during migration', () => {
       const transformLegacyStatus = (legacyStatus: string): JobStatus => {
         const statusMap: Record<string, JobStatus> = {
+          'pre-application': 'Pre-application',
           'applied': 'Applied',
           'interview': 'Interview',
           'offer': 'Offer',
@@ -384,6 +385,7 @@ describe('Schema Migration Testing', () => {
     test('should validate enum value mapping', () => {
       const mapLegacyStatus = (legacyStatus: string): JobStatus => {
         const statusMapping: Record<string, JobStatus> = {
+          'pre_application': 'Pre-application',
           'pending': 'Applied',
           'in_progress': 'Interview',
           'accepted': 'Offer',

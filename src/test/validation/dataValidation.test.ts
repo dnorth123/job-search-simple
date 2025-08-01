@@ -4,13 +4,7 @@ import {
   UserProfileFormData,
   ValidationError,
   FormValidationResult,
-  JobStatus,
-  RemotePolicy,
-  PriorityLevel,
-  CompanySizeRange,
-  IndustryCategory,
-  CareerLevel,
-  ApplicationSource
+  PriorityLevel
 } from '../../jobTypes';
 
 describe('Data Validation Testing', () => {
@@ -299,8 +293,9 @@ describe('Data Validation Testing', () => {
       };
 
       // Test JobStatus
-      expect(validateEnum('Applied', ['Applied', 'Interview', 'Offer', 'Rejected', 'Withdrawn'])).toBe(true);
-      expect(validateEnum('Invalid', ['Applied', 'Interview', 'Offer', 'Rejected', 'Withdrawn'])).toBe(false);
+          expect(validateEnum('Pre-application', ['Pre-application', 'Applied', 'Interview', 'Offer', 'Rejected', 'Withdrawn'])).toBe(true);
+    expect(validateEnum('Applied', ['Pre-application', 'Applied', 'Interview', 'Offer', 'Rejected', 'Withdrawn'])).toBe(true);
+    expect(validateEnum('Invalid', ['Pre-application', 'Applied', 'Interview', 'Offer', 'Rejected', 'Withdrawn'])).toBe(false);
 
       // Test RemotePolicy
       expect(validateEnum('Remote', ['Remote', 'Hybrid', 'On-site'])).toBe(true);

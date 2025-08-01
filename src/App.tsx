@@ -39,7 +39,7 @@ import { TodoFilters } from './components/TodoFilters';
 import { validateJobApplicationForm } from './utils/validation';
 import { initializeEmailService } from './utils/emailService';
 
-const STATUS_OPTIONS: JobStatus[] = ['Applied', 'Interview', 'Offer', 'Rejected', 'Withdrawn'];
+const STATUS_OPTIONS: JobStatus[] = ['Pre-application', 'Applied', 'Interview', 'Offer', 'Rejected', 'Withdrawn'];
 const REMOTE_POLICY_OPTIONS: RemotePolicy[] = ['Remote', 'Hybrid', 'On-site'];
 
 const APPLICATION_SOURCE_OPTIONS: ApplicationSource[] = [

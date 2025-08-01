@@ -1,4 +1,4 @@
-export type JobStatus = 'Applied' | 'Interview' | 'Offer' | 'Rejected' | 'Withdrawn';
+export type JobStatus = 'Pre-application' | 'Applied' | 'Interview' | 'Offer' | 'Rejected' | 'Withdrawn';
 export type RemotePolicy = 'Remote' | 'Hybrid' | 'On-site';
 export type PriorityLevel = 1 | 2 | 3; // 1=High, 2=Medium, 3=Low
 export type CompanySizeRange = '1-10' | '11-50' | '51-200' | '201-500' | '501-1000' | '1001-5000' | '5001-10000' | '10000+';

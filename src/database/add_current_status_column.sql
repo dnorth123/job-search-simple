@@ -19,7 +19,7 @@ CREATE INDEX IF NOT EXISTS idx_applications_user_current_status ON applications(
 -- Add a check constraint to ensure valid status values
 ALTER TABLE applications 
 ADD CONSTRAINT check_current_status 
-CHECK (current_status IN ('Applied', 'Interview', 'Offer', 'Rejected', 'Withdrawn'));
+CHECK (current_status IN ('Pre-application', 'Applied', 'Interview', 'Offer', 'Rejected', 'Withdrawn'));
 
 -- Create a function to automatically update current_status when timeline changes
 CREATE OR REPLACE FUNCTION update_current_status()

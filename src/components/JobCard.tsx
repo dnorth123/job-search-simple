@@ -10,7 +10,7 @@ interface JobCardProps {
   isLoading?: boolean;
 }
 
-const STATUS_OPTIONS: JobStatus[] = ['Applied', 'Interview', 'Offer', 'Rejected', 'Withdrawn'];
+const STATUS_OPTIONS: JobStatus[] = ['Pre-application', 'Applied', 'Interview', 'Offer', 'Rejected', 'Withdrawn'];
 
 export const JobCard: React.FC<JobCardProps> = ({
   job,
@@ -33,6 +33,7 @@ export const JobCard: React.FC<JobCardProps> = ({
 
   const getStatusColor = (status: JobStatus) => {
     switch (status) {
+      case 'Pre-application': return 'badge-pre-application';
       case 'Applied': return 'badge-applied';
       case 'Interview': return 'badge-interview';
       case 'Offer': return 'badge-offer';

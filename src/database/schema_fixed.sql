@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS applications (
 CREATE TABLE IF NOT EXISTS application_timeline (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     application_id UUID NOT NULL REFERENCES applications(id) ON DELETE CASCADE,
-    status VARCHAR(50) NOT NULL, -- 'Applied', 'Interview', 'Offer', 'Rejected', 'Withdrawn'
+    status VARCHAR(50) NOT NULL, -- 'Pre-application', 'Applied', 'Interview', 'Offer', 'Rejected', 'Withdrawn'
     notes TEXT,
     date_changed DATE NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()

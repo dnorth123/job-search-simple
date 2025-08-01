@@ -178,9 +178,10 @@ npm test
 ### **Type Definition Validation**
 ```typescript
 test('should validate enum types match expected values', () => {
-  const validJobStatuses = ['Applied', 'Interview', 'Offer', 'Rejected', 'Withdrawn'];
-  expect(validJobStatuses).toHaveLength(5);
-  expect(validJobStatuses).toContain('Applied');
+  const validJobStatuses = ['Pre-application', 'Applied', 'Interview', 'Offer', 'Rejected', 'Withdrawn'];
+expect(validJobStatuses).toHaveLength(6);
+expect(validJobStatuses).toContain('Pre-application');
+expect(validJobStatuses).toContain('Applied');
 });
 ```
 
