@@ -216,6 +216,11 @@ function JobTracker() {
     }));
   };
 
+  // Debug form state changes
+  useEffect(() => {
+    console.log('Form state changed - company_id:', form.company_id);
+  }, [form.company_id]);
+
   const handleJobDataExtracted = async (data: { position?: string; company?: string; location?: string; salary_range_min?: number; salary_range_max?: number; remote_policy?: RemotePolicy; application_source?: ApplicationSource; job_req_id?: string; benefits_mentioned?: string; equity_offered?: boolean; equity_details?: string; notes?: string }) => {
     console.log('handleJobDataExtracted called with data:', data);
     
@@ -335,6 +340,8 @@ function JobTracker() {
   };
 
   const handleEdit = (job: JobApplication) => {
+    console.log('Editing job with company_id:', job.company_id);
+    console.log('Full job object:', job);
     setForm({
       user_id: job.user_id,
       position: job.position,
@@ -354,6 +361,7 @@ function JobTracker() {
       notes: job.notes,
       archived: job.archived || false,
     });
+    console.log('Form set with company_id:', job.company_id);
     setEditingId(job.id);
     setShowForm(true);
   };
@@ -572,7 +580,6 @@ function JobTracker() {
               {isAdmin && (
                 <button
                   onClick={() => {
-                    console.log('Admin button clicked, setting showAdmin to true');
                     setShowAdmin(true);
                   }}
                   className="btn btn-secondary text-sm px-3 py-2"
@@ -941,7 +948,7 @@ function JobTracker() {
       {/* Application Form Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-large max-w-4xl w-full max-h-[90vh] flex flex-col">
+          <div className="bg-white rounded-xl shadow-large max-w-4xl w-full max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
             {/* Sticky Header */}
             <div className="card-header sticky top-0 bg-white z-10 border-b border-neutral-200">
               <div className="flex items-center justify-between">
@@ -1084,6 +1091,7 @@ function JobTracker() {
                     onCompanySelect={handleCompanySelect}
                     placeholder="Search or create company..."
                     className="w-full"
+                    isEditing={!!editingId}
                   />
                 </div>
               </div>
@@ -1412,8 +1420,6 @@ function App() {
   const [isDemoMode, setIsDemoMode] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
 
-  console.log('App render state:', { user, profile, loading, profileLoading });
-
   // Initialize email service
   useEffect(() => {
     initializeEmailService();
@@ -1421,16 +1427,9 @@ function App() {
 
   // Check if we're in demo mode (no Supabase connection)
   useEffect(() => {
-    console.log('App environment check:', {
-      VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL ? 'SET' : 'NOT SET',
-      VITE_SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY ? 'SET' : 'NOT SET',
-    });
-    
     if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-      console.log('Setting demo mode to true');
       setIsDemoMode(true);
     } else {
-      console.log('Environment variables found, demo mode false');
       setIsDemoMode(false);
     }
   }, []);
@@ -1446,15 +1445,12 @@ function App() {
 
   // Optimized loading state - show loading only for initial auth check
   useEffect(() => {
-    console.log('Profile setup effect:', { user, profile, profileLoading });
     if (user && !profile && !profileLoading) {
-      console.log('Setting up profile setup form');
       // This will be handled by the AuthContext
     }
   }, [user, profile, profileLoading]);
   // Progressive loading for better Lighthouse performance
   if (loading) {
-    console.log('Showing progressive loading state');
     return (
               <div className="min-h-screen bg-neutral-50">
         {/* Show skeleton UI immediately for better perceived performance */}
