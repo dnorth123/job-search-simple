@@ -1,0 +1,259 @@
+# Cursor Rules for Job Search MVP Project
+
+## Project Overview
+This is a React TypeScript job search tracking application with Supabase backend, featuring user authentication, job application management, todo tracking, and admin features.
+
+## Technology Stack
+- **Frontend**: React 18 + TypeScript + Vite
+- **Styling**: Tailwind CSS with custom components
+- **Backend**: Supabase (PostgreSQL + Auth + Storage)
+- **Testing**: Jest + React Testing Library + Playwright + Cypress
+- **Build**: Vite with optimization
+- **Deployment**: Netlify
+
+## Code Style & Patterns
+
+### TypeScript Configuration
+- Use strict TypeScript with proper type definitions
+- Prefer interfaces over types for object shapes
+- Use union types for status enums (JobStatus, RemotePolicy, etc.)
+- Export types from `src/jobTypes.ts`
+
+### React Component Patterns
+- Use functional components with hooks
+- Prefer `React.FC<Props>` for component typing
+- Use destructuring for props
+- Keep components focused and single-responsibility
+- Use proper TypeScript generics for hooks
+
+### File Organization
+- Components in `src/components/`
+- Utilities in `src/utils/`
+- Hooks in `src/hooks/`
+- Contexts in `src/contexts/`
+- Types in `src/jobTypes.ts`
+- Database operations in `src/utils/supabaseOperations.ts`
+
+### Naming Conventions
+- Components: PascalCase (JobCard, TodoForm)
+- Files: PascalCase for components, camelCase for utilities
+- Functions: camelCase (handleSubmit, loadData)
+- Constants: UPPER_SNAKE_CASE (STATUS_OPTIONS)
+- CSS classes: kebab-case with Tailwind utilities
+
+### State Management
+- Use React hooks (useState, useEffect, useContext)
+- Prefer local state over global state when possible
+- Use context for auth and user data
+- Keep state close to where it's used
+
+### Error Handling
+- Use try-catch blocks for async operations
+- Display user-friendly error messages
+- Log errors to console for debugging
+- Use error boundaries for component-level errors
+
+### Database Operations
+- All Supabase operations in `supabaseOperations.ts`
+- Use proper error handling and loading states
+- Implement optimistic updates where appropriate
+- Use transactions for related operations
+
+## Component Guidelines
+
+### Form Components
+- Use controlled inputs with proper onChange handlers
+- Implement proper validation with user feedback
+- Use Tailwind classes for styling
+- Include loading states and error handling
+
+### Card Components
+- Use consistent spacing and typography
+- Implement hover states and transitions
+- Use semantic HTML structure
+- Include proper accessibility attributes
+
+### Modal/Dialog Components
+- Use proper focus management
+- Implement escape key handling
+- Include backdrop click handling
+- Use proper ARIA attributes
+
+## Performance Considerations
+- Use React.memo for expensive components
+- Implement proper dependency arrays in useEffect
+- Use lazy loading for large components
+- Optimize bundle size with code splitting
+- Cache expensive operations (API calls, computations)
+
+## Testing Strategy
+- Unit tests for utilities and hooks
+- Component tests with React Testing Library
+- E2E tests with Playwright for critical flows
+- Cypress for integration testing
+- Test error states and edge cases
+
+## Security Guidelines
+- Validate all user inputs
+- Sanitize data before database operations
+- Use proper authentication checks
+- Implement proper authorization for admin features
+- Never expose sensitive data in client-side code
+
+## Accessibility
+- Use semantic HTML elements
+- Include proper ARIA labels and roles
+- Ensure keyboard navigation works
+- Provide alternative text for images
+- Test with screen readers
+
+## Code Quality
+- Use ESLint for code linting
+- Follow consistent formatting
+- Write self-documenting code
+- Include JSDoc comments for complex functions
+- Keep functions small and focused
+
+## Database Schema
+- Use consistent naming (snake_case for columns)
+- Include proper foreign key relationships
+- Use appropriate data types
+- Implement proper indexing
+- Include audit fields (created_at, updated_at)
+
+## API Design
+- Use RESTful conventions
+- Implement proper error responses
+- Use consistent response formats
+- Include proper status codes
+- Document API endpoints
+
+## Deployment & DevOps
+- Use environment variables for configuration
+- Implement proper build optimization
+- Use CDN for static assets
+- Monitor performance and errors
+- Implement proper logging
+
+## Common Patterns to Follow
+
+### Loading States
+```typescript
+const [isLoading, setIsLoading] = useState(false);
+// Use in components with proper loading indicators
+```
+
+### Error Handling
+```typescript
+const [error, setError] = useState<string | null>(null);
+// Display user-friendly error messages
+```
+
+### Form Validation
+```typescript
+const [validationErrors, setValidationErrors] = useState<string[]>([]);
+// Validate before submission and show errors
+```
+
+### Optimistic Updates
+```typescript
+// Update UI immediately, then sync with server
+setJobs(prevJobs => [...prevJobs, newJob]);
+// Handle errors by reverting if needed
+```
+
+## Anti-Patterns to Avoid
+- Don't use `any` type in TypeScript
+- Don't mutate state directly
+- Don't forget to handle loading and error states
+- Don't ignore accessibility requirements
+- Don't hardcode sensitive data
+- Don't skip proper validation
+- Don't forget to clean up effects
+
+## File Structure Preferences
+```
+src/
+├── components/          # React components
+├── contexts/           # React contexts
+├── hooks/              # Custom hooks
+├── utils/              # Utility functions
+├── database/           # Database schemas and migrations
+├── test/               # Test files
+└── jobTypes.ts         # TypeScript type definitions
+```
+
+## Performance Optimization Rules
+- Use React.memo for components that re-render frequently
+- Implement proper memoization with useMemo and useCallback
+- Lazy load components that aren't immediately needed
+- Optimize images and assets
+- Use proper caching strategies
+- Minimize bundle size with tree shaking
+
+## Testing Requirements
+- Write tests for all utility functions
+- Test component rendering and interactions
+- Test error states and edge cases
+- Test accessibility features
+- Maintain good test coverage
+- Use meaningful test descriptions
+
+## Documentation Standards
+- Include README files for complex features
+- Document API endpoints and data structures
+- Use JSDoc for complex functions
+- Keep documentation up to date
+- Include setup and deployment instructions
+
+## Git Workflow
+- Use descriptive commit messages
+- Keep commits focused and atomic
+- Use feature branches for new development
+- Review code before merging
+- Maintain clean git history
+
+## Environment Setup
+- Use environment variables for configuration
+- Keep sensitive data out of version control
+- Use different configs for dev/staging/prod
+- Document setup requirements
+- Provide clear setup instructions
+
+## Monitoring & Debugging
+- Use console.log sparingly and remove in production
+- Implement proper error logging
+- Monitor performance metrics
+- Track user interactions for analytics
+- Use React DevTools for debugging
+
+## Security Best Practices
+- Validate all inputs on both client and server
+- Use HTTPS in production
+- Implement proper CORS policies
+- Sanitize data before database operations
+- Use proper authentication and authorization
+- Never trust client-side data
+
+## Accessibility Standards
+- Follow WCAG 2.1 guidelines
+- Use semantic HTML elements
+- Provide proper focus management
+- Include ARIA labels and roles
+- Test with keyboard navigation
+- Ensure sufficient color contrast
+- Provide alternative text for images
+
+## Code Review Checklist
+- [ ] TypeScript types are correct
+- [ ] No console.log statements in production code
+- [ ] Proper error handling implemented
+- [ ] Loading states included
+- [ ] Accessibility requirements met
+- [ ] Tests written and passing
+- [ ] Performance considerations addressed
+- [ ] Security best practices followed
+- [ ] Code is properly documented
+- [ ] No hardcoded sensitive data
+
+
