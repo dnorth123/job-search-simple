@@ -3,12 +3,43 @@ import { parseJobDescription, extractTextFromFile, validateFile, extractTextFrom
 import { getExtractionTips } from '../utils/corsProxyService';
 import type { ParsedJobData } from '../utils/jobDescriptionParser';
 
+interface ApplicationData {
+  company_name?: string;
+  company_linkedin_url?: string;
+  position?: string;
+  department?: string;
+  team?: string;
+  location?: string;
+  work_arrangement?: string;
+  salary_range_min?: number;
+  salary_range_max?: number;
+  currency?: string;
+  equity_offered?: boolean;
+  job_url?: string;
+  job_description?: string;
+  requirements?: string;
+  preferred_qualifications?: string;
+  benefits?: string;
+  application_method?: string;
+  application_source?: string;
+  priority?: string;
+  match_score?: number;
+  notes?: string;
+  pros?: string;
+  cons?: string;
+  research_notes?: string;
+  networking_contacts?: string;
+  interview_preparation?: string;
+}
+
 interface JobDescriptionUploadProps {
   onDataExtracted: (data: ParsedJobData) => void;
+  onApplicationDataExtracted?: (data: ApplicationData) => void;
 }
 
 export const JobDescriptionUpload: React.FC<JobDescriptionUploadProps> = ({
-  onDataExtracted
+  onDataExtracted,
+  onApplicationDataExtracted
 }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
@@ -20,8 +51,44 @@ export const JobDescriptionUpload: React.FC<JobDescriptionUploadProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = async (file: File) => {
+    // Check if it's a JSON file
+    if (file.name.endsWith('.json')) {
+      setIsUploading(true);
+      setLocalError(null);
+      setSuccessMessage(null);
+      setShowManualOverride(false);
+      
+      try {
+        const text = await file.text();
+        const jsonData = JSON.parse(text);
+        
+        // Check if it's an application data JSON
+        if (jsonData.applications && Array.isArray(jsonData.applications)) {
+          if (jsonData.applications.length > 0) {
+            const appData = jsonData.applications[0]; // Take the first application
+            
+            // Call the new callback if available
+            if (onApplicationDataExtracted) {
+              onApplicationDataExtracted(appData);
+              setSuccessMessage(`Successfully loaded application data for ${appData.position || 'position'} at ${appData.company_name || 'company'}`);
+            }
+          } else {
+            setLocalError('No applications found in the JSON file');
+          }
+        } else {
+          setLocalError('Invalid JSON format. Please use the application template format.');
+        }
+      } catch (error) {
+        setLocalError('Failed to parse JSON file. Please check the file format.');
+      } finally {
+        setIsUploading(false);
+      }
+      return;
+    }
+    
+    // Original file handling for non-JSON files
     if (!validateFile(file)) {
-      setLocalError('Please upload a valid file (TXT, MD, PDF, DOC, DOCX) under 5MB');
+      setLocalError('Please upload a valid file (TXT, MD, PDF, DOC, DOCX, JSON) under 5MB');
       return;
     }
 
@@ -134,14 +201,14 @@ export const JobDescriptionUpload: React.FC<JobDescriptionUploadProps> = ({
     <div className="space-y-6">
       <div className="text-center">
         <h4 className="text-lg font-medium text-neutral-900 mb-2">
-          Upload Job Description
+          Upload Application Info
         </h4>
         <p className="text-sm text-neutral-600 mb-4">
-          Upload a job description file, paste the text, or provide a URL to automatically extract information
+          Upload application data (JSON), job description file, paste text, or provide a URL to automatically extract information
         </p>
         <p className="text-xs text-neutral-500 mb-4">
-          💡 Tip: URL parsing works best with public job sites. For corporate career pages that block external requests, 
-          the extracted content will be automatically pasted into the text field for you to review and edit.
+          💡 Tip: Use the JSON template from /docs/application-upload-template.json to pre-fill application data including company LinkedIn URLs.
+          For job descriptions, URL parsing works best with public job sites.
         </p>
       </div>
 
@@ -227,7 +294,7 @@ export const JobDescriptionUpload: React.FC<JobDescriptionUploadProps> = ({
                 {isUploading ? 'Processing file...' : 'Drag and drop a file here, or click to browse'}
               </p>
               <p className="text-xs text-neutral-500 mt-1">
-                Supports: TXT, MD, PDF, DOC, DOCX (max 5MB)
+                Supports: JSON (application data), TXT, MD, PDF, DOC, DOCX (max 5MB)
               </p>
             </div>
 
@@ -243,7 +310,7 @@ export const JobDescriptionUpload: React.FC<JobDescriptionUploadProps> = ({
             <input
               ref={fileInputRef}
               type="file"
-              accept=".txt,.md,.pdf,.doc,.docx"
+              accept=".json,.txt,.md,.pdf,.doc,.docx"
               onChange={handleFileInput}
               className="hidden"
             />

@@ -22,11 +22,13 @@ import {
   deleteTodo,
   toggleTodoComplete,
 } from './utils/supabaseOperations';
+import { supabase } from './utils/supabase';
 import { useAuth } from './hooks/useAuth';
 import { LoginForm, SignupForm, ProfileSetupForm } from './components/AuthForms';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { UserProfile } from './components/UserProfile';
 import { CompanySelectorWithLinkedIn } from './components/CompanySelectorWithLinkedIn';
+import { JobDescriptionModal } from './components/JobDescriptionModal';
 import { DatabaseErrorBoundary } from './components/DatabaseErrorBoundary';
 import { DatabaseStatus } from './components/DatabaseStatus';
 import { AdminBetaInvites } from './components/AdminBetaInvites';
@@ -83,6 +85,8 @@ function JobTracker() {
   const [showAdmin, setShowAdmin] = useState(false);
   const [showJobUpload, setShowJobUpload] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
+  const [showJobDescriptionModal, setShowJobDescriptionModal] = useState(false);
+  const [selectedJobForDescription, setSelectedJobForDescription] = useState<JobApplication | null>(null);
 
   // Todo state
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -232,6 +236,98 @@ function JobTracker() {
   useEffect(() => {
     console.log('Form state changed - company_id:', form.company_id);
   }, [form.company_id]);
+
+  const handleApplicationDataExtracted = async (data: any) => {
+    console.log('handleApplicationDataExtracted called with data:', data);
+    
+    // Handle company creation/selection if company_name is provided
+    if (data.company_name) {
+      // Search for existing company
+      const companies = await searchCompanies(data.company_name);
+      let companyId = null;
+      
+      if (companies.length > 0) {
+        // Use existing company
+        companyId = companies[0].id;
+      } else {
+        // Create new company
+        try {
+          const newCompanyData: any = {
+            name: data.company_name
+          };
+          
+          // Add LinkedIn URL if provided
+          if (data.company_linkedin_url) {
+            newCompanyData.linkedin_url = data.company_linkedin_url;
+          }
+          
+          const { data: newCompany, error } = await supabase
+            .from('companies')
+            .insert([newCompanyData])
+            .select()
+            .single();
+            
+          if (!error && newCompany) {
+            companyId = newCompany.id;
+          }
+        } catch (error) {
+          console.error('Error creating company:', error);
+        }
+      }
+      
+      if (companyId) {
+        handleCompanySelect(companyId, data.company_linkedin_url ? {
+          url: data.company_linkedin_url,
+          confidence: 1.0,
+          method: 'manual'
+        } : undefined);
+      }
+    }
+    
+    // Map work_arrangement to remote_policy
+    let remotePolicy: RemotePolicy | undefined;
+    if (data.work_arrangement) {
+      const arrangementMap: Record<string, RemotePolicy> = {
+        'Remote': 'Remote',
+        'Hybrid': 'Hybrid',
+        'Onsite': 'On-site'
+      };
+      remotePolicy = arrangementMap[data.work_arrangement];
+    }
+    
+    // Update form with all provided data
+    setForm(prev => ({
+      ...prev,
+      position: data.position || prev.position,
+      department: data.department || prev.department,
+      team: data.team || prev.team,
+      location: data.location || prev.location,
+      remote_policy: remotePolicy || prev.remote_policy,
+      salary_range_min: data.salary_range_min || prev.salary_range_min,
+      salary_range_max: data.salary_range_max || prev.salary_range_max,
+      currency: data.currency || prev.currency,
+      equity_offered: data.equity_offered !== undefined ? data.equity_offered : prev.equity_offered,
+      job_url: data.job_url || prev.job_url,
+      job_description: data.job_description || prev.job_description,
+      requirements: data.requirements || prev.requirements,
+      preferred_qualifications: data.preferred_qualifications || prev.preferred_qualifications,
+      benefits_mentioned: data.benefits || prev.benefits_mentioned,
+      application_method: data.application_method || prev.application_method,
+      application_source: data.application_source as ApplicationSource || prev.application_source,
+      priority: data.priority || prev.priority,
+      match_score: data.match_score || prev.match_score,
+      notes: data.notes || prev.notes,
+      pros: data.pros || prev.pros,
+      cons: data.cons || prev.cons,
+      research_notes: data.research_notes || prev.research_notes,
+      networking_contacts: data.networking_contacts || prev.networking_contacts,
+      interview_preparation: data.interview_preparation || prev.interview_preparation,
+    }));
+    
+    // Show success message
+    setValidationErrors([]);
+    setShowJobUpload(false);
+  };
 
   const handleJobDataExtracted = async (data: { position?: string; company?: string; location?: string; salary_range_min?: number; salary_range_max?: number; remote_policy?: RemotePolicy; application_source?: ApplicationSource; job_req_id?: string; benefits_mentioned?: string; equity_offered?: boolean; equity_details?: string; notes?: string }) => {
     console.log('handleJobDataExtracted called with data:', data);
@@ -573,6 +669,16 @@ function JobTracker() {
     setTodoFilters(prev => ({ ...prev, ...filters }));
   };
 
+  const handleViewJobDescription = (job: JobApplication) => {
+    setSelectedJobForDescription(job);
+    setShowJobDescriptionModal(true);
+  };
+
+  const handleCloseJobDescriptionModal = () => {
+    setShowJobDescriptionModal(false);
+    setSelectedJobForDescription(null);
+  };
+
   const filteredJobs = jobs.filter(job => {
     const matchesSearch = job.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          job.company?.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -891,6 +997,7 @@ function JobTracker() {
                       openStatusDropdown={openStatusDropdown}
                       onStatusClick={handleStatusClick}
                       onStatusSelect={handleStatusSelect}
+                      onViewJobDescription={handleViewJobDescription}
                       isLoading={isLoading}
                     />
                   ))}
@@ -912,6 +1019,7 @@ function JobTracker() {
                                 openStatusDropdown={openStatusDropdown}
                                 onStatusClick={handleStatusClick}
                                 onStatusSelect={handleStatusSelect}
+                                onViewJobDescription={handleViewJobDescription}
                                 isLoading={isLoading}
                               />
                             ))}
@@ -1067,13 +1175,14 @@ function JobTracker() {
                       onClick={() => setShowJobUpload(!showJobUpload)}
                       className="btn btn-secondary text-sm"
                     >
-                      {showJobUpload ? 'Hide Upload' : 'Upload Job Description'}
+                      {showJobUpload ? 'Hide Upload' : 'Upload Application Info'}
                     </button>
                   </div>
                   
                                               {showJobUpload && (
                               <JobDescriptionUpload
                                 onDataExtracted={handleJobDataExtracted}
+                                onApplicationDataExtracted={handleApplicationDataExtracted}
                               />
                             )}
                 </div>
@@ -1442,6 +1551,15 @@ function JobTracker() {
             <AdminBetaInvites onNavigateBack={() => setShowAdmin(false)} />
           </div>
         </div>
+      )}
+
+      {/* Job Description Modal */}
+      {showJobDescriptionModal && selectedJobForDescription && (
+        <JobDescriptionModal
+          application={selectedJobForDescription}
+          isOpen={showJobDescriptionModal}
+          onClose={handleCloseJobDescriptionModal}
+        />
       )}
     </div>
   );

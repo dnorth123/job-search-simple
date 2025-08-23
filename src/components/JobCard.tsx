@@ -7,6 +7,7 @@ interface JobCardProps {
   openStatusDropdown: string | null;
   onStatusClick: (job: JobApplication) => void;
   onStatusSelect: (job: JobApplication, status: JobStatus) => Promise<void>;
+  onViewJobDescription?: (job: JobApplication) => void;
   isLoading?: boolean;
 }
 
@@ -18,6 +19,7 @@ export const JobCard: React.FC<JobCardProps> = ({
   openStatusDropdown,
   onStatusClick,
   onStatusSelect,
+  onViewJobDescription,
   isLoading = false
 }) => {
   const [pageTitle, setPageTitle] = useState<string | null>(null);
@@ -188,6 +190,27 @@ export const JobCard: React.FC<JobCardProps> = ({
           <div className="metadata-item">
             <span className="label">Req ID:</span>
             <span className="value">{job.job_req_id}</span>
+          </div>
+        )}
+        
+        {job.job_description && onViewJobDescription && (
+          <div className="metadata-item">
+            <span className="label">Job Description:</span>
+            <span className="value">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onViewJobDescription(job);
+                }}
+                className="text-blue-600 hover:text-blue-800 underline flex items-center gap-1"
+                title="View job description"
+              >
+                <span>View Details</span>
+                <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </button>
+            </span>
           </div>
         )}
       </div>

@@ -88,6 +88,7 @@ export interface JobApplication {
   notes?: string;
   date_applied: string; // ISO date string
   job_posting_url?: string;
+  job_description?: string;
   job_req_id?: string;
   recruiter_name?: string;
   recruiter_email?: string;

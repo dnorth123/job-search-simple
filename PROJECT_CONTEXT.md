@@ -36,6 +36,9 @@ Job Search Simple is a modern, comprehensive job application tracking system wit
 - **Categories**: Follow-up, Preparation, Networking, Administrative, Career Development
 
 ### Advanced Features
+- **LinkedIn Company Discovery**: Automated company LinkedIn page discovery with multi-provider fallback
+- **Smart Confidence Scoring**: AI-powered matching and ranking of LinkedIn search results
+- **Rate Limiting & Fallback**: Intelligent provider switching when API limits are reached
 - **Beta Invite System**: Controlled user access with email validation
 - **Email Integration**: Automated email workflows and notifications
 - **File Upload**: Resume and job description processing
@@ -53,7 +56,8 @@ Job Search Simple is a modern, comprehensive job application tracking system wit
 ### Backend & Database
 - **Supabase** (PostgreSQL + Authentication + Real-time)
 - **Row Level Security (RLS)** policies for data protection
-- **Express.js 5.1.0** for email API server
+- **Express.js 5.1.0** for email and LinkedIn API server
+- **Multi-Provider Search APIs**: Brave Search, Serper, Bing Search
 - **CORS** enabled for cross-origin requests
 
 ### Development & Testing
@@ -73,11 +77,13 @@ Job Search Simple is a modern, comprehensive job application tracking system wit
 
 ### Database Schema
 - **users**: Professional profiles with career information
-- **companies**: Shared company database with industry details
+- **companies**: Shared company database with industry details and LinkedIn URLs
 - **applications**: Job applications with comprehensive tracking
 - **application_timeline**: Status change history
 - **todos**: Task management linked to applications
 - **beta_invites**: Controlled access system
+- **linkedin_search_cache**: Cached LinkedIn search results for performance
+- **linkedin_search_metrics**: Analytics and usage tracking for LinkedIn features
 
 ### Security Model
 - Row Level Security ensures users only access their own data
@@ -103,13 +109,19 @@ src/
 - ✅ Job application CRUD operations
 - ✅ User profile management with data import
 - ✅ Todo system with job linking
-- ✅ Company management
+- ✅ Company management with LinkedIn discovery
+- ✅ Multi-provider LinkedIn search (Brave, Serper, Bing)
+- ✅ Smart confidence scoring and company standardization
+- ✅ Rate limiting with graceful fallback handling
 - ✅ Beta invite system
 - ✅ Email integration
 - ✅ Responsive mobile design
 - ✅ Comprehensive testing suite
 
 ### Recent Enhancements
+- **LinkedIn Company Discovery**: Multi-provider search system with Brave, Serper, and Bing fallback
+- **Smart Company Detection**: Automatic LinkedIn URL discovery with confidence scoring
+- **Enhanced Company Selector**: Integrated LinkedIn search within company selection workflow
 - Profile data upload from JSON files
 - Enhanced form validation
 - Performance optimizations

@@ -1,0 +1,21 @@
+{
+  "applications": [
+    {
+      "company_name": "Microsoft",
+      "company_linkedin_url": "https://www.linkedin.com/company/microsoft",
+      "position": "Senior Software Engineer",
+      "department": "Cloud & AI",
+      "team": "Azure Platform",
+      "location": "Seattle, WA",
+      "work_arrangement": "Hybrid",
+      "salary_range_min": 180000,
+      "salary_range_max": 250000,
+      "currency": "USD",
+      "equity_offered": true,
+      "job_url": "https://careers.microsoft.com/senior-swe-azure",
+      "application_source": "Company Website",
+      "priority": "High",
+      "notes": "Strong alignment with my cloud infrastructure experience. Team lead mentioned they need someone with Kubernetes expertise."
+    }
+  ]
+}
