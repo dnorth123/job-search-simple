@@ -26,7 +26,7 @@ import { useAuth } from './hooks/useAuth';
 import { LoginForm, SignupForm, ProfileSetupForm } from './components/AuthForms';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { UserProfile } from './components/UserProfile';
-import { CompanySelector } from './components/CompanySelector';
+import { CompanySelectorWithLinkedIn } from './components/CompanySelectorWithLinkedIn';
 import { DatabaseErrorBoundary } from './components/DatabaseErrorBoundary';
 import { DatabaseStatus } from './components/DatabaseStatus';
 import { AdminBetaInvites } from './components/AdminBetaInvites';
@@ -63,6 +63,11 @@ function JobTracker() {
   const { user, profile, signOut } = useAuth();
   const [jobs, setJobs] = useState<JobApplication[]>([]);
   const [form, setForm] = useState<Omit<JobApplication, 'id' | 'created_at' | 'updated_at'>>(emptyJob());
+  const [companyLinkedInData, setCompanyLinkedInData] = useState<{
+    url: string;
+    confidence: number;
+    method: 'auto' | 'manual';
+  } | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -127,6 +132,7 @@ function JobTracker() {
           setForm(emptyJob());
           setEditingId(null);
           setValidationErrors([]);
+          setCompanyLinkedInData(null);
         }
         if (showTodoForm) {
           setShowTodoForm(false);
@@ -153,6 +159,7 @@ function JobTracker() {
         setEditingId(null);
         setEditingTodo(null);
         setValidationErrors([]);
+        setCompanyLinkedInData(null);
       }
     };
 
@@ -209,11 +216,16 @@ function JobTracker() {
     }));
   };
 
-  const handleCompanySelect = (companyId: string) => {
+  const handleCompanySelect = (companyId: string, linkedInData?: {
+    url: string;
+    confidence: number;
+    method: 'auto' | 'manual';
+  }) => {
     setForm(prev => ({
       ...prev,
       company_id: companyId
     }));
+    setCompanyLinkedInData(linkedInData || null);
   };
 
   // Debug form state changes
@@ -282,6 +294,9 @@ function JobTracker() {
           headquarters_location: '',
           website_url: '',
           linkedin_url: '',
+          linkedin_discovery_method: 'none',
+          linkedin_confidence: undefined,
+          linkedin_last_verified: undefined,
           description: '',
           founded_year: undefined,
           funding_stage: '',
@@ -331,6 +346,7 @@ function JobTracker() {
       setForm(emptyJob());
       setEditingId(null);
       setShowForm(false);
+      setCompanyLinkedInData(null);
     } catch (err) {
       console.error('Submit error:', err);
       setError(err instanceof Error ? err.message : 'Failed to save application');
@@ -361,6 +377,18 @@ function JobTracker() {
       notes: job.notes,
       archived: job.archived || false,
     });
+    
+    // Set LinkedIn data if company has it
+    if (job.company?.linkedin_url) {
+      setCompanyLinkedInData({
+        url: job.company.linkedin_url,
+        confidence: job.company.linkedin_confidence || 0,
+        method: (job.company.linkedin_discovery_method as 'auto' | 'manual') || 'manual'
+      });
+    } else {
+      setCompanyLinkedInData(null);
+    }
+    
     console.log('Form set with company_id:', job.company_id);
     setEditingId(job.id);
     setShowForm(true);
@@ -420,6 +448,7 @@ function JobTracker() {
       setSearchTerm('');
       setStatusFilter('All');
       setDataLoaded(false);
+      setCompanyLinkedInData(null);
       
     } catch (err) {
       console.error('Logout error:', err);
@@ -449,6 +478,7 @@ function JobTracker() {
       setForm(emptyJob());
       setEditingId(null);
       setShowForm(false);
+      setCompanyLinkedInData(null);
     } catch (err) {
       console.error('Delete error:', err);
       setError(err instanceof Error ? err.message : 'Failed to delete application');
@@ -980,6 +1010,7 @@ function JobTracker() {
                       setForm(emptyJob());
                       setEditingId(null);
                       setValidationErrors([]);
+                      setCompanyLinkedInData(null);
                     }}
                     className="btn btn-secondary"
                     disabled={isLoading}
@@ -1003,6 +1034,7 @@ function JobTracker() {
                       setForm(emptyJob());
                       setEditingId(null);
                       setValidationErrors([]);
+                      setCompanyLinkedInData(null);
                     }}
                     className="btn btn-ghost"
                   >
@@ -1086,7 +1118,7 @@ function JobTracker() {
                   <label className="block text-sm font-medium text-neutral-700 mb-2">
                     Company *
                   </label>
-                  <CompanySelector
+                  <CompanySelectorWithLinkedIn
                     selectedCompanyId={form.company_id}
                     onCompanySelect={handleCompanySelect}
                     placeholder="Search or create company..."

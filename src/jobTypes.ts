@@ -14,6 +14,14 @@ export type ApplicationSource =
 export type TodoPriority = 'High' | 'Medium' | 'Low';
 export type TodoCategory = 'Follow-up' | 'Preparation' | 'Networking' | 'Administrative' | 'Career Development' | 'Other';
 
+export interface LinkedInSearchResult {
+  url: string;
+  companyName: string;
+  vanityName: string;
+  description: string;
+  confidence: number;
+}
+
 export interface Todo {
   id: string;
   user_id: string;
@@ -56,6 +64,9 @@ export interface Company {
   headquarters_location?: string;
   website_url?: string;
   linkedin_url?: string;
+  linkedin_discovery_method?: 'auto' | 'manual' | 'none';
+  linkedin_confidence?: number;
+  linkedin_last_verified?: string;
   description?: string;
   founded_year?: number;
   funding_stage?: string;
@@ -137,6 +148,9 @@ export interface CompanyFormData {
   headquarters_location?: string;
   website_url?: string;
   linkedin_url?: string;
+  linkedin_discovery_method?: 'auto' | 'manual' | 'none';
+  linkedin_confidence?: number;
+  linkedin_last_verified?: string;
   description?: string;
   founded_year?: number;
   funding_stage?: string;

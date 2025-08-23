@@ -72,4 +72,6 @@ export const TABLES = {
   COMPANIES: 'companies',
   APPLICATIONS: 'applications',
   APPLICATION_TIMELINE: 'application_timeline',
+  LINKEDIN_SEARCH_CACHE: 'linkedin_search_cache',
+  LINKEDIN_SEARCH_METRICS: 'linkedin_search_metrics',
 } as const; 
