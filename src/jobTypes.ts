@@ -74,6 +74,13 @@ export interface Company {
   updated_at: string;
 }
 
+// Working conditions structure for structured job descriptions
+export interface WorkingConditions {
+  travel_required?: string;
+  work_environment?: string;
+  physical_requirements?: string;
+}
+
 export interface JobApplication {
   id: string;
   user_id: string;
@@ -100,6 +107,22 @@ export interface JobApplication {
   archived?: boolean;
   created_at: string;
   updated_at: string;
+  
+  // v2.3.0 Structured job description fields
+  job_description_purpose?: string;
+  job_description_responsibilities?: string[];
+  job_description_requirements?: string[];
+  job_description_benefits?: string[];
+  job_description_working_conditions?: WorkingConditions;
+  job_description_type?: string;
+  
+  // Additional v2.3.0 fields
+  department?: string;
+  team?: string;
+  work_arrangement?: string;
+  currency?: string;
+  company_linkedin_url?: string;
+  
   // Joined data
   company?: Company;
   current_status?: JobStatus;
@@ -140,6 +163,21 @@ export interface JobApplicationFormData {
   equity_offered?: boolean;
   equity_details?: string;
   archived?: boolean;
+  
+  // v2.3.0 Structured job description fields
+  job_description_purpose?: string;
+  job_description_responsibilities?: string[];
+  job_description_requirements?: string[];
+  job_description_benefits?: string[];
+  job_description_working_conditions?: WorkingConditions;
+  job_description_type?: string;
+  
+  // Additional v2.3.0 fields
+  department?: string;
+  team?: string;
+  work_arrangement?: string;
+  currency?: string;
+  company_linkedin_url?: string;
 }
 
 export interface CompanyFormData {

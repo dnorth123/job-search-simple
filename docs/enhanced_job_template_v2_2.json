@@ -1,0 +1,134 @@
+{
+  "applications": [
+    {
+      "company_name": "Microsoft",
+      "company_name_inferred": false,
+      "company_linkedin_url": "https://www.linkedin.com/company/microsoft",
+      "company_linkedin_url_inferred": true,
+      "position": "Senior Software Engineer",
+      "position_inferred": false,
+      "department": "Cloud & AI",
+      "department_inferred": true,
+      "team": "Azure Platform",
+      "team_inferred": true,
+      "location": "Seattle, WA",
+      "location_inferred": false,
+      "work_arrangement": "Hybrid",
+      "work_arrangement_inferred": true,
+      "salary_range_min": 180000,
+      "salary_range_min_inferred": true,
+      "salary_range_max": 250000,
+      "salary_range_max_inferred": true,
+      "currency": "USD",
+      "currency_inferred": false,
+      "equity_offered": true,
+      "equity_offered_inferred": true,
+      "job_req_id": "12345",
+      "job_req_id_inferred": false,
+      "job_url": "https://careers.microsoft.com/senior-swe-azure",
+      "job_url_inferred": false,
+      "application_source": "Company Website",
+      "application_source_inferred": false,
+      "priority": "High",
+      "priority_inferred": true,
+      "notes": "",
+      "notes_inferred": false,
+      "job_description": {
+        "purpose": "At Floor and Decor we believe purchasing flooring or your materials for your next big project should be a fun and frictionless experience. The Ecommerce Content Director is responsible for driving the content strategies that empower our multiple customer types with the confidence to purchase by building content rich strategies that lead to informative, inspirational, SEO optimized and conversion driving assets.",
+        "key_responsibilities": [
+          "Conceptualizes, develops, and oversees the implementation of content to increase organic awareness, earn the trust of our customer and boost online sales and/or support store sales",
+          "Develops and execute social proofing strategies while managing direct reports in day-to-day responsibilities",
+          "Works closely with Merchant teams to ensure trends and product strategies align with in store and product execution",
+          "Manages multiple vendor partners",
+          "Leads a team of product Q&A specialists to deliver exceptional customer experiences"
+        ],
+        "minimum_requirements": [
+          "7-10+ years or more of digital content creation required",
+          "Experience with Ecommerce platforms and related supporting systems – Salesforce Commerce Cloud experience a plus",
+          "Working knowledge of content management systems (CMS), UGC platforms, and product Q&A platforms",
+          "Experience developing digital content with a SEO focused lens",
+          "Advanced excel knowledge a must, Power BI and Google Analytics experience preferred",
+          "Proven track record of building and managing cross functional processes",
+          "Managing direct reports and building best in class teams"
+        ],
+        "benefits_offered": [
+          "Bonus opportunities at every level",
+          "Career advancement opportunities",
+          "Relocation opportunities across the country",
+          "401k with discretionary company match",
+          "Employee Stock Purchase Plan",
+          "Referral Bonus Program",
+          "Medical, Dental, Vision, Life and other Insurance Plans"
+        ],
+        "working_conditions": {
+          "travel_required": "Limited travel required including air and car travel",
+          "work_environment": "Occasionally exposed to warehouse environment and moving vehicles",
+          "physical_requirements": "Sedentary work – sitting most of the time with brief periods of walking/standing"
+        },
+        "job_type": "Full time"
+      },
+      "job_description_inferred": false,
+      "inference_metadata": {
+        "total_fields": 17,
+        "directly_extracted": 8,
+        "inferred_fields": 9,
+        "confidence_scores": {
+          "company_linkedin_url": 4,
+          "department": 3,
+          "team": 2,
+          "work_arrangement": 4,
+          "salary_range_min": 3,
+          "salary_range_max": 3,
+          "equity_offered": 4,
+          "priority": 3
+        },
+        "research_sources": [
+          "LinkedIn company search",
+          "Glassdoor salary data",
+          "Company career page analysis",
+          "Industry benchmarking"
+        ],
+        "extraction_timestamp": "2025-08-25T10:30:00Z",
+        "parser_version": "2.3.0"
+      }
+    }
+  ],
+  "template_metadata": {
+    "version": "2.3.0",
+    "last_updated": "2025-08-25",
+    "inference_tracking": true,
+    "field_definitions": {
+      "company_name": "Official company name as it appears on LinkedIn company page",
+      "company_linkedin_url": "Direct LinkedIn company page URL",
+      "position": "Exact job title from posting",
+      "department": "Organizational department or division",
+      "team": "Specific team within department",
+      "location": "Primary work location (City, State format)",
+      "work_arrangement": "Remote/Hybrid/On-site classification",
+      "salary_range_min": "Minimum salary in specified currency (no commas)",
+      "salary_range_max": "Maximum salary in specified currency (no commas)",
+      "currency": "Currency code (typically USD)",
+      "equity_offered": "Boolean indicating stock/equity compensation",
+      "job_req_id": "Job requisition/reference ID from posting",
+      "job_url": "Direct application URL",
+      "application_source": "Platform/method where job was discovered",
+      "priority": "Application priority with reasoning",
+      "notes": "Personal observations and strategic insights (always blank initially)",
+      "job_description": "Structured job description with purpose, responsibilities, requirements, benefits, and working conditions"
+    },
+    "inference_flags": {
+      "purpose": "Track which fields were directly extracted vs intelligently inferred",
+      "values": {
+        "false": "Data directly extracted from job posting",
+        "true": "Data inferred through web research or intelligent analysis"
+      }
+    },
+    "confidence_scale": {
+      "5": "Explicitly stated or definitively confirmed",
+      "4": "Strong evidence from reliable sources",
+      "3": "Reasonable inference based on standards",
+      "2": "Educated guess with limited information",
+      "1": "Best estimate with minimal evidence"
+    }
+  }
+}

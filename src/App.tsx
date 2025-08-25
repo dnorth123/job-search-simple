@@ -29,11 +29,14 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { UserProfile } from './components/UserProfile';
 import { CompanySelectorWithLinkedIn } from './components/CompanySelectorWithLinkedIn';
 import { JobDescriptionModal } from './components/JobDescriptionModal';
+import type { KWJTProcessingResult } from './utils/kwjtTemplateProcessor';
 import { DatabaseErrorBoundary } from './components/DatabaseErrorBoundary';
 import { DatabaseStatus } from './components/DatabaseStatus';
 import { AdminBetaInvites } from './components/AdminBetaInvites';
 import { JobCard } from './components/JobCard';
 import { JobDescriptionUpload } from './components/JobDescriptionUpload';
+import { JobBoardMatrix } from './components/JobBoardMatrix';
+import { Grid3x3 } from 'lucide-react';
 
 import { TodoForm } from './components/TodoForm';
 import { TodoList } from './components/TodoList';
@@ -75,6 +78,7 @@ function JobTracker() {
   const [error, setError] = useState<string | null>(null);
   const [showProfile, setShowProfile] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<JobStatus | 'All'>('All');
@@ -83,6 +87,7 @@ function JobTracker() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
+  const [showJobBoards, setShowJobBoards] = useState(false);
   const [showJobUpload, setShowJobUpload] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
   const [showJobDescriptionModal, setShowJobDescriptionModal] = useState(false);
@@ -148,17 +153,21 @@ function JobTracker() {
         if (showAdmin) {
           setShowAdmin(false);
         }
+        if (showJobBoards) {
+          setShowJobBoards(false);
+        }
       }
     };
 
     const handlePopState = () => {
       // Close modals when browser back button is pressed
-      if (showProfile || showForm || showTodoForm || showLogoutConfirm || showAdmin) {
+      if (showProfile || showForm || showTodoForm || showLogoutConfirm || showAdmin || showJobBoards) {
         setShowProfile(false);
         setShowForm(false);
         setShowTodoForm(false);
         setShowLogoutConfirm(false);
         setShowAdmin(false);
+        setShowJobBoards(false);
         setForm(emptyJob());
         setEditingId(null);
         setEditingTodo(null);
@@ -174,7 +183,7 @@ function JobTracker() {
       document.removeEventListener('keydown', handleEscape);
       window.removeEventListener('popstate', handlePopState);
     };
-  }, [showProfile, showForm, showTodoForm, showLogoutConfirm, showAdmin]);
+  }, [showProfile, showForm, showTodoForm, showLogoutConfirm, showAdmin, showJobBoards]);
 
   const loadData = async () => {
     if (!user) return;
@@ -295,6 +304,27 @@ function JobTracker() {
       remotePolicy = arrangementMap[data.work_arrangement];
     }
     
+    // Handle structured job description from v2.3.0 templates
+    let processedJobDescription = data.job_description;
+    let structuredJobData: any = {};
+    
+    if (data._isV23Template && data.job_description && typeof data.job_description === 'object') {
+      const jobDesc = data.job_description;
+      
+      // Process structured job description for form fields
+      structuredJobData = {
+        job_description_purpose: jobDesc.purpose || '',
+        job_description_responsibilities: jobDesc.key_responsibilities || [],
+        job_description_requirements: jobDesc.minimum_requirements || [],
+        job_description_benefits: jobDesc.benefits_offered || [],
+        job_description_working_conditions: jobDesc.working_conditions || {},
+        job_description_type: jobDesc.job_type || '',
+      };
+      
+      // Store original structured format as JSON for backward compatibility
+      processedJobDescription = JSON.stringify(jobDesc);
+    }
+    
     // Update form with all provided data
     setForm(prev => ({
       ...prev,
@@ -302,13 +332,21 @@ function JobTracker() {
       department: data.department || prev.department,
       team: data.team || prev.team,
       location: data.location || prev.location,
+      work_arrangement: data.work_arrangement || prev.work_arrangement,
       remote_policy: remotePolicy || prev.remote_policy,
       salary_range_min: data.salary_range_min || prev.salary_range_min,
       salary_range_max: data.salary_range_max || prev.salary_range_max,
       currency: data.currency || prev.currency,
       equity_offered: data.equity_offered !== undefined ? data.equity_offered : prev.equity_offered,
       job_url: data.job_url || prev.job_url,
-      job_description: data.job_description || prev.job_description,
+      job_req_id: data.job_req_id || prev.job_req_id,
+      job_description: processedJobDescription || prev.job_description,
+      company_linkedin_url: data.company_linkedin_url || prev.company_linkedin_url,
+      
+      // v2.3.0 structured job description fields
+      ...structuredJobData,
+      
+      // Legacy fields
       requirements: data.requirements || prev.requirements,
       preferred_qualifications: data.preferred_qualifications || prev.preferred_qualifications,
       benefits_mentioned: data.benefits || prev.benefits_mentioned,
@@ -326,6 +364,76 @@ function JobTracker() {
     
     // Show success message
     setValidationErrors([]);
+    setShowJobUpload(false);
+  };
+
+  const handleKWJTDataExtracted = async (result: KWJTProcessingResult) => {
+    console.log('handleKWJTDataExtracted called with result:', result);
+    
+    if (!result.success) {
+      setValidationErrors(result.errors);
+      return;
+    }
+    
+    // Process multiple applications from KWJT template
+    if (result.applications.length > 0) {
+      const firstApp = result.applications[0];
+      
+      // Handle company creation/selection for the first application
+      let companyId = null;
+      const companyName = firstApp._company_name;
+      const companyLinkedInUrl = firstApp._company_linkedin_url;
+      
+      if (companyName) {
+        try {
+          const companies = await searchCompanies(companyName);
+          if (companies.length > 0) {
+            companyId = companies[0].id;
+            // Update company with LinkedIn URL if provided and not already set
+            if (companyLinkedInUrl && !companies[0].linkedin_url) {
+              await supabase
+                .from('companies')
+                .update({ linkedin_url: companyLinkedInUrl })
+                .eq('id', companies[0].id);
+            }
+          } else {
+            const newCompanyData: any = { name: companyName };
+            if (companyLinkedInUrl) {
+              newCompanyData.linkedin_url = companyLinkedInUrl;
+            }
+            const { data: newCompany, error } = await supabase
+              .from('companies')
+              .insert([newCompanyData])
+              .select()
+              .single();
+              
+            if (!error && newCompany) {
+              companyId = newCompany.id;
+            }
+          }
+        } catch (error) {
+          console.error('Error handling company from KWJT data:', error);
+        }
+      }
+      
+      // Update form with the first application data
+      setForm(prev => ({
+        ...prev,
+        ...firstApp,
+        company_id: companyId || prev.company_id,
+        user_id: user?.id || ''
+      }));
+      
+      // Show success message with inference statistics
+      setSuccessMessage(`KWJT template processed successfully! ${result.metadata.inferred_fields_count} fields were AI-inferred with confidence tracking.`);
+      setValidationErrors([]);
+      
+      // TODO: For multiple applications, implement batch creation or selection modal
+      if (result.applications.length > 1) {
+        console.log(`Note: ${result.applications.length - 1} additional applications were processed but not loaded. Batch processing will be implemented in future update.`);
+      }
+    }
+    
     setShowJobUpload(false);
   };
 
@@ -420,14 +528,36 @@ function JobTracker() {
     }
     
     setValidationErrors([]);
+    setSuccessMessage(null);
     setIsLoading(true);
     setError(null);
     
     try {
-      const jobData = {
-        ...form,
-        user_id: user.id
-      };
+      // Prepare job data with proper serialization for structured fields
+      const formData = { ...form, user_id: user.id };
+      
+      // Filter out fields that don't exist in the current database schema
+      const allowedFields = [
+        'user_id', 'company_id', 'position', 'salary_range_min', 'salary_range_max', 
+        'location', 'remote_policy', 'application_source', 'priority_level', 'notes', 
+        'date_applied', 'job_posting_url', 'job_description', 'job_req_id', 
+        'recruiter_name', 'recruiter_email', 'recruiter_phone', 'interview_rounds',
+        'benefits_mentioned', 'equity_offered', 'equity_details', 'archived'
+      ];
+      
+      const jobData = Object.keys(formData).reduce((acc, key) => {
+        // Only include fields that exist in database schema and don't start with underscore
+        if (allowedFields.includes(key) && !key.startsWith('_')) {
+          acc[key] = formData[key];
+        }
+        return acc;
+      }, {} as any);
+      
+      // The v2.3.0 structured job description fields are not yet in the database schema
+      // They will be added in a future database migration
+      
+      // Debug logging
+      console.log('Submitting job data (after filtering internal fields):', jobData);
       
       if (editingId) {
         await updateJobApplication(editingId, jobData);
@@ -443,6 +573,7 @@ function JobTracker() {
       setEditingId(null);
       setShowForm(false);
       setCompanyLinkedInData(null);
+      setSuccessMessage(null);
     } catch (err) {
       console.error('Submit error:', err);
       setError(err instanceof Error ? err.message : 'Failed to save application');
@@ -529,6 +660,7 @@ function JobTracker() {
       // Close any open modals first
       setShowProfile(false);
       setShowForm(false);
+      setShowJobBoards(false);
       setShowLogoutConfirm(false);
       
       // Clear any open dropdowns
@@ -575,6 +707,7 @@ function JobTracker() {
       setEditingId(null);
       setShowForm(false);
       setCompanyLinkedInData(null);
+      setSuccessMessage(null);
     } catch (err) {
       console.error('Delete error:', err);
       setError(err instanceof Error ? err.message : 'Failed to delete application');
@@ -679,6 +812,7 @@ function JobTracker() {
     setSelectedJobForDescription(null);
   };
 
+
   const filteredJobs = jobs.filter(job => {
     const matchesSearch = job.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          job.company?.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -713,6 +847,20 @@ function JobTracker() {
             
             {/* Action Buttons and User Info */}
             <div className="flex items-center justify-end space-x-2 sm:space-x-3">
+              {/* Job Boards Button */}
+              <button
+                onClick={() => {
+                  setShowJobBoards(true);
+                }}
+                className="btn btn-secondary text-sm px-3 py-2 flex items-center space-x-1"
+                disabled={showProfile || showLogoutConfirm || showForm}
+                title="Browse Job Board Directory"
+              >
+                <Grid3x3 size={16} />
+                <span className="hidden sm:inline">Job Boards</span>
+                <span className="sm:hidden">Boards</span>
+              </button>
+              
               {isAdmin && (
                 <button
                   onClick={() => {
@@ -1163,6 +1311,12 @@ function JobTracker() {
                   </div>
                 )}
 
+                {successMessage && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div className="text-green-700 text-sm">{successMessage}</div>
+                  </div>
+                )}
+
               {/* Job Description Upload */}
               {!editingId && (
                 <div className="space-y-4">
@@ -1183,6 +1337,7 @@ function JobTracker() {
                               <JobDescriptionUpload
                                 onDataExtracted={handleJobDataExtracted}
                                 onApplicationDataExtracted={handleApplicationDataExtracted}
+                                onKWJTDataExtracted={handleKWJTDataExtracted}
                               />
                             )}
                 </div>
@@ -1411,6 +1566,152 @@ function JobTracker() {
                 </div>
               </div>
 
+              {/* Structured Job Description (v2.3.0) */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium text-neutral-900 border-b border-neutral-200 pb-2">
+                  Structured Job Description
+                </h3>
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      Role Purpose/Overview
+                    </label>
+                    <textarea
+                      name="job_description_purpose"
+                      value={form.job_description_purpose || ''}
+                      onChange={handleChange}
+                      className="form-textarea"
+                      rows={3}
+                      placeholder="Brief overview of the role and company mission..."
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      Key Responsibilities (one per line)
+                    </label>
+                    <textarea
+                      name="job_description_responsibilities"
+                      value={Array.isArray(form.job_description_responsibilities) 
+                        ? form.job_description_responsibilities.join('\n') 
+                        : form.job_description_responsibilities || ''}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setForm(prev => ({
+                          ...prev,
+                          job_description_responsibilities: value.split('\n').filter(line => line.trim())
+                        }));
+                      }}
+                      className="form-textarea"
+                      rows={5}
+                      placeholder="Lead team of engineers&#10;Develop product strategy&#10;Collaborate with stakeholders..."
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      Minimum Requirements (one per line)
+                    </label>
+                    <textarea
+                      name="job_description_requirements"
+                      value={Array.isArray(form.job_description_requirements) 
+                        ? form.job_description_requirements.join('\n') 
+                        : form.job_description_requirements || ''}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setForm(prev => ({
+                          ...prev,
+                          job_description_requirements: value.split('\n').filter(line => line.trim())
+                        }));
+                      }}
+                      className="form-textarea"
+                      rows={4}
+                      placeholder="5+ years experience in product management&#10;Bachelor's degree in relevant field&#10;Strong analytical skills..."
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      Benefits Offered (one per line)
+                    </label>
+                    <textarea
+                      name="job_description_benefits"
+                      value={Array.isArray(form.job_description_benefits) 
+                        ? form.job_description_benefits.join('\n') 
+                        : form.job_description_benefits || ''}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setForm(prev => ({
+                          ...prev,
+                          job_description_benefits: value.split('\n').filter(line => line.trim())
+                        }));
+                      }}
+                      className="form-textarea"
+                      rows={4}
+                      placeholder="Health, dental, vision insurance&#10;401k matching&#10;Flexible PTO..."
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      Working Conditions
+                    </label>
+                    <textarea
+                      name="job_description_working_conditions"
+                      value={typeof form.job_description_working_conditions === 'object' && form.job_description_working_conditions
+                        ? Object.entries(form.job_description_working_conditions)
+                            .map(([key, value]) => `${key}: ${value}`)
+                            .join('\n')
+                        : form.job_description_working_conditions || ''}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        // Parse back to object format if needed, otherwise store as string
+                        try {
+                          const conditions = {};
+                          value.split('\n').forEach(line => {
+                            const [key, ...valueParts] = line.split(':');
+                            if (key && valueParts.length > 0) {
+                              conditions[key.trim()] = valueParts.join(':').trim();
+                            }
+                          });
+                          setForm(prev => ({
+                            ...prev,
+                            job_description_working_conditions: Object.keys(conditions).length > 0 ? conditions : value
+                          }));
+                        } catch {
+                          setForm(prev => ({
+                            ...prev,
+                            job_description_working_conditions: value
+                          }));
+                        }
+                      }}
+                      className="form-textarea"
+                      rows={3}
+                      placeholder="travel_required: Limited travel required&#10;work_environment: Office environment&#10;physical_requirements: Sedentary work"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      Job Type
+                    </label>
+                    <select
+                      name="job_description_type"
+                      value={form.job_description_type || ''}
+                      onChange={handleChange}
+                      className="form-select"
+                    >
+                      <option value="">Select job type...</option>
+                      <option value="Full time">Full time</option>
+                      <option value="Part time">Part time</option>
+                      <option value="Contract">Contract</option>
+                      <option value="Temporary">Temporary</option>
+                      <option value="Internship">Internship</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
               </form>
             </div>
           </div>
@@ -1537,6 +1838,11 @@ function JobTracker() {
         />
       )}
 
+      {/* Job Board Matrix Modal */}
+      {showJobBoards && (
+        <JobBoardMatrix onClose={() => setShowJobBoards(false)} />
+      )}
+
       {/* Admin Interface Modal */}
       {showAdmin && (
         <div 
@@ -1561,6 +1867,7 @@ function JobTracker() {
           onClose={handleCloseJobDescriptionModal}
         />
       )}
+
     </div>
   );
 }

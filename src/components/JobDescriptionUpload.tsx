@@ -2,6 +2,8 @@ import React, { useState, useRef } from 'react';
 import { parseJobDescription, extractTextFromFile, validateFile, extractTextFromUrl, validateUrl } from '../utils/jobDescriptionParser';
 import { getExtractionTips } from '../utils/corsProxyService';
 import type { ParsedJobData } from '../utils/jobDescriptionParser';
+import { kwjtProcessor, type KWJTProcessingResult } from '../utils/kwjtTemplateProcessor';
+import type { JobApplicationWithInference } from '../types/inference';
 
 interface ApplicationData {
   company_name?: string;
@@ -16,7 +18,19 @@ interface ApplicationData {
   currency?: string;
   equity_offered?: boolean;
   job_url?: string;
-  job_description?: string;
+  job_req_id?: string; // v2.3.0 field
+  job_description?: string | {
+    purpose?: string;
+    key_responsibilities?: string[];
+    minimum_requirements?: string[];
+    benefits_offered?: string[];
+    working_conditions?: {
+      travel_required?: string;
+      work_environment?: string;
+      physical_requirements?: string;
+    };
+    job_type?: string;
+  };
   requirements?: string;
   preferred_qualifications?: string;
   benefits?: string;
@@ -30,16 +44,32 @@ interface ApplicationData {
   research_notes?: string;
   networking_contacts?: string;
   interview_preparation?: string;
+  
+  // v2.3.0 inference tracking fields
+  inference_metadata?: {
+    total_fields: number;
+    directly_extracted: number;
+    inferred_fields: number;
+    confidence_scores: Record<string, number>;
+    research_sources: string[];
+    extraction_timestamp: string;
+    parser_version: string;
+  };
+  
+  // Internal processing flag
+  _isV23Template?: boolean;
 }
 
 interface JobDescriptionUploadProps {
   onDataExtracted: (data: ParsedJobData) => void;
   onApplicationDataExtracted?: (data: ApplicationData) => void;
+  onKWJTDataExtracted?: (result: KWJTProcessingResult) => void;
 }
 
 export const JobDescriptionUpload: React.FC<JobDescriptionUploadProps> = ({
   onDataExtracted,
-  onApplicationDataExtracted
+  onApplicationDataExtracted,
+  onKWJTDataExtracted
 }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
@@ -49,6 +79,18 @@ export const JobDescriptionUpload: React.FC<JobDescriptionUploadProps> = ({
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showManualOverride, setShowManualOverride] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // v2.3.0 Template detection
+  const isV23Template = (jsonData: any): boolean => {
+    return (
+      jsonData.template_metadata?.version === "2.3.0" ||
+      jsonData.applications?.some((app: any) => 
+        app.job_description && 
+        typeof app.job_description === 'object' && 
+        (app.job_description.purpose || app.job_description.key_responsibilities)
+      )
+    );
+  };
 
   const handleFileUpload = async (file: File) => {
     // Check if it's a JSON file
@@ -65,12 +107,49 @@ export const JobDescriptionUpload: React.FC<JobDescriptionUploadProps> = ({
         // Check if it's an application data JSON
         if (jsonData.applications && Array.isArray(jsonData.applications)) {
           if (jsonData.applications.length > 0) {
-            const appData = jsonData.applications[0]; // Take the first application
             
-            // Call the new callback if available
-            if (onApplicationDataExtracted) {
-              onApplicationDataExtracted(appData);
-              setSuccessMessage(`Successfully loaded application data for ${appData.position || 'position'} at ${appData.company_name || 'company'}`);
+            // Check for v2.3.0 template
+            const isV23 = isV23Template(jsonData);
+            
+            // Check if this is an enhanced KWJT template with inference data (legacy check)
+            const hasInferenceData = jsonData.template_metadata || 
+                                   jsonData.applications.some((app: any) => 
+                                     app.inference_metadata || 
+                                     (app.position && typeof app.position === 'object' && 'is_inferred' in app.position)
+                                   );
+            
+            if ((hasInferenceData || isV23) && onKWJTDataExtracted) {
+              // Process as enhanced KWJT template (includes v2.3.0)
+              try {
+                const result = await kwjtProcessor.processTemplate(jsonData, 'temp-user-id'); // User ID will be set in App.tsx
+                if (result.success) {
+                  onKWJTDataExtracted(result);
+                  const templateVersion = jsonData.template_metadata?.version || 'enhanced';
+                  setSuccessMessage(`Successfully processed ${templateVersion} template with ${result.applications.length} application(s) and ${result.metadata.inferred_fields_count} inferred fields`);
+                } else {
+                  setLocalError(`Template processing failed: ${result.errors.join(', ')}`);
+                }
+              } catch (error) {
+                setLocalError(`Failed to process template: ${error instanceof Error ? error.message : 'Unknown error'}`);
+              }
+            } else {
+              // Process as regular application data or v2.3.0 template via alternative path
+              const appData = jsonData.applications[0]; // Take the first application
+              
+              if (onApplicationDataExtracted) {
+                // Process v2.3.0 structured job description if present
+                if (isV23 && appData.job_description && typeof appData.job_description === 'object') {
+                  // Keep structured format for the handler to process
+                  onApplicationDataExtracted({
+                    ...appData,
+                    _isV23Template: true // Flag to indicate v2.3.0 processing
+                  });
+                  setSuccessMessage(`Successfully loaded v2.3.0 template data for ${appData.position || 'position'} at ${appData.company_name || 'company'} with structured job description`);
+                } else {
+                  onApplicationDataExtracted(appData);
+                  setSuccessMessage(`Successfully loaded application data for ${appData.position || 'position'} at ${appData.company_name || 'company'}`);
+                }
+              }
             }
           } else {
             setLocalError('No applications found in the JSON file');
@@ -207,7 +286,7 @@ export const JobDescriptionUpload: React.FC<JobDescriptionUploadProps> = ({
           Upload application data (JSON), job description file, paste text, or provide a URL to automatically extract information
         </p>
         <p className="text-xs text-neutral-500 mb-4">
-          💡 Tip: Use the JSON template from /docs/application-upload-template.json to pre-fill application data including company LinkedIn URLs.
+          💡 Tip: Use the JSON template from /docs/enhanced_job_template_v2_2.json to pre-fill application data including company LinkedIn URLs and structured job descriptions.
           For job descriptions, URL parsing works best with public job sites.
         </p>
       </div>

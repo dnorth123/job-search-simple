@@ -1,0 +1,84 @@
+{
+  "applications": [
+    {
+      "company_name": "Test Company",
+      "company_name_inferred": false,
+      "position": "Senior Product Manager",
+      "position_inferred": false,
+      "location": "San Francisco, CA",
+      "location_inferred": false,
+      "work_arrangement": "Hybrid",
+      "work_arrangement_inferred": false,
+      "salary_range_min": 150000,
+      "salary_range_min_inferred": true,
+      "salary_range_max": 200000,
+      "salary_range_max_inferred": true,
+      "currency": "USD",
+      "currency_inferred": false,
+      "equity_offered": true,
+      "equity_offered_inferred": true,
+      "job_req_id": "TEST-001",
+      "job_req_id_inferred": false,
+      "job_url": "https://test.com/jobs/senior-pm",
+      "job_url_inferred": false,
+      "application_source": "Company Website",
+      "application_source_inferred": false,
+      "priority": "High",
+      "priority_inferred": false,
+      "notes": "",
+      "notes_inferred": false,
+      "job_description": {
+        "purpose": "Lead product strategy and development for our core platform, working closely with engineering and design teams to deliver exceptional user experiences.",
+        "key_responsibilities": [
+          "Define and execute product roadmap and strategy",
+          "Collaborate with cross-functional teams including engineering, design, and marketing",
+          "Conduct market research and competitive analysis",
+          "Manage product lifecycle from concept to launch",
+          "Analyze product metrics and user feedback to drive improvements"
+        ],
+        "minimum_requirements": [
+          "5+ years of product management experience",
+          "Experience with B2B SaaS products",
+          "Strong analytical and problem-solving skills",
+          "Excellent communication and leadership abilities",
+          "Bachelor's degree in relevant field"
+        ],
+        "benefits_offered": [
+          "Competitive salary and equity package",
+          "Comprehensive health insurance",
+          "401k with company matching",
+          "Flexible PTO policy",
+          "Remote work options"
+        ],
+        "working_conditions": {
+          "travel_required": "Occasional travel for conferences and customer meetings",
+          "work_environment": "Modern office with hybrid work options",
+          "physical_requirements": "Standard office work environment"
+        },
+        "job_type": "Full time"
+      },
+      "job_description_inferred": false,
+      "inference_metadata": {
+        "total_fields": 15,
+        "directly_extracted": 12,
+        "inferred_fields": 3,
+        "confidence_scores": {
+          "salary_range_min": 3,
+          "salary_range_max": 3,
+          "equity_offered": 4
+        },
+        "research_sources": [
+          "Company website",
+          "Glassdoor salary data"
+        ],
+        "extraction_timestamp": "2025-08-25T15:45:00Z",
+        "parser_version": "2.3.0"
+      }
+    }
+  ],
+  "template_metadata": {
+    "version": "2.3.0",
+    "last_updated": "2025-08-25",
+    "inference_tracking": true
+  }
+}
